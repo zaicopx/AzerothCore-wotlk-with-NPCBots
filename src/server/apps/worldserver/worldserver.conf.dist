@@ -69,7 +69,7 @@ RealmID = 1
 #        Example:     "@prefix@\home\youruser\azerothcore\data"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "data"
 
 #
 #    LogsDir
@@ -79,7 +79,7 @@ DataDir = "."
 #        Example:     "/home/youruser/azerothcore/logs"
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "logs"
 
 #
 #    TempDir
@@ -197,7 +197,7 @@ BuildDirectory = ""
 #        Example:     "../AzerothCore"
 #        Default:     ""
 
-SourceDirectory = ""
+SourceDirectory = "updater"
 
 #
 #    MySQLExecutable
@@ -208,7 +208,7 @@ SourceDirectory = ""
 #                     "/usr/bin/mysql"
 #        Default:     ""
 
-MySQLExecutable = ""
+MySQLExecutable = "mysql/bin/mysql.exe"
 
 #
 #    ThreadPool
@@ -580,7 +580,7 @@ PacketLogFile = ""
 #                     16 - (FFA_PVP, Free for all PvP mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
-GameType = 0
+GameType = 8
 
 #
 #    RealmZone
@@ -876,7 +876,7 @@ StartHeroicPlayerLevel = 55
 #        Default:     0
 #                     100 - (1 Silver)
 
-StartPlayerMoney = 0
+StartPlayerMoney = 1000
 
 #
 #    StartHeroicPlayerMoney
@@ -986,7 +986,7 @@ AllFlightPaths = 0
 #                     1 - (Enabled)
 #                     2 - (Enabled, but the player can toggle instant flight off or on at each flight master)
 
-InstantFlightPaths = 0
+InstantFlightPaths = 2
 
 #
 #    AlwaysMaxSkillForLevel
@@ -1028,7 +1028,7 @@ Instance.IgnoreLevel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Instance.IgnoreRaid = 0
+Instance.IgnoreRaid = 1
 
 #
 #    Instance.GMSummonPlayer
@@ -1090,7 +1090,7 @@ Quests.HighLevelHideDiff = 7
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Quests.IgnoreRaid = 0
+Quests.IgnoreRaid = 1
 
 #
 #    Quests.IgnoreAutoAccept
@@ -1149,7 +1149,7 @@ Guild.BankEventLogRecordsCount = 25
 #        Range:       0-11
 #        Default:     2
 
-MaxPrimaryTradeSkill = 2
+MaxPrimaryTradeSkill = 11
 
 #
 #    MinPetitionSigns
@@ -1157,7 +1157,7 @@ MaxPrimaryTradeSkill = 2
 #        Range:       0-9
 #        Default:     9
 
-MinPetitionSigns = 9
+MinPetitionSigns = 0
 
 #
 #    MaxGroupXPDistance
@@ -1180,7 +1180,7 @@ MaxRecruitAFriendBonusDistance = 100
 #        Description: Time (in seconds) mail delivery is delayed when sending items.
 #        Default:     3600 - (1 hour)
 
-MailDeliveryDelay = 3600
+MailDeliveryDelay = 10
 
 #
 #    SkillChance.Prospecting
@@ -1221,7 +1221,7 @@ ClientCacheVersion = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Event.Announce = 0
+Event.Announce = 1
 
 #
 #    BeepAtStart
@@ -1284,7 +1284,7 @@ Command.LookupMaxResults = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-AllowTickets = 1
+AllowTickets = 0
 
 #    DeletedCharacterTicketTrace
 #        Description: Keep trace of tickets opened by deleted characters
@@ -1440,7 +1440,7 @@ Updates.CleanDeadRefMaxCount = 3
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Warden.Enabled = 1
+Warden.Enabled = 0
 
 #
 #    Warden.NumMemChecks
@@ -1635,7 +1635,7 @@ ThreatRadius = 60
 #                     1.5 - (Enabled, 150%)
 #                     0   - (Disabled, 0%)
 
-Rate.Creature.Aggro = 1
+Rate.Creature.Aggro = 0.75
 
 #
 #    CreatureFamilyFleeAssistanceRadius
@@ -1643,7 +1643,7 @@ Rate.Creature.Aggro = 1
 #        Default:     30 - (Enabled)
 #                     0  - (Disabled)
 
-CreatureFamilyFleeAssistanceRadius = 30
+CreatureFamilyFleeAssistanceRadius = 22.5
 
 #
 #    CreatureFamilyAssistanceRadius
@@ -1652,7 +1652,7 @@ CreatureFamilyFleeAssistanceRadius = 30
 #        Default:     10 - (Enabled)
 #                     0  - (Disabled)
 
-CreatureFamilyAssistanceRadius = 10
+CreatureFamilyAssistanceRadius = 7.5
 
 #
 #    CreatureFamilyAssistanceDelay
@@ -2248,14 +2248,14 @@ Rate.Skill.Discovery = 1
 #                     1 - (Rate.Drop.Money)
 
 Rate.Drop.Item.Poor             = 1
-Rate.Drop.Item.Normal           = 1
-Rate.Drop.Item.Uncommon         = 1
-Rate.Drop.Item.Rare             = 1
-Rate.Drop.Item.Epic             = 1
-Rate.Drop.Item.Legendary        = 1
-Rate.Drop.Item.Artifact         = 1
-Rate.Drop.Item.Referenced       = 1
-Rate.Drop.Money                 = 1
+Rate.Drop.Item.Normal           = 2
+Rate.Drop.Item.Uncommon         = 3
+Rate.Drop.Item.Rare             = 4
+Rate.Drop.Item.Epic             = 5
+Rate.Drop.Item.Legendary        = 6
+Rate.Drop.Item.Artifact         = 6
+Rate.Drop.Item.Referenced       = 2
+Rate.Drop.Money                 = 5
 
 #    RewardBonusMoney
 #        Description: Allows to further tweak the amount of extra money rewarded by quests when the player
@@ -2263,7 +2263,7 @@ Rate.Drop.Money                 = 1
 #                     NOTE: the final amount will also affected by Rate.Drop.Money
 #        Default:     1
 
-Rate.RewardBonusMoney = 1
+Rate.RewardBonusMoney = 5
 
 #
 #    Rate.SellValue.Item.Poor
@@ -2343,7 +2343,7 @@ Rate.Drop.Item.ReferencedAmount = 1
 Rate.XP.Kill      = 1
 Rate.XP.Quest     = 1
 Rate.XP.Quest.DF  = 1
-Rate.XP.Explore   = 1
+Rate.XP.Explore   = 2
 Rate.XP.Pet       = 1
 
 #
@@ -2384,7 +2384,7 @@ Rate.Rest.Offline.InWilderness   = 1
 #        Description: Damage after fall rate.
 #        Default:     1
 
-Rate.Damage.Fall = 1
+Rate.Damage.Fall = 0.1
 
 #
 #    Rate.Auction.Time
@@ -2454,7 +2454,7 @@ Rate.Reputation.RecruitAFriendBonus = 0.1
 #        Description: Movement speed rate.
 #        Default:     1
 
-Rate.MoveSpeed = 1
+Rate.MoveSpeed = 1.14
 
 #
 #    Rate.InstanceResetTime
@@ -2494,9 +2494,9 @@ WaterBreath.Timer = 180000
 #                     1 - (SkillGain.Gathering)
 #                     1 - (SkillGain.Weapon)
 
-SkillGain.Crafting  = 1
+SkillGain.Crafting  = 2
 SkillGain.Defense   = 1
-SkillGain.Gathering = 1
+SkillGain.Gathering = 2
 SkillGain.Weapon    = 1
 
 #
@@ -2512,8 +2512,8 @@ SkillGain.Weapon    = 1
 
 SkillChance.Orange = 100
 SkillChance.Yellow = 75
-SkillChance.Green  = 25
-SkillChance.Grey   = 0
+SkillChance.Green  = 37
+SkillChance.Grey   = 25
 
 #
 #    SkillChance.MiningSteps
@@ -2539,7 +2539,7 @@ DurabilityLoss.InPvP = 0
 #        Note:        On 3.3.5 client always shows log message "Your items have lost 10% durability"
 #        Default:     10
 
-DurabilityLoss.OnDeath = 10
+DurabilityLoss.OnDeath = 35
 
 #
 #    DurabilityLossChance.Damage
@@ -2582,7 +2582,7 @@ DurabilityLossChance.Block = 0.05
 #                     MaxPlayerLevel+1 - (Disabled)
 #                     -10              - (Enabled, Level 1+ characters have 10 minute duration)
 
-Death.SicknessLevel = 11
+Death.SicknessLevel = 81
 
 #
 #    Death.CorpseReclaimDelay.PvP
@@ -2923,7 +2923,7 @@ Battleground.SpeedBuffRespawn = 150
 #                      0 - (Battleground disabled, Wintergrasp world processing still occurs)
 #                      2 - (Disable all Wintergrasp processing)
 
-Wintergrasp.Enable = 1
+Wintergrasp.Enable = 0
 
 #
 #     Wintergrasp.PlayerMax
@@ -3875,7 +3875,7 @@ ChangeFaction.MaxMoney = 0
 
 Appender.Console=1,4,0,"1 9 3 6 5 8"
 Appender.Server=2,5,0,Server.log,w
-Appender.GM=2,5,15,gm_%s.log
+Appender.GM=0,0,0,gm_%s.log
 Appender.DBErrors=2,5,0,DBErrors.log
 # Appender.DB=3,5,0
 
@@ -3898,7 +3898,7 @@ Appender.DBErrors=2,5,0,DBErrors.log
 #
 
 Logger.root=2,Console Server
-Logger.commands.gm=4,Console GM
+Logger.commands.gm=0,Console GM
 Logger.diff=3,Console Server
 Logger.mmaps=4,Server
 Logger.scripts.hotswap=4,Console Server
@@ -4122,7 +4122,7 @@ NpcBot.Enable = 1
 #        Default:     1
 #        Max:         39
 
-NpcBot.MaxBots = 1
+NpcBot.MaxBots = 19
 
 #
 #    NpcBot.MaxBotsPerClass
@@ -4155,7 +4155,7 @@ NpcBot.BaseFollowDistance = 30
 #        Note:        Maximum overall xp reduction is 90%.
 #        Default:     0
 
-NpcBot.XpReduction = 0
+NpcBot.XpReduction = 20
 
 #
 #    NpcBot.HealTargetIconMask
@@ -4182,12 +4182,12 @@ NpcBot.XpReduction = 0
 #                     64 - Cross
 #                     128 - Skull
 
-NpcBot.HealTargetIconMask = 0
-NpcBot.TankTargetIconMask = 0
-NpcBot.OffTankTargetIconMask = 0
-NpcBot.DPSTargetIconMask = 0
-NpcBot.RangedDPSTargetIconMask = 0
-NpcBot.NoDPSTargetIconMask = 0
+NpcBot.HealTargetIconMask = 1
+NpcBot.TankTargetIconMask = 128
+NpcBot.OffTankTargetIconMask = 4
+NpcBot.DPSTargetIconMask = 2
+NpcBot.RangedDPSTargetIconMask = 8
+NpcBot.NoDPSTargetIconMask = 64
 
 #
 #    NpcBot.Mult.Damage.Physical
@@ -4199,9 +4199,9 @@ NpcBot.NoDPSTargetIconMask = 0
 #        Minimum:     0.1
 #        Maximum:    10.0
 
-NpcBot.Mult.Damage.Physical = 1.0
-NpcBot.Mult.Damage.Spell    = 1.0
-NpcBot.Mult.Healing         = 1.0
+NpcBot.Mult.Damage.Physical = 0.5
+NpcBot.Mult.Damage.Spell    = 0.5
+NpcBot.Mult.Healing         = 2.0
 NpcBot.Mult.HP              = 1.0
 
 #
@@ -4218,7 +4218,7 @@ NpcBot.Mult.HP              = 1.0
 #                     1 - (NpcBot.Enable.DungeonFinder)
 
 NpcBot.Enable.Dungeon       = 1
-NpcBot.Enable.Raid          = 0
+NpcBot.Enable.Raid          = 1
 NpcBot.Enable.BG            = 0
 NpcBot.Enable.Arena         = 0
 NpcBot.Enable.DungeonFinder = 1
@@ -4239,7 +4239,7 @@ NpcBot.Limit.Raid    = 1
 #        Note:        This value is for level 80 characters, for lower levels cost is reduced.
 #        Default:     1000000 (100 gold)
 
-NpcBot.Cost = 1000000
+NpcBot.Cost = 10000
 
 #
 #    NpcBot.UpdateDelay.Base
@@ -4261,8 +4261,8 @@ NpcBot.UpdateDelay.Base = 0
 #        Default:     0 - (No delay)
 #                     1000 - (1 second)
 
-NpcBot.EngageDelay.DPS  = 0
-NpcBot.EngageDelay.Heal = 0
+NpcBot.EngageDelay.DPS  = 3000
+NpcBot.EngageDelay.Heal = 3000
 
 #
 #    NpcBot.PvP
@@ -4315,7 +4315,7 @@ NpcBot.EquipmentDisplay.ShowHelm  = 1
 #        Default:     0 - (Disable)
 #                     1 - (Enable)
 
-NpcBot.Gossip.ShowEquipmentListItems = 0
+NpcBot.Gossip.ShowEquipmentListItems = 1
 
 #
 #    NpcBot.NewClasses.<Class>.Enable
@@ -4330,14 +4330,14 @@ NpcBot.Gossip.ShowEquipmentListItems = 0
 #                     1 - (NpcBot.NewClasses.Necromancer.Enable)
 #                     1 - (NpcBot.NewClasses.SeaWitch.Enable)
 
-NpcBot.NewClasses.Blademaster.Enable       = 1
-NpcBot.NewClasses.ObsidianDestroyer.Enable = 1
-NpcBot.NewClasses.Archmage.Enable          = 1
-NpcBot.NewClasses.Dreadlord.Enable         = 1
-NpcBot.NewClasses.SpellBreaker.Enable      = 1
-NpcBot.NewClasses.DarkRanger.Enable        = 1
-NpcBot.NewClasses.Necromancer.Enable       = 1
-NpcBot.NewClasses.SeaWitch.Enable          = 1
+NpcBot.NewClasses.Blademaster.Enable       = 0
+NpcBot.NewClasses.ObsidianDestroyer.Enable = 0
+NpcBot.NewClasses.Archmage.Enable          = 0
+NpcBot.NewClasses.Dreadlord.Enable         = 0
+NpcBot.NewClasses.SpellBreaker.Enable      = 0
+NpcBot.NewClasses.DarkRanger.Enable        = 0
+NpcBot.NewClasses.Necromancer.Enable       = 0
+NpcBot.NewClasses.SeaWitch.Enable          = 0
 
 #
 #    NpcBot.Stats.Limits.Enable
@@ -4388,7 +4388,7 @@ NpcBot.OwnershipExpireTime = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-NpcBot.EnrageOnDismiss = 1
+NpcBot.EnrageOnDismiss = 0
 
 #
 ###################################################################################################
