@@ -2379,6 +2379,21 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
                     return; //group has been disbanded
             }
         }
+        //npcbot - deleting player from db: remove bots
+        else if (guid.IsPlayer())
+        {
+            std::vector<ObjectGuid> botguids;
+            botguids.reserve(BotMgr::GetMaxNpcBots() / 2 + 1);
+            BotDataMgr::GetNPCBotGuidsByOwner(botguids, guid);
+            for (std::vector<ObjectGuid>::const_iterator ci = botguids.begin(); ci != botguids.end(); ++ci)
+            {
+                if (group->IsMember(*ci))
+                {
+                    if (!group->RemoveMember(*ci, method, kicker, reason))
+                        return;
+                }
+            }
+        }
         //npcbot - bot is being removed from group - find master and remove bot through botmap
         //else if (Creature* bot = ObjectAccessor::GetObjectInOrOutOfWorld(guid, (Creature*)NULL))
         else if (guid.IsCreature())
@@ -12949,6 +12964,21 @@ void Player::SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup)
         LOG_INFO("misc", "Player::SetBattlegroundOrBattlefieldRaid - current group is {} group!", (GetGroup()->isBGGroup() ? "BG" : "BF"));
         //ABORT(); // pussywizard: origanal group can never be bf/bg group
     }
+
+    //npcbot: add bots to new group
+    if (HaveBot() && GetGroup())
+    {
+        BotMap const* map = GetBotMgr()->GetBotMap();
+        for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
+        {
+            Creature const* bot = itr->second;
+            if (!bot || !GetGroup()->IsMember(bot->GetGUID()))
+                continue;
+
+            ASSERT(group->AddMember((Player*)bot));
+        }
+    }
+    //end npcbot
 
     SetOriginalGroup(GetGroup(), GetSubGroup());
 
