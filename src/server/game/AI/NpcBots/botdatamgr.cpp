@@ -126,7 +126,7 @@ void BotDataMgr::LoadNpcBots(bool spawn)
         LOG_INFO("server.loading", ">> Bot transmog data loaded");
     }
     else
-        LOG_INFO("server.loading", ">> Bots transmog data is not loaded. Table `creature_template_npcbot_transmog` is empty!");
+        LOG_INFO("server.loading", ">> Bots transmog data is not loaded. Table `characters_npcbot_transmog` is empty!");
 
     //                                       0      1      2      3     4        5          6          7          8          9               10          11          12         13
     result = CharacterDatabase.Query("SELECT entry, owner, roles, spec, faction, equipMhEx, equipOhEx, equipRhEx, equipHead, equipShoulders, equipChest, equipWaist, equipLegs, equipFeet,"
@@ -279,7 +279,7 @@ void BotDataMgr::LoadNpcBotGroupData()
         Field* fields = result->Fetch();
 
         uint32 creature_id = fields[1].Get<uint32>();
-        if (creature_id < BOT_ENTRY_BEGIN || creature_id > BOT_ENTRY_END)
+        if (!SelectNpcBotExtras(creature_id))
         {
             LOG_WARN("server.loading", "Table `characters_npcbot_group_member` contains non-NPCBot creature {} which will not be loaded!", creature_id);
             continue;
@@ -696,4 +696,16 @@ ObjectGuid BotDataMgr::GetNPCBotGuid(uint32 entry)
     }
 
     return ObjectGuid::Empty;
+}
+
+std::vector<uint32> BotDataMgr::GetExistingNPCBotIds()
+{
+    ASSERT(AllBotsLoaded());
+
+    std::vector<uint32> existing_ids;
+    existing_ids.reserve(_botsData.size());
+    for (decltype(_botsData)::value_type const& bot_data_pair : _botsData)
+        existing_ids.push_back(bot_data_pair.first);
+
+    return existing_ids;
 }
