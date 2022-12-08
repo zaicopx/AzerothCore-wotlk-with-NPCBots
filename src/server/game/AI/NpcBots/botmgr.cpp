@@ -6,6 +6,7 @@
 #include "botdpstracker.h"
 #include "botmgr.h"
 #include "botspell.h"
+#include "bottext.h"
 #include "bpet_ai.h"
 #include "Chat.h"
 #include "Config.h"
@@ -165,6 +166,7 @@ BotMgr::BotMgr(Player* const master) : _owner(master), _dpstracker(new DPSTracke
     _exactAttackRange = 0;
     _attackRangeMode = BOT_ATTACK_RANGE_SHORT;
     _attackAngleMode = BOT_ATTACK_ANGLE_NORMAL;
+    _allowCombatPositioning = true;
     _npcBotEngageDelayDPS = _npcBotEngageDelayDPS_default;
     _npcBotEngageDelayHeal = _npcBotEngageDelayHeal_default;
 
