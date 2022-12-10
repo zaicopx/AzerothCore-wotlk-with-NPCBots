@@ -1962,7 +1962,7 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
         //ch.PSendSysMessage("base total %s: %.1f", mystat.c_str(), totalstat);
         if (unit == me)
         {
-            int8 t = -1;
+            BotStatMods t = MAX_BOT_ITEM_MOD;
             switch (i)
             {
                 case STAT_STRENGTH:     t = BOT_STAT_MOD_STRENGTH;  break;
@@ -1973,7 +1973,7 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
                 default:                                            break;
             }
 
-            if (t >= BOT_STAT_MOD_MANA)
+            if (t < MAX_BOT_ITEM_MOD)
                 totalstat = GetTotalBotStat(t);
         }
         botstring << "\n" << LocalizedNpcText(player, BOT_TEXT_TOTAL) << " " << mystat << ": " << float(totalstat);
@@ -2482,7 +2482,7 @@ void bot_ai::SetStats(bool force)
     for (uint8 i = SPELL_SCHOOL_HOLY; i != MAX_SPELL_SCHOOL; ++i)
     {
         value = IAmFree() ? 0 : mylevel;
-        value += _getTotalBotStat(BOT_STAT_MOD_RESIST_HOLY + (i - 1));
+        value += _getTotalBotStat(BotStatMods(BOT_STAT_MOD_RESIST_HOLY + (i - 1)));
 
         //res bonuses
         if (_botclass == BOT_CLASS_SPHYNX)
@@ -4021,7 +4021,8 @@ std::tuple<Unit*, Unit*> bot_ai::_getTargets(bool byspell, bool ranged, bool &re
         mytar = nullptr;
     }
 
-    if (u && !IAmFree() && (master->IsInCombat() || u->IsInCombat())/* && !InDuel(u)*/ && !IsInBotParty(u) && (BotMgr::IsPvPEnabled() || !u->IsControlledByPlayer()))
+    if (u && !IAmFree() && (master->IsInCombat() || u->IsInCombat())/* && !InDuel(u)*/ && !IsInBotParty(u) && (BotMgr::IsPvPEnabled() || !u->IsControlledByPlayer()) &&
+        (!HasBotCommandState(BOT_COMMAND_STAY) || (!IsRanged() ? me->IsWithinMeleeRange(u) : me->GetDistance(u) < foldist)))
     {
         //TC_LOG_ERROR("entities.player", "bot %s starts attack master's target %s", me->GetName().c_str(), u->GetName().c_str());
         return { u, u };
@@ -11888,12 +11889,12 @@ void bot_ai::ApplyItemsSpells()
     ApplyItemSetBonuses(nullptr, true); //item set bonuses
 }
 //stats bonuses from equipment
-inline float bot_ai::_getBotStat(uint8 slot, uint8 stat) const
+inline float bot_ai::_getBotStat(uint8 slot, BotStatMods stat) const
 {
     return float(_stats[slot][stat]);
 }
 
-inline float bot_ai::_getTotalBotStat(uint8 stat) const
+float bot_ai::_getTotalBotStat(BotStatMods stat) const
 {
     int32 value = 0;
     for (uint8 slot = BOT_SLOT_MAINHAND; slot != BOT_INVENTORY_SIZE; ++slot)
@@ -12119,6 +12120,8 @@ inline float bot_ai::_getTotalBotStat(uint8 stat) const
                 default:
                     break;
             }
+            break;
+        default:
             break;
     }
 
