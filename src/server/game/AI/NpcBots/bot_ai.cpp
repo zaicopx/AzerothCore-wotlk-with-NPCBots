@@ -153,7 +153,6 @@ bot_ai::bot_ai(Creature* creature) : CreatureAI(creature)
     for (uint8 i = BOT_SLOT_MAINHAND; i != BOT_INVENTORY_SIZE; ++i)
         _equips[i] = nullptr;
 
-    _reviveTimer = 0;
     _powersTimer = 0;
     _chaseTimer = 0;
     _engageTimer = 0;
@@ -381,8 +380,7 @@ bool bot_ai::SetBotOwner(Player* newowner)
     if (!mgr)
         mgr = new BotMgr(newowner);
 
-    bool takeMoney = (_ownerGuid != newowner->GetGUID().GetCounter());
-    if (mgr->AddBot(me, takeMoney) & BOT_ADD_FATAL)
+    if (mgr->AddBot(me) & BOT_ADD_FATAL)
     {
         //TC_LOG_ERROR("entities.player", "bot_ai::SetBotOwner(): player %s (%s) can't add bot %s (FATAL), removing...",
         //    master->GetName().c_str(), master->GetGUID().ToString().c_str(), me->GetName().c_str());
@@ -534,6 +532,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
 
     m_botCommandState = BOT_COMMAND_FOLLOW;
     _botAwaitState = BOT_AWAIT_NONE;
+    _reviveTimer = 0;
 
     master = reinterpret_cast<Player*>(me);
     if (resetType & BOTAI_RESET_MASK_ABANDON_MASTER)
@@ -6737,22 +6736,12 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
                 reason = -1;
             if (!reason && _ownerGuid)
                 reason = 1;
-            if (!reason && player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots())
+            if (!reason && BotDataMgr::GetOwnedBotsCount(player->GetGUID()) >= BotMgr::GetMaxNpcBots())
                 reason = 2;
             if (!reason && !player->HasEnoughMoney(cost))
                 reason = 3;
-
-            if (!reason && BotMgr::GetMaxClassBots() && player->HaveBot())
-            {
-                uint8 count = 0;
-                BotMap const* map = player->GetBotMgr()->GetBotMap();
-                for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
-                    if (itr->second->GetBotClass() == _botclass)
-                        ++count;
-
-                if (!reason && count >= BotMgr::GetMaxClassBots())
-                    reason = 4;
-            }
+            if (!reason && BotMgr::GetMaxClassBots() && BotDataMgr::GetOwnedBotsCount(player->GetGUID(), me->GetClassMask()) >= BotMgr::GetMaxClassBots())
+                reason = 4;
 
             std::ostringstream message1;
             std::ostringstream message2;
@@ -6804,7 +6793,8 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_ABILITIES), GOSSIP_SENDER_ABILITIES, GOSSIP_ACTION_INFO_DEF + 1);
             if (_botclass < BOT_CLASS_EX_START)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_TALENTS), GOSSIP_SENDER_SPEC, GOSSIP_ACTION_INFO_DEF + 1);
+                if (me->GetLevel() >= 10)
+                    AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_TALENTS), GOSSIP_SENDER_SPEC, GOSSIP_ACTION_INFO_DEF + 1);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_GIVE_CONSUMABLE), GOSSIP_SENDER_USEITEM, GOSSIP_ACTION_INFO_DEF + 1);
             }
 
@@ -7716,7 +7706,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_SLOT_NECK) + "...", GOSSIP_SENDER_EQUIPMENT_SHOW, GOSSIP_ACTION_INFO_DEF + uint32(BOT_SLOT_NECK));
             }
 
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, LocalizedNpcText(player, BOT_TEXT_UNEQUIP_ALL), GOSSIP_SENDER_UNEQUIP_ALL, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, LocalizedNpcText(player, BOT_TEXT_UNEQUIP_ALL), GOSSIP_SENDER_UNEQUIP_ALL, GOSSIP_ACTION_INFO_DEF + 1, LocalizedNpcText(player, BOT_TEXT_UNEQUIP_ALL) + "?", 0, false);
             if (creature->GetCreatureTemplate()->unit_flags2 & UNIT_FLAG2_MIRROR_IMAGE)
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, LocalizedNpcText(player, BOT_TEXT_UPDATE_VISUAL), GOSSIP_SENDER_MODEL_UPDATE, GOSSIP_ACTION_INFO_DEF + 1);
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, LocalizedNpcText(player, BOT_TEXT_BACK), 1, GOSSIP_ACTION_INFO_DEF + 1);
