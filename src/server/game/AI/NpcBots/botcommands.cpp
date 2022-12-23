@@ -69,7 +69,7 @@ enum rbac
     RBAC_PERM_COMMAND_NPCBOT_DUMP_LOAD                       = SEC_ADMINISTRATOR,
     RBAC_PERM_COMMAND_NPCBOT_DUMP_WRITE                      = SEC_ADMINISTRATOR,
     RBAC_PERM_COMMAND_NPCBOT_SPAWNED                         = SEC_ADMINISTRATOR,
-    RBAC_PERM_COMMAND_NPCBOT_COMMAND_WALK                    = SEC_PLAYER,
+    RBAC_PERM_COMMAND_NPCBOT_COMMAND_MISC                    = SEC_PLAYER,
     RBAC_PERM_COMMAND_NPCBOT_CREATENEW                       = SEC_ADMINISTRATOR,
     RBAC_PERM_COMMAND_NPCBOT_SEND                            = SEC_PLAYER
 };
@@ -253,7 +253,10 @@ public:
             { "standstill", HandleNpcBotCommandStandstillCommand,   rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_STANDSTILL, Console::No  },
             { "stopfully",  HandleNpcBotCommandStopfullyCommand,    rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_STOPFULLY,  Console::No  },
             { "follow",     HandleNpcBotCommandFollowCommand,       rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_FOLLOW,     Console::No  },
-            { "walk",       HandleNpcBotCommandWalkCommand,         rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_WALK,       Console::No  },
+            { "walk",       HandleNpcBotCommandWalkCommand,         rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_MISC,       Console::No  },
+            { "nogossip",   HandleNpcBotCommandNoGossipCommand,     rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_MISC,       Console::No  },
+            { "unbind",     HandleNpcBotCommandUnBindCommand,       rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_MISC,       Console::No  },
+            { "rebind",     HandleNpcBotCommandReBindCommand,       rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND_MISC,       Console::No  },
         };
 
         static ChatCommandTable npcbotAttackDistanceCommandTable =
@@ -1922,13 +1925,19 @@ public:
             return false;
         }
 
+        std::vector<ObjectGuid> guidvec;
+        BotDataMgr::GetNPCBotGuidsByOwner(guidvec, master->GetGUID());
+        BotMap const* map = master->GetBotMgr()->GetBotMap();
+        guidvec.erase(std::remove_if(std::begin(guidvec), std::end(guidvec),
+            [bmap = map](ObjectGuid guid) { return bmap->find(guid) != bmap->end(); }
+        ), std::end(guidvec));
+
         handler->PSendSysMessage("Listing NpcBots for %s", master->GetName().c_str());
-        handler->PSendSysMessage("Owned NpcBots: %u", master->GetNpcBotsCount());
+        handler->PSendSysMessage("Owned NpcBots: %u (active: %u)", uint32(guidvec.size() + map->size()), uint32(map->size()));
         for (uint8 i = BOT_CLASS_WARRIOR; i != BOT_CLASS_END; ++i)
         {
             uint8 count = 0;
             uint8 alivecount = 0;
-            BotMap const* map = master->GetBotMgr()->GetBotMap();
             for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
             {
                 if (Creature* cre = itr->second)
@@ -1969,6 +1978,19 @@ public:
             }
             handler->PSendSysMessage("%s: %u (alive: %u)", bclass, count, alivecount);
         }
+
+        if (guidvec.empty())
+            return true;
+
+        handler->PSendSysMessage("%u unbound bots:", uint32(guidvec.size()));
+        for (ObjectGuid guid : guidvec)
+        {
+            Creature const* bot = BotDataMgr::FindBot(guid.GetEntry());
+            std::string ccolor, cname;
+            GetBotClassNameAndColor(bot ? bot->GetBotClass() : uint8(BOT_CLASS_NONE), ccolor, cname);
+            handler->PSendSysMessage("%s (%s)", bot ? bot->GetName().c_str() : "Unknown", "|c" + ccolor + cname + "|r");
+        }
+
         return true;
     }
 
@@ -2085,6 +2107,94 @@ public:
         }
 
         handler->SendSysMessage(msg.c_str());
+        return true;
+    }
+
+    static bool HandleNpcBotCommandNoGossipCommand(ChatHandler* handler)
+    {
+        Player* owner = handler->GetSession()->GetPlayer();
+
+        if (!owner->HaveBot())
+        {
+            handler->SendSysMessage(".npcbot command nogossip");
+            handler->SendSysMessage("Toggles gossip availability for your npcbots");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string msg;
+        bool isNoGossipEnabled = owner->GetBotMgr()->GetBotMap()->begin()->second->GetBotAI()->HasBotCommandState(BOT_COMMAND_NOGOSSIP);
+        if (!isNoGossipEnabled)
+        {
+            owner->GetBotMgr()->SendBotCommandState(BOT_COMMAND_NOGOSSIP);
+            msg = "Bots' gossip is DISABLED";
+        }
+        else
+        {
+            owner->GetBotMgr()->SendBotCommandStateRemove(BOT_COMMAND_NOGOSSIP);
+            msg = "Bots' gossip is ENABLED";
+        }
+
+        handler->SendSysMessage(msg.c_str());
+        return true;
+    }
+
+    static bool HandleNpcBotCommandReBindCommand(ChatHandler* handler, Optional<std::string_view> botname)
+    {
+        Player const* owner = handler->GetSession()->GetPlayer();
+        Unit const* u = owner->GetSelectedUnit();
+        if (!owner->HaveBot() || (!u && !botname))
+        {
+            handler->SendSysMessage(".npcbot command rebind [#name]");
+            handler->SendSysMessage("Re-binds selected/named unbound npcbot");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Creature const* cre = (u && u->GetTypeId() == TYPEID_UNIT) ? u->ToCreature() : BotDataMgr::FindBot(*botname, owner->GetSession()->GetSessionDbLocaleIndex());
+        if (!cre || !cre->IsNPCBot() || owner->GetBotMgr()->GetBot(cre->GetGUID()) ||
+            !cre->GetBotAI()->HasBotCommandState(BOT_COMMAND_UNBIND) ||
+            BotDataMgr::SelectNpcBotData(cre->GetEntry())->owner != owner->GetGUID().GetCounter())
+        {
+            handler->SendSysMessage("Must target your unbound npcbot");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (owner->GetBotMgr()->RebindBot(const_cast<Creature*>(cre)) != BOT_ADD_SUCCESS)
+        {
+            handler->SendSysMessage("Failed to re-bind bot for some reason!");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        handler->PSendSysMessage("%s successfully re-bound", cre->GetName().c_str());
+        return true;
+    }
+
+    static bool HandleNpcBotCommandUnBindCommand(ChatHandler* handler, Optional<std::string_view> botname)
+    {
+        Player const* owner = handler->GetSession()->GetPlayer();
+        Unit const* u = owner->GetSelectedUnit();
+        if (!owner->HaveBot() || (!u && !botname))
+        {
+            handler->SendSysMessage(".npcbot command unbind [#name]");
+            handler->SendSysMessage("Frees selected/named npcbot temporarily. The bot will return to home location and wait until re-bound");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Creature const* cre = (u && u->GetTypeId() == TYPEID_UNIT) ? u->ToCreature() : owner->GetBotMgr()->GetBotByName(*botname);
+        if (!cre || !cre->IsNPCBot() || !owner->GetBotMgr()->GetBot(cre->GetGUID()) ||
+            cre->GetBotAI()->HasBotCommandState(BOT_COMMAND_UNBIND))
+        {
+            handler->SendSysMessage("Must target your active npcbot");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        owner->GetBotMgr()->UnbindBot(cre->GetGUID());
+        handler->PSendSysMessage("%s successfully unbound", cre->GetName().c_str());
         return true;
     }
 
