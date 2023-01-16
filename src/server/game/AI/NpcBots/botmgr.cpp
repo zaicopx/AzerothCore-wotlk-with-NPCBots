@@ -1763,9 +1763,9 @@ void BotMgr::OnBotPartyEngage(Player const* owner)
         owner->GetBotMgr()->PropagateEngageTimers();
 }
 
-void BotMgr::ApplyBotEffectMods(Unit const* caster, Unit const* target, SpellInfo const* spellInfo, uint8 effIndex, float& value)
+void BotMgr::ApplyBotEffectMods(Unit const* caster, SpellInfo const* spellInfo, uint8 effIndex, float& value)
 {
-    caster->ToCreature()->GetBotAI()->ApplyBotEffectMods(target, spellInfo, effIndex, value);
+    caster->ToCreature()->GetBotAI()->ApplyBotEffectMods(spellInfo, effIndex, value);
 }
 
 void BotMgr::ApplyBotThreatMods(Unit const* attacker, SpellInfo const* spellInfo, float& threat)
@@ -1786,6 +1786,14 @@ float BotMgr::GetBotDamageTakenMod(Creature const* bot, bool magic)
 int32 BotMgr::GetBotStat(Creature const* bot, BotStatMods stat)
 {
     return bot->GetBotAI()->GetTotalBotStat(stat);
+}
+
+float BotMgr::GetBotResilience(Creature const* botOrPet)
+{
+    if (botOrPet->IsNPCBot())
+        return botOrPet->GetBotAI()->GetBotResilience();
+
+    return botOrPet->GetBotPetAI()->GetPetsOwner()->GetBotAI()->GetBotResilience();
 }
 
 float BotMgr::GetBotDamageModPhysical()

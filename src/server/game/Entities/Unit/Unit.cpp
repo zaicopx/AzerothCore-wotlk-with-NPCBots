@@ -15399,7 +15399,7 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
     }
     //npcbot: handle effect mods
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsNPCBot())
-        ToCreature()->ApplyCreatureEffectMods(this, spellProto, effect_index, value);
+        ToCreature()->ApplyCreatureEffectMods(spellProto, effect_index, value);
     //end npcbot
     return value;
 }
@@ -20140,6 +20140,10 @@ float Unit::GetCombatRatingReduction(CombatRating cr) const
 {
     if (Player const* player = ToPlayer())
         return player->GetRatingBonusValue(cr);
+    //npcbot: get bot resilience
+    else if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsNPCBotOrPet())
+        return BotMgr::GetBotResilience(ToCreature());
+    //end npcbot
     // Player's pet get resilience from owner
     else if (IsPet() && GetOwner())
         if (Player* owner = GetOwner()->ToPlayer())
