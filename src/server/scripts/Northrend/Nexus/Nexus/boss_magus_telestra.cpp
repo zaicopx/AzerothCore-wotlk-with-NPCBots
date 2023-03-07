@@ -56,8 +56,6 @@ enum Misc
     NPC_ARCANE_MAGUS                = 26929,
 
     ACHIEVEMENT_SPLIT_PERSONALITY   = 2150,
-
-    GAME_EVENT_WINTER_VEIL          = 2,
 };
 
 enum Events

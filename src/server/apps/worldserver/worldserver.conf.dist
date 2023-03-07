@@ -4223,6 +4223,7 @@ NpcBot.Mult.Damage.Physical = 1.0
 NpcBot.Mult.Damage.Spell    = 1.0
 NpcBot.Mult.Healing         = 1.0
 NpcBot.Mult.HP              = 1.0
+NpcBot.Mult.Mana            = 1.0
 
 #
 #    NpcBot.Mult.Damage.<Class>
@@ -4278,6 +4279,13 @@ NpcBot.Enable.DungeonFinder = 1
 
 NpcBot.Limit.Dungeon = 1
 NpcBot.Limit.Raid    = 1
+
+#
+#    NpcBot.Fill.Dungeon
+#        Description: Enable/Disable if LFG groups are filled by bots.
+#        Default:     1 - (NpcBot.Fill.Dungeon)
+
+NpcBot.Fill.Dungeon = 1
 
 #
 #    NpcBot.Cost

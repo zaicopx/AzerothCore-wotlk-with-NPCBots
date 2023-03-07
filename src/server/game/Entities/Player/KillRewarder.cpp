@@ -21,6 +21,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
+#include "LFGGroupData.h"
 
 //npcbot
 #include "botmgr.h"
@@ -179,6 +180,24 @@ void KillRewarder::_RewardXP(Player* player, float rate)
             }
         }
         //end npcbot
+
+        // Boxhead Custom | Add more xp for rares
+        if (Creature* victim = _victim->ToCreature())
+        {
+            if (victim->GetCreatureTemplate()->rank == CREATURE_ELITE_RARE || victim->GetCreatureTemplate()->rank == CREATURE_ELITE_RAREELITE)
+            {
+                xp *= 20;
+            }
+        }
+
+        //Don't give XP outside of dungeons if in LFG Group now
+        if (Group* gr = player->GetGroup())
+        {
+            if (player->GetGroup()->isLFGGroup() && !player->GetMap()->IsDungeon())
+            {
+                xp = 0;
+            }
+        }
 
         // 4.2.3. Give XP to player.
         player->GiveXP(xp, _victim, _groupRate);

@@ -412,7 +412,7 @@ bool bot_ai::SetBotOwner(Player* newowner)
     if (!mgr)
         mgr = new BotMgr(newowner);
 
-    if (mgr->AddBot(me) & BOT_ADD_FATAL)
+    if (mgr->AddBot(me, true) & BOT_ADD_FATAL)
     {
         checkMasterTimer += 30000;
         return false;
@@ -435,9 +435,9 @@ bool bot_ai::SetBotOwner(Player* newowner)
     return true;
 }
 //Check if should totally unlink from owner
-void bot_ai::CheckOwnerExpiry()
+void bot_ai::CheckOwnerExpiry(bool force)
 {
-    if (!BotMgr::GetOwnershipExpireTime())
+    if (!BotMgr::GetOwnershipExpireTime() && !force)
         return; //disabled
 
     NpcBotData const* npcBotData = BotDataMgr::SelectNpcBotData(me->GetEntry());
@@ -459,7 +459,7 @@ void bot_ai::CheckOwnerExpiry()
     time_t lastLoginTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
 
     //either expired or owner does not exist
-    if (timeNow >= lastLoginTime + expireTime)
+    if ((timeNow >= lastLoginTime + expireTime) || force)
     {
         std::string name = "unknown";
         sCharacterCache->GetCharacterNameByGuid(ownerGuid, name);
@@ -548,7 +548,12 @@ void bot_ai::ResetBotAI(uint8 resetType)
     if (resetType == BOTAI_RESET_INIT)
     {
         homepos.Relocate(me);
-        CheckOwnerExpiry();
+        CheckOwnerExpiry(false);
+    }
+    if (resetType == BOTAI_RESET_LFG)
+    {
+        homepos.Relocate(me);
+        CheckOwnerExpiry(true);
     }
     if (resetType == BOTAI_RESET_LOGOUT)
         _saveStats();
@@ -948,14 +953,17 @@ void bot_ai::_calculatePos(Position& pos) const
     uint8 followdist = master->GetBotMgr()->GetBotFollowDist();
     float mydist, angle;
 
-    if (HasRole(BOT_ROLE_TANK) && !IsTank(master))
+    if (HasRole(BOT_ROLE_TANK))
     {
         uint8 tanks = master->GetBotMgr()->GetNpcBotsCountByRole(BOT_ROLE_TANK);
         uint8 slot = master->GetBotMgr()->GetNpcBotSlotByRole(BOT_ROLE_TANK, me);
         angle = float(M_PI) / 6.0f; //max bias (left of right) //total arc is angle * 2
         angle = (angle / tanks) * (slot - (slot % 2)); //bias
         if (slot % 2) angle *= -1.f; //bias interchange
-        mydist = 3.5f;
+        if (master->GetMap()->IsDungeon() || master->GetMap() ->IsRaid())
+            mydist = 12.5f;
+        else
+            mydist = 3.5f;
     }
     else if (HasRole(BOT_ROLE_RANGED))
     {
@@ -5496,7 +5504,7 @@ void bot_ai::_updateRations()
 
     //drink
     if (!feast_mana && me->GetMaxPower(POWER_MANA) > 1 && !me->HasAuraType(SPELL_AURA_MOUNTED) && !me->isMoving() && CanDrink() &&
-        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetManaPCT(me) < 75 && urand(0, 100) < 20)
+        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetManaPCT(me) < 95 && urand(0, 100) < 20)
     {
         //me->SetStandState(UNIT_STAND_STATE_SIT);
         //CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
@@ -5506,7 +5514,7 @@ void bot_ai::_updateRations()
 
     //eat
     if (!feast_health && !me->HasAuraType(SPELL_AURA_MOUNTED) && !me->isMoving() && CanEat() &&
-        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetHealthPCT(me) < 80 && urand(0, 100) < 20)
+        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetHealthPCT(me) < 95 && urand(0, 100) < 20)
     {
         //me->SetStandState(UNIT_STAND_STATE_SIT);
         //CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
@@ -6503,7 +6511,7 @@ void bot_ai::_OnHealthUpdate() const
     //TC_LOG_ERROR("entities.player", "_OnHealthUpdate(): updating bot %s", me->GetName().c_str());
     bool fullhp = me->GetHealth() == me->GetMaxHealth();
     float pct = fullhp ? 100.f : me->GetHealthPct(); // needs for regeneration
-    uint32 m_basehp = uint32(_classinfo->basehealth * BotMgr::GetBotHPMod());
+    uint32 m_basehp = uint32(_classinfo->basehealth);
     //TC_LOG_ERROR("entities.player", "class base health: %u", m_basehp);
     me->SetCreateHealth(m_basehp);
 
@@ -6517,8 +6525,22 @@ void bot_ai::_OnHealthUpdate() const
     //hp_add += IAmFree() ? mylevel * 375.f : 0; //+30000/+0 hp at 80
     hp_add += _getTotalBotStat(BOT_STAT_MOD_HEALTH);
     //TC_LOG_ERROR("entities.player", "health to add after stam mod: %i", hp_add);
-    uint32 m_totalhp = m_basehp + int32(hp_add * BotMgr::GetBotHPMod()); //m_totalhp = uint32(float(m_basehp + hp_add) * stammod);
+    uint32 m_totalhp = m_basehp + int32(hp_add); //m_totalhp = uint32(float(m_basehp + hp_add) * stammod);
+    m_totalhp *= BotMgr::GetBotHPMod();
     //TC_LOG_ERROR("entities.player", "total base health: %u", m_totalhp);
+
+    //Level multipliers
+    if (mylevel >= 40)
+        m_totalhp *= 1.05;
+
+    if (mylevel >= 60)
+        m_totalhp *= 1.1;
+
+    if (mylevel >= 70)
+        m_totalhp *= 1.1;
+
+    if (mylevel >= 80)
+        m_totalhp *= 1.1;
 
     //hp bonuses
     uint8 bonuspct = 0;
@@ -6589,6 +6611,22 @@ void bot_ai::_OnManaUpdate() const
     m_basemana = intValue * intMult + 20.f; //20.f is not a mistake
     //m_basemana += IAmFree() ? mylevel * 50.f : 0; //+4000/+0 mana at 80
     m_basemana += _getTotalBotStat(BOT_STAT_MOD_MANA);
+
+    //Add Mana Multiplier
+    m_basemana *= BotMgr::GetBotManaMod();
+
+    //Level multipliers
+    if (mylevel >= 40)
+        m_basemana *= 1.1;
+
+    if (mylevel >= 60)
+        m_basemana *= 1.2;
+
+    if (mylevel >= 70)
+        m_basemana *= 1.2;
+
+    if (mylevel >= 80)
+        m_basemana *= 1.2;
 
     //mana bonuses
     uint8 bonuspct = 0;
@@ -16118,14 +16156,6 @@ bool bot_ai::GlobalUpdate(uint32 diff)
 
     if (!me->IsAlive())
         return false;
-
-    if (!me->IsInWorld())
-    {
-        if (IAmFree())
-            LOG_ERROR("scripts", "bot_ai::GlobalUpdate is called for free bot not in world: {} ({}) class {} level {}",
-                me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()));
-        return false;
-    }
 
     if (doHealth)
     {

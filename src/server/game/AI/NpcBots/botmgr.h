@@ -86,6 +86,7 @@ class AC_GAME_API BotMgr
         static bool IsPvPEnabled();
         static bool IsFoodInterruptedByMovement();
         static bool FilterRaces();
+        static bool FillNpcBotsDungeons();
         static uint8 GetMaxClassBots();
         static uint8 GetHealTargetIconFlags();
         static uint8 GetTankTargetIconFlags();
@@ -104,6 +105,7 @@ class AC_GAME_API BotMgr
         static float GetBotDamageModSpell();
         static float GetBotHealingMod();
         static float GetBotHPMod();
+        static float GetBotManaMod();
         static float GetBotDamageModByClass(uint8 botclass);
 
         static void Initialize();
@@ -179,7 +181,7 @@ class AC_GAME_API BotMgr
         void RemoveBot(ObjectGuid guid, uint8 removetype = BOT_REMOVE_LOGOUT);
         void UnbindBot(ObjectGuid guid);
         [[nodiscard]] BotAddResult RebindBot(Creature* bot);
-        [[nodiscard]] BotAddResult AddBot(Creature* bot);
+        [[nodiscard]] BotAddResult AddBot(Creature* bot, bool costMoney);
         bool AddBotToGroup(Creature* bot);
         void RemoveBotFromBGQueue(Creature const* bot);
         bool RemoveBotFromGroup(Creature* bot);
@@ -220,6 +222,10 @@ class AC_GAME_API BotMgr
         //TELEPORT BETWEEN MAPS
         //CONFIRMEND UNSAFE (charmer,owner)
         static void TeleportBot(Creature* bot, Map* newMap, Position* pos, bool quick = false);
+
+        static void SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole);
+
+        static uint32 GetBotTeam(Creature const* bot);
 
         AoeSpotsVec const& GetAoeSpots() const { return _aoespots; }
         AoeSpotsVec& GetAoeSpots() { return _aoespots; }
