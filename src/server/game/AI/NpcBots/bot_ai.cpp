@@ -572,7 +572,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
     if (spawned)
         ReturnHome();
 
-    if (!me->IsInWorld())
+    if (!me->IsInWorld() || resetType == BOTAI_RESET_FORCERECALL)
     {
         AbortTeleport();
 
@@ -4259,7 +4259,7 @@ std::tuple<Unit*, Unit*> bot_ai::_getTargets(bool byspell, bool ranged, bool &re
             return { u, u };
     }
 
-    if (IAmFree() && IsWanderer() && !me->IsInCombat() && me->getAttackers().empty() && (evadeDelayTimer > 4000 || Feasting() || me->GetHealthPct() < 85.f))
+    if (IAmFree() && IsWanderer() && !me->IsInCombat() && me->getAttackers().empty() && (evadeDelayTimer > 7500 || Feasting() || me->GetHealthPct() < 85.f))
         return { nullptr, nullptr };
 
     //check targets around
@@ -11926,7 +11926,7 @@ void bot_ai::_generateGear()
                     Item* newItem = Item::CreateItem(itemId, 1, nullptr);
                     if (!newItem)
                     {
-                        LOG_ERROR("scripts", "bot_ai::_generateGear: Failed to create item {} ({}), slot {}!",
+                        LOG_ERROR("npcbots", "bot_ai::_generateGear: Failed to create item {} ({}), slot {}!",
                             itemId, proto->Name1.c_str(), uint32(slot));
                         return;
                     }
@@ -12042,7 +12042,7 @@ void bot_ai::_generateGear()
 
                     if (!_equip(slot, newItem, ObjectGuid::Empty))
                     {
-                        LOG_ERROR("scripts", "bot_ai::_generateGear: Failed to equip item {} ({}), slot {}!",
+                        LOG_DEBUG("npcbots", "bot_ai::_generateGear: Failed to equip item {} ({}), slot {}!",
                             itemId, proto->Name1.c_str(), uint32(slot));
                         return;
                     }
@@ -12070,7 +12070,7 @@ void bot_ai::_generateGear()
     }
 
     if (_equipsSlotsToGenerate.empty())
-        LOG_ERROR("scripts", "bot_ai::_generateGear: Bot {} ({}) gear generation complete!", me->GetName().c_str(), me->GetEntry());
+        LOG_DEBUG("npcbots", "bot_ai::_generateGear: Bot {} ({}) gear generation complete!", me->GetName().c_str(), me->GetEntry());
 }
 
 void bot_ai::ApplyItemBonuses(uint8 slot)
@@ -14045,7 +14045,7 @@ void bot_ai::InitEquips()
                 gss << " " << uint32(i);
             }
         }
-        LOG_ERROR("scripts", gss.str().c_str());
+        LOG_DEBUG("npcbots", gss.str().c_str());
     }
     else
     {
@@ -14667,7 +14667,7 @@ void bot_ai::JustEngagedWith(Unit* u)
     ResetChase(u);
 }
 //killer may be NULL
-void bot_ai::JustDied(Unit*)
+void bot_ai::JustDied(Unit* u)
 {
     AbortTeleport();
     AbortAwaitStateRemoval();
@@ -14701,6 +14701,15 @@ void bot_ai::JustDied(Unit*)
                 gr->SendUpdate();
     }
 
+    if (u && (u->IsPvP() || u->IsControlledByPlayer()))
+    {
+        LOG_DEBUG("npcbots", "{} {} id {} class {} level {} WAS KILLED BY {} {} id {} class {} level {} on their way to {}!",
+            IsWanderer() ? "Wandering bot" : "Bot", me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()),
+            (u->IsPlayer() ? "player" : u->IsNPCBot() ? u->ToCreature()->GetBotAI()->IsWanderer() ? "wandering bot" : "bot" : u->IsNPCBotPet() ? "botpet" : "creature"),
+            u->GetName().c_str(), u->GetEntry(), uint32(u->GetClass()), uint32(u->GetLevel()),
+            BotDataMgr::GetWanderMapNodeName(me->GetMap()->GetEntry()->MapID, _travel_node_cur).c_str());
+    }
+
     _reviveTimer = IsWanderer() ? 90000 : IAmFree() ? 180000 : 60000; //1.5min/3min/1min
     _atHome = false;
     _evadeMode = false;
@@ -14714,7 +14723,24 @@ void bot_ai::KilledUnit(Unit* u)
 {
     ++_killsCount;
     if (u->IsControlledByPlayer() || u->IsPvP())
+    {
         ++_pvpKillsCount;
+        if (IsWanderer())
+        {
+            LOG_DEBUG("npcbots", "Wandering bot {} id {} class {} level {} KILLED {} {} id {} class {} level {} on their way to {}!",
+                me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()),
+                (u->IsPlayer() ? "player" : u->IsNPCBot() ? u->ToCreature()->GetBotAI()->IsWanderer() ? "wandering bot" : "bot" : u->IsNPCBotPet() ? "botpet" : "creature"),
+                u->GetName().c_str(), u->GetEntry(), uint32(u->GetClass()), uint32(u->GetLevel()),
+                BotDataMgr::GetWanderMapNodeName(me->GetMap()->GetEntry()->MapID, _travel_node_cur).c_str());
+        }
+        else if (u->IsNPCBot() && u->ToCreature()->GetBotAI()->IsWanderer())
+        {
+            LOG_DEBUG("npcbots", "Bot {} id {} class {} level {} KILLED wandering bot {} id {} class {} level {} on their way to {}!",
+                me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()),
+                u->GetName().c_str(), u->GetEntry(), uint32(u->GetClass()), uint32(u->GetLevel()),
+                BotDataMgr::GetWanderMapNodeName(me->GetMap()->GetEntry()->MapID, _travel_node_cur).c_str());
+        }
+    }
     if (u->isType(TYPEMASK_PLAYER))
         ++_playerKillsCount;
     if (IsWanderer())
@@ -16832,7 +16858,7 @@ void bot_ai::UpdateReviveTimer(uint32 diff)
                 }
 
                 std::string nodeName = BotDataMgr::GetWanderMapNodeName(me->GetMapId(), nextNodeId);
-                LOG_ERROR("scripts", "Bot {} id {} class {} level {} died on the way from node {} to {}, NEW {} ('{}'), {}, dist {} yd!",
+                LOG_DEBUG("npcbots", "Bot {} id {} class {} level {} died on the way from node {} to {}, NEW {} ('{}'), {}, dist {} yd!",
                     me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()), _travel_node_last, _travel_node_cur,
                     nextNodeId, nodeName.c_str(), homepos.ToString().c_str(), me->GetExactDist(homepos));
 
@@ -16928,7 +16954,7 @@ void bot_ai::Evade()
                 ASSERT(pos.m_positionZ > INVALID_HEIGHT);
                 if (need_jump)
                 {
-                    //TC_LOG_ERROR("scripts", "Bot %s id %u class %u level %u Jumping to point dist2d %.2f, zdiff %.2f...",
+                    //TC_LOG_DEBUG("npcbots", "Bot %s id %u class %u level %u Jumping to point dist2d %.2f, zdiff %.2f...",
                     //    me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()),
                     //    me->GetExactDist2d(pos), std::fabs(me->m_positionZ - pos.m_positionZ));
 
@@ -16954,14 +16980,14 @@ void bot_ai::Evade()
                 uint32 nextNodeId = GetNextTravelNode(homepos);
                 if (!nextNodeId)
                 {
-                    LOG_ERROR("scripts", "Bot {} ({}) is unable to get next travel node! cur {}, last {}, position: {}. BOT WAS DISABLED",
+                    LOG_FATAL("npcbots", "Bot {} ({}) is unable to get next travel node! cur {}, last {}, position: {}. BOT WAS DISABLED",
                         me->GetName().c_str(), me->GetEntry(), _travel_node_cur, _travel_node_last, me->GetPosition().ToString().c_str());
                     canUpdate = false;
                     return;
                 }
 
                 std::string nodeName = BotDataMgr::GetWanderMapNodeName(me->GetMapId(), nextNodeId);
-                LOG_ERROR("scripts", "Bot {} id {} class {} level {} wandered from node {} to {}, next {} ('{}'), {}, dist {} yd!",
+                LOG_DEBUG("npcbots", "Bot {} id {} class {} level {} wandered from node {} to {}, next {} ('{}'), {}, dist {} yd!",
                     me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()), _travel_node_last, _travel_node_cur,
                     nextNodeId, nodeName.c_str(), homepos.ToString().c_str(), me->GetExactDist(homepos));
 
