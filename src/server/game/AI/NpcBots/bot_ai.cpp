@@ -562,6 +562,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
         homepos.Relocate(me);
         if (!IsTempBot())
             CheckOwnerExpiry(true);
+    }
     if (resetType == BOTAI_RESET_LOGOUT)
         _saveStats();
 
