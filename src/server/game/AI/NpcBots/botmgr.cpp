@@ -1955,6 +1955,13 @@ void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
         bot->GetBotAI()->ToggleRole(BOT_ROLE_DPS, true);
     }
 
+    if (botrole == BOT_ROLE_TANK_OFF)
+    {
+        bot->GetBotAI()->ToggleRole(BOT_ROLE_TANK, true);
+        bot->GetBotAI()->ToggleRole(BOT_ROLE_TANK_OFF, true);
+        bot->GetBotAI()->ToggleRole(BOT_ROLE_DPS, true);
+    }
+
     if (botrole == BOT_ROLE_HEAL)
     {
         bot->GetBotAI()->ToggleRole(BOT_ROLE_HEAL, true);
@@ -1983,7 +1990,7 @@ void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
                 spec = BOT_SPEC_WARRIOR_FURY;
             }
         }
-        if (botrole == BOT_ROLE_TANK)
+        if (botrole == BOT_ROLE_TANK || botrole == BOT_ROLE_TANK_OFF)
         {
             spec = BOT_SPEC_WARRIOR_PROTECTION;
         }
@@ -1995,7 +2002,7 @@ void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
         {
             spec = BOT_SPEC_PALADIN_RETRIBUTION;
         }
-        if (botrole == BOT_ROLE_TANK)
+        if (botrole == BOT_ROLE_TANK || botrole == BOT_ROLE_TANK_OFF)
         {
             spec = BOT_SPEC_PALADIN_PROTECTION;
         }
@@ -2095,7 +2102,7 @@ void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
                 spec = BOT_SPEC_DK_UNHOLY;
             }
         }
-        if (botrole == BOT_ROLE_TANK)
+        if (botrole == BOT_ROLE_TANK || botrole == BOT_ROLE_TANK_OFF)
         {
             rand = urand(0, 2);
             if (rand == 0)
@@ -2196,7 +2203,7 @@ void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
                 spec = BOT_SPEC_DRUID_FERAL;
             }
         }
-        if (botrole == BOT_ROLE_TANK)
+        if (botrole == BOT_ROLE_TANK || botrole == BOT_ROLE_TANK_OFF)
         {
             spec = BOT_SPEC_DRUID_FERAL;
         }

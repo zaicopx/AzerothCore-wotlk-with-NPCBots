@@ -30,6 +30,10 @@ enum BotTexts : uint32
     GOSSIP_BOTGIVER_HIRE                = 70202,
     GOSSIP_BOTGIVER_HIRE_CLASS          = 70203,
     GOSSIP_BOTGIVER_HIRE_EMPTY          = 70204,
+    GOSSIP_BOTGIVER_HIRE_RAID_GROUP     = 70251,
+    GOSSIP_BOTGIVER_HIRE_RAID_GROUP_10  = 70252,
+    GOSSIP_BOTGIVER_HIRE_RAID_GROUP_25 = 70252,
+    GOSSIP_BOTGIVER_HIRE_RAID_GROUP_40 = 70252,
     //70205-70299 reserved for botgiver gossip texts (not selectable)
     BOT_TEXT_DIE                        = 70300, //"Die!"
     BOT_TEXT_REZZING_YOU                = 70301, //"Rezzing You"
@@ -392,6 +396,10 @@ enum BotTexts : uint32
     BOT_TEXT_TRANSMOGRIFICATION         = 70658, //"Transmogrification..."
     BOT_TEXT_DISABLE_COMBAT_POSITIONING = 70659, //"DISABLE combat positioning"
     BOT_TEXT_PRIORITY_TARGET            = 70660, //"Priority target"
+    BOT_TEXT_BOTGIVER_HIRE_RAID         = 70701,
+    BOT_TEXT_BOTGIVER_HIRE_RAID_10      = 70702,
+    BOT_TEXT_BOTGIVER_HIRE_RAID_25      = 70703,
+    BOT_TEXT_BOTGIVER_HIRE_RAID_40      = 70704,
     //70661-70799 reserved for custom localization strings
 };
 
