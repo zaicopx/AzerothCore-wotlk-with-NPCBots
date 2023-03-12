@@ -1805,7 +1805,6 @@ namespace lfg
                             playerproposal.role = PLAYER_ROLE_TANK;
                             proposalmod.players.insert(pair<ObjectGuid, LfgProposalPlayer>(newBot->GetGUID(), playerproposal));
                             _dungeonfinderbots.insert(newBot);
-                            botsNeeded--;
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK);
                             allBots.erase(bot);
@@ -1830,7 +1829,6 @@ namespace lfg
                             playerproposal.role = PLAYER_ROLE_HEALER;
                             proposalmod.players.insert(pair<ObjectGuid, LfgProposalPlayer>(newBot->GetGUID(), playerproposal));
                             _dungeonfinderbots.insert(newBot);
-                            botsNeeded--;
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_HEAL);
                             allBots.erase(bot);
@@ -1858,7 +1856,6 @@ namespace lfg
                             playerproposal.role = PLAYER_ROLE_DAMAGE;
                             proposalmod.players.insert(pair<ObjectGuid, LfgProposalPlayer>(newBot->GetGUID(), playerproposal));
                             _dungeonfinderbots.insert(newBot);
-                            botsNeeded--;
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_DPS);
                             allBots.erase(bot);
@@ -1866,7 +1863,7 @@ namespace lfg
                             continue;
                         }
                     }
-                    allBots.erase(bot);
+                    botsNeeded--;
                 }
             }
 
