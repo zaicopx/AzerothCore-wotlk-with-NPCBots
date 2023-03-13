@@ -1591,6 +1591,15 @@ void Creature::SelectLevel(bool changelevel)
     // health
     float healthmod = _GetHealthMod(rank);
 
+    if (IsDungeonBoss() && !GetMap()->IsHeroic())
+        healthmod += sWorld->getRate(RATE_CREATURE_ELITE_BOSS);
+
+    if (IsDungeonBoss() && GetMap()->IsHeroic())
+        healthmod += sWorld->getRate(RATE_CREATURE_ELITE_BOSS_HEROIC);
+
+    if (IsDungeonBoss() && GetMap()->IsRaid())
+        healthmod += sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
+
     uint32 basehp = std::max<uint32>(1, stats->GenerateHealth(cInfo));
     uint32 health = uint32(basehp * healthmod);
 
@@ -1643,6 +1652,7 @@ float Creature::_GetHealthMod(int32 Rank)
             return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
         case CREATURE_ELITE_RAREELITE:
             return sWorld->getRate(RATE_CREATURE_ELITE_RAREELITE_HP);
+            return sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
         case CREATURE_ELITE_WORLDBOSS:
             return sWorld->getRate(RATE_CREATURE_ELITE_WORLDBOSS_HP);
         case CREATURE_ELITE_RARE:
@@ -1846,6 +1856,15 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
         if (curhealth)
         {
             curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
+
+            if (IsDungeonBoss() && !map->IsHeroic())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS);
+
+            if (IsDungeonBoss() && map->IsHeroic())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_HEROIC);
+
+            if (IsDungeonBoss() && map->IsRaid())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
             if (curhealth < 1)
                 curhealth = 1;
         }
@@ -3924,6 +3943,15 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
         if (curhealth)
         {
             curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
+            if (IsDungeonBoss() && !map->IsHeroic())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS);
+
+            if (IsDungeonBoss() && map->IsHeroic())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_HEROIC);
+
+            if (IsDungeonBoss() && map->IsRaid())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
+
             if (curhealth < 1)
                 curhealth = 1;
         }

@@ -543,6 +543,9 @@ void World::LoadConfigSettings(bool reload)
     _rate_values[RATE_CREATURE_NORMAL_HP]                   = sConfigMgr->GetOption<float>("Rate.Creature.Normal.HP", 1.0f);
     _rate_values[RATE_CREATURE_ELITE_ELITE_HP]              = sConfigMgr->GetOption<float>("Rate.Creature.Elite.Elite.HP", 1.0f);
     _rate_values[RATE_CREATURE_ELITE_RAREELITE_HP]          = sConfigMgr->GetOption<float>("Rate.Creature.Elite.RAREELITE.HP", 1.0f);
+    _rate_values[RATE_CREATURE_ELITE_BOSS]                  = sConfigMgr->GetOption<float>("Rate.Creature.Elite.BOSS.HP", 1.0f);
+    _rate_values[RATE_CREATURE_ELITE_BOSS_HEROIC]           = sConfigMgr->GetOption<float>("Rate.Creature.Elite.BOSS_HEROIC.HP", 1.0f);
+    _rate_values[RATE_CREATURE_ELITE_BOSS_RAID]             = sConfigMgr->GetOption<float>("Rate.Creature.Elite.BOSS_RAID.HP", 1.0f);
     _rate_values[RATE_CREATURE_ELITE_WORLDBOSS_HP]          = sConfigMgr->GetOption<float>("Rate.Creature.Elite.WORLDBOSS.HP", 1.0f);
     _rate_values[RATE_CREATURE_ELITE_RARE_HP]               = sConfigMgr->GetOption<float>("Rate.Creature.Elite.RARE.HP", 1.0f);
     _rate_values[RATE_CREATURE_NORMAL_SPELLDAMAGE]          = sConfigMgr->GetOption<float>("Rate.Creature.Normal.SpellDamage", 1.0f);

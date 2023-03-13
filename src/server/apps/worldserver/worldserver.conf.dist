@@ -1757,11 +1757,14 @@ Rate.Creature.Elite.WORLDBOSS.SpellDamage = 1
 #                     1 - (Rate.Creature.Elite.RAREELITE.HP)
 #                     1 - (Rate.Creature.Elite.WORLDBOSS.HP)
 
-Rate.Creature.Normal.HP          = 1
-Rate.Creature.Elite.Elite.HP     = 1
-Rate.Creature.Elite.RARE.HP      = 1
-Rate.Creature.Elite.RAREELITE.HP = 1
-Rate.Creature.Elite.WORLDBOSS.HP = 1
+Rate.Creature.Normal.HP            = 1
+Rate.Creature.Elite.Elite.HP       = 1
+Rate.Creature.Elite.RARE.HP        = 1
+Rate.Creature.Elite.RAREELITE.HP   = 1
+Rate.Creature.Elite.BOSS.HP        = 1
+Rate.Creature.Elite.BOSS_HEROIC.HP = 1
+Rate.Creature.Elite.BOSS_RAID.HP   = 1
+Rate.Creature.Elite.WORLDBOSS.HP   = 1
 
 #
 #    ListenRange.Say
