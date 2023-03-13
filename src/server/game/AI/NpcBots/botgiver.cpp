@@ -49,7 +49,7 @@ public:
 
             AddGossipItemFor(player, GOSSIP_ICON_TALK, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_SERVICE), HIRE, GOSSIP_ACTION_INFO_DEF + 1);
 
-            if (!player->HaveBot())
+            if (!player->HaveBot() && player->GetLevel() >= 60)
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_HIRE_RAID), HIRE_RAID_GROUP, GOSSIP_ACTION_INFO_DEF + 1);
 
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, bot_ai::LocalizedNpcText(player, BOT_TEXT_NEVERMIND), 0, GOSSIP_ACTION_INFO_DEF + 2);
