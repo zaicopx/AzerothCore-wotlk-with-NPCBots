@@ -6509,6 +6509,8 @@ void bot_ai::_OnHealthUpdate() const
     //TC_LOG_ERROR("entities.player", "health to add after stam mod: %i", hp_add);
     uint32 m_totalhp = m_basehp + int32(hp_add); //m_totalhp = uint32(float(m_basehp + hp_add) * stammod);
     m_totalhp *= BotMgr::GetBotHPMod();
+    if (me->GetMap()->IsRaid())
+        m_totalhp *= BotMgr::GetBotHPRaidMod();
     //TC_LOG_ERROR("entities.player", "total base health: %u", m_totalhp);
 
     //Level multipliers

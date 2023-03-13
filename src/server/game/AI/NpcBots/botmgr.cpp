@@ -94,6 +94,7 @@ float _mult_dmg_physical;
 float _mult_dmg_spell;
 float _mult_healing;
 float _mult_hp;
+float _mult_hp_raid;
 float _mult_mana;
 float _mult_dmg_warrior;
 float _mult_dmg_paladin;
@@ -243,6 +244,7 @@ void BotMgr::LoadConfig(bool reload)
     _mult_dmg_spell                 = sConfigMgr->GetFloatDefault("NpcBot.Mult.Damage.Spell", 1.0f);
     _mult_healing                   = sConfigMgr->GetFloatDefault("NpcBot.Mult.Healing", 1.0f);
     _mult_hp                        = sConfigMgr->GetFloatDefault("NpcBot.Mult.HP", 1.0f);
+    _mult_hp_raid                   = sConfigMgr->GetFloatDefault("NpcBot.Mult.HP.Raid", 1.0f);
     _mult_mana                      = sConfigMgr->GetFloatDefault("NpcBot.Mult.Mana", 1.0f);
     _mult_dmg_warrior               = sConfigMgr->GetFloatDefault("NpcBot.Mult.Damage.Warrior", 1.0f);
     _mult_dmg_paladin               = sConfigMgr->GetFloatDefault("NpcBot.Mult.Damage.Paladin", 1.0f);
@@ -308,6 +310,7 @@ void BotMgr::LoadConfig(bool reload)
     RoundToInterval(_mult_dmg_spell, 0.1f, 10.f);
     RoundToInterval(_mult_healing, 0.1f, 10.f);
     RoundToInterval(_mult_hp, 0.1f, 10.f);
+    RoundToInterval(_mult_hp_raid, 0.1f, 10.f);
     RoundToInterval(_mult_mana, 0.1f, 10.f);
 
     //exclusions
@@ -1930,6 +1933,10 @@ float BotMgr::GetBotHealingMod()
 float BotMgr::GetBotHPMod()
 {
     return _mult_hp;
+}
+float BotMgr::GetBotHPRaidMod()
+{
+    return _mult_hp_raid;
 }
 //Boxhead: ManaMod
 float BotMgr::GetBotManaMod()

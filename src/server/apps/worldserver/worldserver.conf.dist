@@ -4226,6 +4226,7 @@ NpcBot.Mult.Damage.Physical = 1.0
 NpcBot.Mult.Damage.Spell    = 1.0
 NpcBot.Mult.Healing         = 1.0
 NpcBot.Mult.HP              = 1.0
+NpcBot.Mult.HP.Raid         = 1.0
 NpcBot.Mult.Mana            = 1.0
 
 #
