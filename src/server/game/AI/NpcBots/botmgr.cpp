@@ -685,22 +685,24 @@ void BotMgr::Update(uint32 diff)
         }
 
         if (partyCombat == false)
+        {
             ai->UpdateReviveTimer(diff);
 
-        //bot->IsAIEnabled = true;
+            //bot->IsAIEnabled = true;
 
-        if (ai->GetReviveTimer() <= diff)
-        {
-            if (bot->IsInWorld() && !bot->IsAlive() && _owner->IsAlive() && !_owner->IsInCombat() &&
-                !_owner->IsBeingTeleported() && !_owner->InArena() && !_owner->IsInFlight() &&
-                !_owner->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH) &&
-                !_owner->HasInvisibilityAura() && !_owner->HasStealthAura())
+            if (ai->GetReviveTimer() <= diff)
             {
-                _reviveBot(bot);
-                continue;
-            }
+                if (bot->IsInWorld() && !bot->IsAlive() && _owner->IsAlive() && !_owner->IsInCombat() &&
+                    !_owner->IsBeingTeleported() && !_owner->InArena() && !_owner->IsInFlight() &&
+                    !_owner->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH) &&
+                    !_owner->HasInvisibilityAura() && !_owner->HasStealthAura())
+                {
+                    _reviveBot(bot);
+                    continue;
+                }
 
-            ai->SetReviveTimer(urand(1000, 5000));
+                ai->SetReviveTimer(urand(1000, 5000));
+            }
         }
 
         if (_owner->IsAlive() && (bot->IsAlive() || restrictBots) && !ai->IsTempBot() && !ai->IsDuringTeleport() &&
@@ -878,10 +880,13 @@ void BotMgr::_reviveBot(Creature* bot, WorldLocation* dest)
 
     bot->SetDisplayId(bot->GetNativeDisplayId());
     bot->ReplaceAllNpcFlags(NPCFlags(bot->GetCreatureTemplate()->npcflag));
-    bot->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+    bot->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_IGNORE_PATHFINDING | UNIT_STATE_NO_ENVIRONMENT_UPD)));
     bot->ReplaceAllUnitFlags(UnitFlags(0));
+    bot->SetLootRecipient(nullptr);
+    bot->ResetPlayerDamageReq();
     bot->SetPvP(bot->GetBotOwner()->IsPvP());
     bot->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+    bot->Motion_Initialize();
     bot->setDeathState(ALIVE);
     //bot->GetBotAI()->Reset();
     bot->GetBotAI()->SetShouldUpdateStats();
