@@ -1591,10 +1591,10 @@ void Creature::SelectLevel(bool changelevel)
     // health
     float healthmod = _GetHealthMod(rank);
 
-    if (IsDungeonBoss() && !GetMap()->IsHeroic())
+    if (IsDungeonBoss() && !GetMap()->IsHeroic() && !GetMap()->IsRaid())
         healthmod += sWorld->getRate(RATE_CREATURE_ELITE_BOSS);
 
-    if (IsDungeonBoss() && GetMap()->IsHeroic())
+    if (IsDungeonBoss() && GetMap()->IsHeroic() && !GetMap()->IsRaid())
         healthmod += sWorld->getRate(RATE_CREATURE_ELITE_BOSS_HEROIC);
 
     if (IsDungeonBoss() && GetMap()->IsRaid())
