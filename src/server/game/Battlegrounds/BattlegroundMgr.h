@@ -20,6 +20,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
+#include "Config.h"
 #include "Common.h"
 #include "CreatureAIImpl.h"
 #include "DBCEnums.h"
@@ -67,6 +68,9 @@ private:
     ~BattlegroundMgr();
 
 public:
+    NpcBotRegistryBG GetBGBots() const { return _bgbots; };
+    void RemoveBGBotFromList(Creature* bot) { _bgbots.erase(bot); };
+
     static BattlegroundMgr* instance();
 
     void Update(uint32 diff);
@@ -108,6 +112,7 @@ public:
 
     bool isArenaTesting() const { return m_ArenaTesting; }
     bool isTesting() const { return m_Testing; }
+    bool isSoloMode() const { return sConfigMgr->GetBoolDefault("SoloPvP.Enable", false); }
 
     static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType);
     static BattlegroundTypeId BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId);
@@ -131,6 +136,9 @@ public:
             return itr->second;
         return BATTLEGROUND_TYPE_NONE;
     }
+
+    //NPCBOT
+    NpcBotRegistryBG _bgbots;
 
     static std::unordered_map<int, BattlegroundQueueTypeId> bgToQueue;      // BattlegroundTypeId -> BattlegroundQueueTypeId
     static std::unordered_map<int, BattlegroundTypeId> queueToBg;           // BattlegroundQueueTypeId -> BattlegroundTypeId

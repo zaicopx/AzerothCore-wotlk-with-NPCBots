@@ -23,6 +23,8 @@
 #include "DBCEnums.h"
 #include "GameObject.h"
 #include "SharedDefines.h"
+ //NPCBOTS
+#include "botdatamgr.h"
 
 class Creature;
 class GameObject;
@@ -516,6 +518,8 @@ public:
     virtual GraveyardStruct const* GetClosestGraveyard(Player* player);
 
     virtual void AddPlayer(Player* player);                // must be implemented in BG subclass
+
+    virtual void AddPlayerNPCBots(Player* player);
 
     void AddOrSetPlayerToCorrectBgGroup(Player* player, TeamId teamId);
 
