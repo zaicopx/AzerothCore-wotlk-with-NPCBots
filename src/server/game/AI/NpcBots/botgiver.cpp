@@ -406,6 +406,7 @@ public:
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK);
                                     allBots.erase(bot);
+                                    botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
                                     continue;
                                 }
@@ -425,6 +426,7 @@ public:
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK_OFF);
                                     allBots.erase(bot);
+                                    botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
                                     continue;
                                 }
@@ -443,6 +445,7 @@ public:
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_HEAL);
                                     allBots.erase(bot);
+                                    botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as heal!", bot->GetName());
                                     continue;
                                 }
@@ -464,11 +467,12 @@ public:
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_DPS);
                                     allBots.erase(bot);
+                                    botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as dps!", bot->GetName());
                                     continue;
                                 }
                             }
-                            botsAmount--;
+                            allBots.erase(bot);
                         }
                     }
                     player->ModifyMoney(-botCost);

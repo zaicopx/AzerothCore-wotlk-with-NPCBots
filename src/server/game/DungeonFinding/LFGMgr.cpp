@@ -1808,6 +1808,7 @@ namespace lfg
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK);
                             allBots.erase(bot);
+                            botsNeeded--;
                             //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
                             continue;
                         }
@@ -1832,6 +1833,7 @@ namespace lfg
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_HEAL);
                             allBots.erase(bot);
+                            botsNeeded--;
                             //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as heal!", bot->GetName());
                             continue;
                         }
@@ -1859,11 +1861,12 @@ namespace lfg
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_DPS);
                             allBots.erase(bot);
+                            botsNeeded--;
                             //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as dps!", bot->GetName());
                             continue;
                         }
                     }
-                    botsNeeded--;
+                    allBots.erase(bot);
                 }
             }
 
