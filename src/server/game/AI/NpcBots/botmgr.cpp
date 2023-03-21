@@ -641,6 +641,7 @@ void BotMgr::Update(uint32 diff)
             {
                 continue;
             }
+
             if (_owner == bot->GetBotOwner())
             {
                 Group* gr = _owner->GetGroup();
@@ -725,6 +726,41 @@ void BotMgr::Update(uint32 diff)
             }
         }
     }
+
+    /*
+    if (_bots.size() > 0)
+    {
+        for (BotMap::iterator ci = _bots.begin(); ci != _bots.end(); ++ci)
+        {
+
+            Creature* bot = ci->second;
+            ai = bot->GetBotAI();
+
+            if (!ai->GetBotOwnerGuid())
+            {
+                sBattlegroundMgr->RemoveBGBotFromList(bot);
+                continue;
+            }
+
+            if (ai->IAmFree())
+                continue;
+
+            if (!bot->IsInWorld())
+            {
+                continue;
+            }
+
+            if (_owner == bot->GetBotOwner())
+            {
+                homepos.Relocate(me);
+                if (!IsTempBot())
+                    CheckOwnerExpiry(false);
+            }
+
+        }
+
+    }
+    */
 
     for (BotMap::const_iterator itr = _bots.begin(); itr != _bots.end(); ++itr)
     {
