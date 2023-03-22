@@ -581,15 +581,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
 
     if (!me->IsInWorld() || resetType == BOTAI_RESET_FORCERECALL)
     {
-        AbortTeleport();
-
-        //if no master - will teleport to spawn position
-        //otherwise - will teleport to master
-        teleHomeEvent = new TeleportHomeEvent(this);
-        Events.AddEvent(teleHomeEvent, Events.CalculateTime(0)); //make sure event will be deleted
-        if (teleHomeEvent->IsActive())
-            teleHomeEvent->ScheduleAbort(); //make sure event will not be executed twice
-        teleHomeEvent->Execute(0,0);
+        TeleportHomeStart(resetType != BOTAI_RESET_UNBIND);
     }
     else
     {
@@ -2249,7 +2241,7 @@ void bot_ai::SetStats(bool force)
                 ASSERT(minlevel > 0 && minlevel > 0);
                 mylevel = urand(std::min<uint8>(minlevel + 2, maxlevel), maxlevel);
                 mylevel += BotDataMgr::GetLevelBonusForBotRank(me->GetCreatureTemplate()->rank);
-                _baseLevel = mylevel;
+                _baseLevel = std::max<uint8>(mylevel, BotDataMgr::GetMinLevelForBotClass(_botclass));
                 LOG_DEBUG("npcbots", "Wandering bot {} id {} selected level {}...", me->GetName().c_str(), me->GetEntry(), uint32(_baseLevel));
             }
         }
@@ -4636,7 +4628,7 @@ bool bot_ai::ProcessImmediateNonAttackTarget()
 //POSITION
 AoeSpotsVec const& bot_ai::GetAoeSpots() const
 {
-    return master->GetBotMgr()->GetAoeSpots();
+    return IAmFree() ? _aoeSpots : master->GetBotMgr()->GetAoeSpots();
 }
 
 void bot_ai::CalculateAoeSpots(Unit const* unit, AoeSpotsVec& spots)
@@ -4669,6 +4661,9 @@ void bot_ai::CalculateAoeSpots(Unit const* unit, AoeSpotsVec& spots)
             spots.push_back(AoeSpotsVec::value_type(*dObj, radius));
         }
     }
+
+    if (unit->IsNPCBot() && unit->ToCreature()->IsFreeBot())
+        return;
 
     //Additional: aoe coming from spawned npcs
 
@@ -4746,7 +4741,7 @@ void bot_ai::CalculateAoeSpots(Unit const* unit, AoeSpotsVec& spots)
 
 void bot_ai::CalculateAoeSafeSpots(Unit* target, float maxdist, AoeSafeSpotsVec& safespots) const
 {
-    if (!IAmFree() && !GetAoeSpots().empty())
+    if (!GetAoeSpots().empty())
     {
         //find 200 safe spots
         Position ppos;
@@ -4805,17 +4800,14 @@ bool bot_ai::IsPeriodicDynObjAOEDamage(SpellInfo const* spellInfo)
 }
 bool bot_ai::IsWithinAoERadius(Position const& pos) const
 {
-    if (!IAmFree())
+    AoeSpotsVec const& spots = GetAoeSpots();
+    if (!spots.empty())
     {
-        AoeSpotsVec const& spots = GetAoeSpots();
-        if (!spots.empty())
-        {
-            Unit const* mover = me->GetVehicle() ? me->GetVehicleBase() : me;
-            float cr_diff = mover->GetCombatReach() - DEFAULT_COMBAT_REACH;
-            for (AoeSpotsVec::const_iterator ci = spots.begin(); ci != spots.end(); ++ci)
-                if (pos.GetExactDist(&ci->first) - cr_diff < ci->second)
-                    return true;
-        }
+        Unit const* mover = me->GetVehicle() ? me->GetVehicleBase() : me;
+        float cr_diff = mover->GetCombatReach() - DEFAULT_COMBAT_REACH;
+        for (AoeSpotsVec::const_iterator ci = spots.begin(); ci != spots.end(); ++ci)
+            if (pos.GetExactDist(&ci->first) - cr_diff < ci->second)
+                return true;
     }
 
     return false;
@@ -4942,7 +4934,7 @@ void bot_ai::CalculateAttackPos(Unit* target, Position& pos, bool& force) const
         return;
     }
 
-    AoeSpotsVec const& aoespots = IAmFree() ? AoeSpotsVec() : GetAoeSpots();
+    AoeSpotsVec const& aoespots = GetAoeSpots();
 
     bool toofaraway;
 
@@ -13333,12 +13325,15 @@ void bot_ai::DefaultInit()
     }
 
     //bot needs to be either directly controlled by player of have pvp flag to be a valid assist target (buffs, heals, etc.)
-    me->SetPvP(master->IsPvP() || IsWanderer());
     me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
-    if (sWorld->IsFFAPvPRealm())
-        me->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-    else if (IAmFree())
-        me->SetByteFlag(UNIT_FIELD_BYTES_2, 1, 0);
+    if (!IsWanderer())
+    {
+        me->SetPvP(master->IsPvP());
+        if (sWorld->IsFFAPvPRealm())
+            me->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        else if (IAmFree())
+            me->SetByteFlag(UNIT_FIELD_BYTES_2, 1, 0);
+    }
 
     InitSpec();
     InitRoles();
@@ -13831,6 +13826,12 @@ void bot_ai::InitEquips()
         for (uint8 i = BOT_SLOT_MAINHAND; i < BOT_INVENTORY_SIZE; ++i)
         {
             if (i == BOT_SLOT_OFFHAND && !_canUseOffHand())
+                continue;
+            if (i == BOT_SLOT_SHOULDERS && me->GetLevel() < 16)
+                continue;
+            if ((i == BOT_SLOT_FINGER1 || i == BOT_SLOT_FINGER2) && me->GetLevel() < 19)
+                continue;
+            if ((i == BOT_SLOT_HEAD || i == BOT_SLOT_TRINKET1 || i == BOT_SLOT_TRINKET2) && me->GetLevel() < 29)
                 continue;
 
             Item* item = BotDataMgr::GenerateWanderingBotItem(i, _botclass, me->GetLevel(),
@@ -16492,6 +16493,10 @@ bool bot_ai::GlobalUpdate(uint32 diff)
         {
             if (Unit* victim = CanBotAttackOnVehicle() ? me->GetVictim() : mover->GetTarget() ? ObjectAccessor::GetUnit(*mover, mover->GetTarget()) : nullptr)
             {
+                _aoeSpots.clear();
+                if (IAmFree())
+                    CalculateAoeSpots(me, _aoeSpots);
+
                 //TC_LOG_ERROR("scripts", "GetInPos prepare by %s", me->GetName().c_str());
                 if (!IAmFree() && master->GetBotMgr()->GetBotAttackRangeMode() == BOT_ATTACK_RANGE_EXACT &&
                     master->GetBotMgr()->GetBotExactAttackRange() == 0 && !GetVehicleAttackDistanceOverride() &&
@@ -16733,7 +16738,7 @@ void bot_ai::Evade()
     {
         if (!teleHomeEvent || !teleHomeEvent->IsActive())
         {
-            teleHomeEvent = new TeleportHomeEvent(this);
+            teleHomeEvent = new TeleportHomeEvent(this, false);
             Events.AddEvent(teleHomeEvent, Events.CalculateTime(5000));
 
             //if bot has been removed manually and while in dungeon
@@ -16922,8 +16927,20 @@ void bot_ai::GetNextEvadeMovePoint(Position& pos, bool& use_path) const
         mypos.m_positionZ = me->GetPositionZ();
     pos.Relocate(mypos);
 }
+void bot_ai::TeleportHomeStart(bool reset)
+{
+    AbortTeleport();
+
+    //if no master - will teleport to spawn position
+    //otherwise - will teleport to master
+    teleHomeEvent = new TeleportHomeEvent(this, reset);
+    Events.AddEvent(teleHomeEvent, Events.CalculateTime(0)); //make sure event will be deleted
+    if (teleHomeEvent->IsActive())
+        teleHomeEvent->ScheduleAbort(); //make sure event will not be executed twice
+    teleHomeEvent->Execute(0,0);
+}
 //TeleportHome() ONLY CALLED THROUGH EVENTPROCESSOR
-void bot_ai::TeleportHome()
+void bot_ai::TeleportHome(bool reset)
 {
     ASSERT(teleHomeEvent);
     //ASSERT(IAmFree());
@@ -16936,13 +16953,13 @@ void bot_ai::TeleportHome()
 
     Map* map = sMapMgr->CreateBaseMap(mapid);
     ASSERT(!map->Instanceable(), map->GetDebugInfo().c_str());
-    BotMgr::TeleportBot(me, map, &pos);
+    BotMgr::TeleportBot(me, map, &pos, false, reset);
 
     spawned = false;
     _evadeCount = 0;
 }
 //FinishTeleport(uint32, float, float, float, float) ONLY CALLED THROUGH EVENTPROCESSOR
-bool bot_ai::FinishTeleport(/*uint32 mapId, uint32 instanceId, float x, float y, float z, float o*/)
+bool bot_ai::FinishTeleport(bool reset)
 {
     ASSERT(teleFinishEvent);
     //ASSERT(!IAmFree());
@@ -16953,24 +16970,20 @@ bool bot_ai::FinishTeleport(/*uint32 mapId, uint32 instanceId, float x, float y,
     //1) Cannot teleport: master disappeared - return home
     if (IAmFree()/* || master->GetSession()->isLogingOut()*/)
     {
-        teleHomeEvent = new TeleportHomeEvent(this);
-        Events.AddEvent(teleHomeEvent, Events.CalculateTime(0)); //make sure event will be deleted
-        if (teleHomeEvent->IsActive())
-            teleHomeEvent->ScheduleAbort(); //make sure event will not be executed twice
-        teleHomeEvent->Execute(0,0);
+        TeleportHomeStart(true);
         _evadeMode = false;
 
         return false;
     }
 
-    BotMgr::AddDelayedTeleportCallback([this]() {
+    BotMgr::AddDelayedTeleportCallback([this, reset]() {
         Map* map = master->FindMap();
         //2) Cannot teleport: map not found or forbidden - delay teleport
         if (!map || !master->IsAlive() || master->GetBotMgr()->RestrictBots(me, true))
         {
             //ChatHandler ch(master->GetSession());
             //ch.PSendSysMessage("Your bot %s cannot teleport to you. Restricted bot access on this map...", me->GetName().c_str());
-            teleFinishEvent = new TeleportFinishEvent(this);
+            teleFinishEvent = new TeleportFinishEvent(this, reset);
             Events.AddEvent(teleFinishEvent, Events.CalculateTime(5000));
             return;
         }
@@ -16992,6 +17005,8 @@ bool bot_ai::FinishTeleport(/*uint32 mapId, uint32 instanceId, float x, float y,
 
         map->AddToMap(me);
         me->BotStopMovement();
+        if (reset)
+            this->Reset();
         //bot->SetAI(oldAI);
         //me->IsAIEnabled = true;
         canUpdate = true;
