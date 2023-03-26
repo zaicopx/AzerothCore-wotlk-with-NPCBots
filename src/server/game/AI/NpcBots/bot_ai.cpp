@@ -6726,6 +6726,9 @@ void bot_ai::_OnManaRegenUpdate() const
         (_botclass == BOT_CLASS_DRUID && _spec == BOT_SPEC_DRUID_BALANCE))
         power_regen_mp5 += 0.024f * _getTotalBotStat(BOT_STAT_MOD_INTELLECT);
 
+    //Mana regen Cheat
+    power_regen_mp5 *= 3;
+
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(value, modManaRegenInterrupt));
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + value);
 }
