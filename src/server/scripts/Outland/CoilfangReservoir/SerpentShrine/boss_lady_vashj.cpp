@@ -265,7 +265,7 @@ public:
                     break;
                 case EVENT_SUMMON_SPOREBAT:
                     me->CastSpell(me, SPELL_SUMMON_TOXIC_SPOREBAT, true);
-                    events.ScheduleEvent(EVENT_SUMMON_SPOREBAT, 20000 - 1000 * std::min(count++, 16));
+                    events.ScheduleEvent(EVENT_SUMMON_SPOREBAT, 100000 - 1000 * std::min(count++, 16));
                     break;
             }
 
