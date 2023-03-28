@@ -779,39 +779,71 @@ void BotMgr::Update(uint32 diff)
             continue;
         }
 
-        if (partyCombat == false)
+        if (!bot->GetMap()->IsRaid())
         {
-            ai->UpdateReviveTimer(diff);
-
-            //bot->IsAIEnabled = true;
-
-            if (ai->GetReviveTimer() <= diff)
+            /// Normal revive
+            if (partyCombat == false)
             {
-                if (bot->IsInWorld() && !bot->IsAlive() && _owner->IsAlive() && !_owner->IsInCombat() &&
-                    !_owner->IsBeingTeleported() && !_owner->InArena() && !_owner->IsInFlight() &&
+                ai->UpdateReviveTimer(diff);
+
+                //bot->IsAIEnabled = true;
+
+                if (ai->GetReviveTimer() <= diff)
+                {
+                    if (bot->IsInWorld() && !bot->IsAlive() && _owner->IsAlive() && !_owner->IsInCombat() &&
+                        !_owner->IsBeingTeleported() && !_owner->InArena() && !_owner->IsInFlight() &&
+                        !_owner->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH) &&
+                        !_owner->HasInvisibilityAura() && !_owner->HasStealthAura())
+                    {
+                        _reviveBot(bot);
+                        continue;
+                    }
+
+                    ai->SetReviveTimer(urand(1000, 5000));
+                }
+            }
+
+            if (_owner->IsAlive() && (bot->IsAlive() || restrictBots) && !ai->IsTempBot() && !ai->IsDuringTeleport() &&
+                (restrictBots || bot->GetMap() != _owner->GetMap() ||
+                    (!bot->GetBotAI()->HasBotCommandState(BOT_COMMAND_STAY) && _owner->GetDistance(bot) > SIZE_OF_GRIDS)))
+            {
+                //_owner->m_Controlled.erase(bot);
+                TeleportBot(bot, _owner->GetMap(), _owner, _quickrecall);
+                continue;
+            }
+
+            ai->canUpdate = true;
+            bot->Update(diff);
+            ai->canUpdate = false;
+        }
+        else
+        {
+            /// Raid revive
+            if (_owner->IsAlive())
+            {
+                if (bot->IsInWorld() && !bot->IsAlive() &&
+                    !_owner->IsBeingTeleported() && !_owner->IsInFlight() &&
                     !_owner->HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH) &&
                     !_owner->HasInvisibilityAura() && !_owner->HasStealthAura())
                 {
                     _reviveBot(bot);
                     continue;
                 }
-
-                ai->SetReviveTimer(urand(1000, 5000));
             }
-        }
 
-        if (_owner->IsAlive() && (bot->IsAlive() || restrictBots) && !ai->IsTempBot() && !ai->IsDuringTeleport() &&
-            (restrictBots || bot->GetMap() != _owner->GetMap() ||
-            (!bot->GetBotAI()->HasBotCommandState(BOT_COMMAND_STAY) && _owner->GetDistance(bot) > SIZE_OF_GRIDS)))
-        {
-            //_owner->m_Controlled.erase(bot);
-            TeleportBot(bot, _owner->GetMap(), _owner, _quickrecall);
-            continue;
-        }
+            if (_owner->IsAlive() && (bot->IsAlive() || restrictBots) && !ai->IsTempBot() && !ai->IsDuringTeleport() &&
+                (restrictBots || bot->GetMap() != _owner->GetMap() ||
+                    (!bot->GetBotAI()->HasBotCommandState(BOT_COMMAND_STAY) && _owner->GetDistance(bot) > SIZE_OF_GRIDS)))
+            {
+                //_owner->m_Controlled.erase(bot);
+                TeleportBot(bot, _owner->GetMap(), _owner, _quickrecall);
+                continue;
+            }
 
-        ai->canUpdate = true;
-        bot->Update(diff);
-        ai->canUpdate = false;
+            ai->canUpdate = true;
+            bot->Update(diff);
+            ai->canUpdate = false;
+        }
     }
 
     if (_quickrecall)
