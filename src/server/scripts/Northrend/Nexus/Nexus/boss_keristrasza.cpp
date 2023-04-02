@@ -82,7 +82,7 @@ public:
             Talk(SAY_AGGRO);
             BossAI::JustEngagedWith(who);
 
-            me->CastSpell(me, SPELL_INTENSE_COLD, true);
+            //me->CastSpell(me, SPELL_INTENSE_COLD, true);
             events.ScheduleEvent(EVENT_CRYSTALFIRE_BREATH, 14s);
             events.ScheduleEvent(EVENT_CRYSTAL_CHAINS, DUNGEON_MODE(20000, 11000));
             events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
