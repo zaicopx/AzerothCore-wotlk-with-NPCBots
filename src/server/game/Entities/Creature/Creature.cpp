@@ -1600,6 +1600,12 @@ void Creature::SelectLevel(bool changelevel)
     else
         healthmod = _GetHealthMod(rank);
 
+    if (GetMapId() == 530)
+        healthmod *= 1.5;
+
+    if (GetMapId() == 571)
+        healthmod *= 2.0;
+
     uint32 basehp = std::max<uint32>(1, stats->GenerateHealth(cInfo));
     uint32 health = uint32(basehp * healthmod);
 
@@ -1862,6 +1868,12 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
                 curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
             else
                 curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
+
+            if (GetMapId() == 530)
+                curhealth *= 1.5;
+
+            if (GetMapId() == 571)
+                curhealth *= 2.0;
 
             if (curhealth < 1)
                 curhealth = 1;
@@ -3953,6 +3965,15 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
                 curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
             else
                 curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
+
+            if ((GetMapId() == 0 || GetMapId() == 1) && GetLevel() >= 40)
+                curhealth *= 1.25;
+
+            if (GetMapId() == 530)
+                curhealth *= 1.5;
+
+            if (GetMapId() == 571)
+                curhealth *= 2.0;
 
             if (curhealth < 1)
                 curhealth = 1;
