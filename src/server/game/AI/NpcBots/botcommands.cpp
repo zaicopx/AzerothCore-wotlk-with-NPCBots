@@ -342,9 +342,10 @@ private:
             case 148: // Darkshore
             case 3433: // Ghostlands
             case 3525: // Bloodmyst Isle
-            case 17: // Barrens
             case 721: // Gnomeregan
                 return { 8, 20 };
+            case 17: // Barrens
+                return { 8, 25 };
             case 44: // Redridge Mountains
             case 406: // Stonetalon Mountains
                 return { 13, 25 };
@@ -386,6 +387,7 @@ private:
             case 618: // Winterspring
                 return { 53, 60 };
             case 25: // BlackrockMountain
+            case 493: // Moonglade
                 return { 46, 60 };
             default:
                 LOG_ERROR("scripts", "GetZoneLevels: no choice for zoneId {}", zoneId);
@@ -1080,7 +1082,7 @@ public:
         }
 
         WorldDatabase.Execute("UPDATE creature_template_npcbot_wander_nodes SET flags=%u WHERE id=%u", wp->GetFlags(), wpId);
- 
+
         return true;
     }
     static bool HandleNpcBotWPSetNameCommand(ChatHandler* handler, Optional<std::string> newname)
@@ -2461,14 +2463,15 @@ public:
         return true;
     }
 
-    static bool HandleNpcBotLookupCommand(ChatHandler* handler, Optional<uint8> botclass, Optional <bool> unspawned)
+    static bool HandleNpcBotLookupCommand(ChatHandler* handler, Optional<uint8> botclass, Optional <bool> unspawned, Optional<uint8> teamid)
     {
         //this is just a modified '.lookup creature' command
         if (!botclass)
         {
-            handler->SendSysMessage(".npcbot lookup #class #[not_spawned_only]");
+            handler->SendSysMessage(".npcbot lookup #class #[not_spawned_only] #[team_id]");
             handler->SendSysMessage("Looks up npcbots by #class, and returns all matches with their creature ID's");
             handler->SendSysMessage("If #not_spawned_only is set to 1 shows only bots which don't exist in world");
+            handler->SendSysMessage("If #team_id is provided, will also filter by team: Alliance = 0, Horde = 1, Neutral = 2");
             handler->PSendSysMessage("BOT_CLASS_WARRIOR = %u", uint32(BOT_CLASS_WARRIOR));
             handler->PSendSysMessage("BOT_CLASS_PALADIN = %u", uint32(BOT_CLASS_PALADIN));
             handler->PSendSysMessage("BOT_CLASS_HUNTER = %u", uint32(BOT_CLASS_HUNTER));
@@ -2498,6 +2501,13 @@ public:
             return false;
         }
 
+        if (teamid && *teamid > uint8(TEAM_NEUTRAL))
+        {
+            handler->PSendSysMessage("Unknown team %u", uint32(*teamid));
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         handler->PSendSysMessage("Looking for bots of class %u...", uint32(*botclass));
 
         uint8 localeIndex = handler->GetSessionDbLocaleIndex();
@@ -2522,6 +2532,16 @@ public:
                 continue;
 
             uint8 race = _botExtras->race;
+
+            if (teamid)
+            {
+                ChrRacesEntry const* rentry = sChrRacesStore.LookupEntry(race);
+                uint32 faction = rentry ? rentry->FactionID : 14;
+                TeamId team = BotDataMgr::GetTeamForFaction(faction);
+
+                if (*teamid != uint8(team))
+                    continue;
+            }
 
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(id))
             {
