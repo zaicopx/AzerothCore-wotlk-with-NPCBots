@@ -6536,7 +6536,7 @@ void bot_ai::_OnHealthUpdate() const
         m_totalhp *= 1.1;
 
     if (mylevel >= 80)
-        m_totalhp *= 1.1;
+        m_totalhp *= 1.25;
 
     //hp bonuses
     uint8 bonuspct = 0;
@@ -6622,7 +6622,7 @@ void bot_ai::_OnManaUpdate() const
         m_basemana *= 1.2;
 
     if (mylevel >= 80)
-        m_basemana *= 1.2;
+        m_basemana *= 1.4;
 
     //mana bonuses
     uint8 bonuspct = 0;
@@ -6727,7 +6727,11 @@ void bot_ai::_OnManaRegenUpdate() const
         power_regen_mp5 += 0.024f * _getTotalBotStat(BOT_STAT_MOD_INTELLECT);
 
     //Mana regen Cheat
-    power_regen_mp5 *= 3;
+    if (me->GetMap()->IsRaid())
+        power_regen_mp5 *= 10;
+
+    if (me->GetMap()->IsDungeon())
+        power_regen_mp5 *= 5;
 
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(value, modManaRegenInterrupt));
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + value);
