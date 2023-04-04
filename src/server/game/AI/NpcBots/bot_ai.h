@@ -582,6 +582,7 @@ class bot_ai : public CreatureAI
         bool _checkImmunities(Unit const* target, SpellInfo const* spellInfo) const;
         static float _getAttackDistance(float distance) { return distance*0.72f; }
         void _extendAttackRange(float& dist) const;
+        bool _canSwitchToTarget(Unit const* from, Unit const* newTarget, int8 byspell) const;
 
         //for moved
         void GetHomePosition(uint16& mapid, Position* pos) const;
@@ -653,7 +654,6 @@ class bot_ai : public CreatureAI
         uint8 _baseLevel;
         WanderNode const* _travel_node_last;
         WanderNode const* _travel_node_cur;
-        std::vector<std::pair<uint32, std::string>> _travelHistory;
 
         float _energyFraction;
 

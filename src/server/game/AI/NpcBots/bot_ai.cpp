@@ -2153,11 +2153,6 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
         botstring << "\n_lastWMOAreaId: " << uint32(_lastWMOAreaId);
 
         //debug
-        botstring << "\n_travelHistory:";
-        for (decltype(_travelHistory)::value_type const& p : _travelHistory)
-            botstring << "\n" << p.first << ": " << p.second;
-
-        //debug
         //botstring << "\ncurrent Engage timer: " << GetEngageTimer();
 
         //debug
@@ -4265,13 +4260,11 @@ std::tuple<Unit*, Unit*> bot_ai::_getTargets(bool byspell, bool ranged, bool &re
         //check attackers
         u = nullptr;
         for (Unit* att : me->getAttackers())
-            if (att != mytar && (!u || me->GetDistance(att) < me->GetDistance(u) - 10.0f || att->GetHealth() < u->GetHealth()) &&
-                CanBotAttack(att, byspell))
+            if (_canSwitchToTarget(u, att, byspell))
                 u = att;
         if (!u && botPet)
             for (Unit* att : botPet->getAttackers())
-                if (att != mytar && (!u || me->GetDistance(att) < me->GetDistance(u) - 10.0f || att->GetHealth() < u->GetHealth()) &&
-                    CanBotAttack(att, byspell))
+                if (_canSwitchToTarget(u, att, byspell))
                     u = att;
         if (u)
             return { u, u };
@@ -4837,6 +4830,21 @@ void bot_ai::_extendAttackRange(float& dist) const
             spelldist = GetSpellAttackRange(rangeMode == BOT_ATTACK_RANGE_LONG);
         dist = std::max<float>(dist, spelldist * 0.5f + 4.f);
     }
+}
+bool bot_ai::_canSwitchToTarget(Unit const* from, Unit const* newTarget, int8 byspell) const
+{
+    if (newTarget)
+    {
+        if (IAmFree())
+        {
+            if (newTarget != me->GetVictim() &&
+                (!from || me->GetDistance(newTarget) < me->GetDistance(from) - 10.0f || newTarget->GetHealth() < from->GetHealth()) &&
+                CanBotAttack(newTarget, byspell))
+                return true;
+        }
+    }
+
+    return false;
 }
 //Ranged attack position
 void bot_ai::CalculateAttackPos(Unit* target, Position& pos, bool& force) const
@@ -6825,7 +6833,10 @@ void bot_ai::OnSpellHit(Unit* caster, SpellInfo const* spell)
     {
         case WANDERER_HEARTHSTONE:
             if (IsWanderer())
+            {
                 BotMgr::TeleportBot(me, sMapMgr->CreateBaseMap(_travel_node_cur->GetMapId()), _travel_node_cur, true);
+                _evadeCount = 0;
+            }
             return;
         default:
             break;
@@ -10360,12 +10371,6 @@ void bot_ai::OnOwnerDamagedBy(Unit* attacker)
 {
     if (HasBotCommandState(BOT_COMMAND_FULLSTOP))
         return;
-    if (me->GetVictim() && (!IAmFree() || me->IsWithinMeleeRange(me->GetVictim()) || me->GetDistance(me->GetVictim()) < me->GetDistance(attacker)))
-        return;
-    else if (!IsMelee() && (opponent || disttarget))
-        return;
-    //if (InDuel(attacker))
-    //    return;
 
     bool byspell = false;
     switch (_botclass)
@@ -10386,7 +10391,7 @@ void bot_ai::OnOwnerDamagedBy(Unit* attacker)
             break;
     }
 
-    if (!CanBotAttack(attacker, byspell))
+    if (!_canSwitchToTarget(me->GetVictim(), attacker, byspell))
         return;
 
     SetBotCommandState(BOT_COMMAND_COMBATRESET); //reset AttackStart()
@@ -14515,7 +14520,7 @@ void bot_ai::JustDied(Unit* u)
             IsWanderer() ? "Wandering bot" : "Bot", me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()),
             (u->IsPlayer() ? "player" : u->IsNPCBot() ? u->ToCreature()->GetBotAI()->IsWanderer() ? "wandering bot" : "bot" : u->IsNPCBotPet() ? "botpet" : "creature"),
             u->GetName().c_str(), u->GetEntry(), uint32(u->GetClass()), uint32(u->GetLevel()),
-            _travel_node_cur->GetName().c_str());
+            IsWanderer() ? _travel_node_cur->GetName().c_str() : "''");
     }
 
     _reviveTimer = (IsWanderer() && !(u && u->IsControlledByPlayer())) ? 90000 : IAmFree() ? 180000 : 60000; //1.5min/3min/1min
@@ -14546,7 +14551,7 @@ void bot_ai::KilledUnit(Unit* u)
             LOG_DEBUG("npcbots", "Bot {} id {} class {} level {} KILLED wandering bot {} id {} class {} level {} on their way to {}!",
                 me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()),
                 u->GetName().c_str(), u->GetEntry(), uint32(u->GetClass()), uint32(u->GetLevel()),
-                _travel_node_cur->GetName().c_str());
+                IsWanderer() ? _travel_node_cur->GetName().c_str() : "''");
         }
     }
     if (u->isType(TYPEMASK_PLAYER))
@@ -16650,7 +16655,8 @@ void bot_ai::UpdateReviveTimer(uint32 diff)
 
             if (IsWanderer())
             {
-                GraveyardStruct const* gy = sGraveyard->GetClosestGraveyard((Player*)me, me->GetFaction() == 1801 ? TEAM_HORDE : TEAM_ALLIANCE, false);
+                TeamId my_team = BotDataMgr::GetTeamForFaction(me->GetFaction());
+                GraveyardStruct const* gy = sGraveyard->GetClosestGraveyard((Player*)me, my_team == TEAM_HORDE ? TEAM_HORDE : TEAM_ALLIANCE, false);
                 Position safePos;
                 if (gy)
                 {
@@ -16679,7 +16685,6 @@ void bot_ai::UpdateReviveTimer(uint32 diff)
 
                     _travel_node_last = _travel_node_cur;
                     _travel_node_cur = nextNode;
-                    _travelHistory.push_back(std::make_pair(nextNode->GetWPId(), nextNode->GetName()));
                     return;
                 }
             }
@@ -16799,7 +16804,6 @@ void bot_ai::Evade()
 
                 _travel_node_last = _travel_node_cur;
                 _travel_node_cur = nextNode;
-                _travelHistory.push_back(std::make_pair(nextNode->GetWPId(), nextNode->GetName()));
                 _evadeCount = 0;
                 evadeDelayTimer = urand(7000, 11000);
                 return;
