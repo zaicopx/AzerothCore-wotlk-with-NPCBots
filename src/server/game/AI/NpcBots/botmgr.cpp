@@ -151,6 +151,7 @@ void AddSC_mage_bot_pets();
 void AddSC_druid_bot_pets();
 void AddSC_script_bot_commands();
 void AddSC_script_bot_giver();
+void AddSC_wandering_bot_xp_gain_script();
 
 void AddNpcBotScripts()
 {
@@ -186,6 +187,7 @@ void AddNpcBotScripts()
     AddSC_druid_bot_pets();
     AddSC_script_bot_commands();
     AddSC_script_bot_giver();
+    AddSC_wandering_bot_xp_gain_script();
 }
 
 BotMgr::BotMgr(Player* const master) : _owner(master), _dpstracker(new DPSTracker())
@@ -1728,13 +1730,20 @@ void BotMgr::UpdatePvPForBots()
 
 void BotMgr::PropagateEngageTimers() const
 {
+    uint32 delay_dps = GetEngageDelayDPS();
+    uint32 delay_heal = GetEngageDelayHeal();
+
+    if (!delay_dps && !delay_heal)
+        return;
+
     for (BotMap::const_iterator itr = _bots.begin(); itr != _bots.end(); ++itr)
     {
         if (itr->second->GetBotAI()->IsTank())
             continue;
 
-        uint32 delay = itr->second->GetBotAI()->HasRole(BOT_ROLE_HEAL) ? GetEngageDelayHeal() :
-            itr->second->GetBotAI()->HasRole(BOT_ROLE_DPS) ? GetEngageDelayDPS() : 0;
+        bool is_heal = itr->second->GetBotAI()->HasRole(BOT_ROLE_HEAL);
+        bool is_dps= itr->second->GetBotAI()->HasRole(BOT_ROLE_DPS);
+        uint32 delay = (is_heal && is_dps) ? std::max<uint32>(delay_dps, delay_heal) : is_heal ? delay_heal : is_dps ? delay_dps : 0;
 
         itr->second->GetBotAI()->ResetEngageTimer(delay);
     }
@@ -1869,6 +1878,21 @@ int32 BotMgr::GetHPSTaken(Unit const* unit) const
     //    TC_LOG_ERROR("entities.player", "BotMgr:GetHPSTaken(): %s got %i)", unit->GetName().c_str(), amount);
 
     return amount;
+}
+
+void BotMgr::OnBotWandererKilled(Creature const* bot, Player* looter)
+{
+    bot->GetBotAI()->SpawnKillReward(looter);
+}
+
+void BotMgr::OnBotWandererKilled(GameObject* go)
+{
+    if (go->GetEntry() == GO_BOT_MONEY_BAG && go->GetSpellId() > go->GetEntry())
+    {
+        uint32 bot_id = go->GetSpellId() - GO_BOT_MONEY_BAG;
+        if (Creature const* bot = BotDataMgr::FindBot(bot_id))
+            bot->GetBotAI()->FillKillReward(go);
+    }
 }
 
 void BotMgr::OnBotSpellInterrupt(Unit const* caster, CurrentSpellTypes spellType)

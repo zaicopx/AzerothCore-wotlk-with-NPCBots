@@ -14337,6 +14337,17 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, uint32 duration)
     if (GetTypeId() == TYPEID_UNIT && enemy && IsImmuneToPC() && enemy->GetCharmerOrOwnerPlayerOrPlayerItself())
         SetImmuneToPC(false); // unit has engaged in combat, remove immunity so players can fight back
 
+    //npcbot: party combat hook
+    Player const* playerOwner = nullptr;
+    if (enemy->IsPlayer() && enemy->ToPlayer()->HaveBot())
+        playerOwner = enemy->ToPlayer();
+    else if (enemy->IsNPCBotOrPet() && !enemy->ToCreature()->IsFreeBot())
+        playerOwner = enemy->ToCreature()->GetBotOwner();
+
+    if (playerOwner)
+        BotMgr::OnBotPartyEngage(playerOwner);
+    //end npcbot
+
     if (IsInCombat())
         return;
 
@@ -18786,6 +18797,11 @@ void Unit::Kill(Unit* killer, Unit* victim, bool durabilityLoss, WeaponAttackTyp
             if (creature->GetLootMode())
                 loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
 
+            //npcbot: spawn wandering bot kill reward
+            if (creature->IsNPCBot() && creature->IsWandererBot())
+                BotMgr::OnBotWandererKilled(creature, looter);
+            //end npcbot
+
             if (group)
             {
                 if (hasLooterGuid)
@@ -22589,7 +22605,7 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
         AuraEffect const* existingAurEff = (*itr);
         ++itr;
 
-        if (sSpellMgr->CheckSpellGroupStackRules(spellInfo, existingAurEff->GetSpellInfo(), true, spellInfo->IsAffectingArea()) & SPELL_GROUP_STACK_FLAG_EFFECT_EXCLUSIVE)
+        if (sSpellMgr->CheckSpellGroupStackRules(spellInfo, existingAurEff->GetSpellInfo(), true, spellInfo->IsAffectingArea()) & SPELL_GROUP_STACK_FLAG_FORCED_STRONGEST)
         {
             int32 diff = abs(effectAmount) - abs(existingAurEff->GetAmount());
             if (!diff)

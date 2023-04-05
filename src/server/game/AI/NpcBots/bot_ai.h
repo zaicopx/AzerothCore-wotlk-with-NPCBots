@@ -31,6 +31,7 @@ struct SpellNonMeleeDamage;
 
 class Aura;
 class DamageInfo;
+class GameObject;
 class Item;
 class Spell;
 class SpellCastTargets;
@@ -242,6 +243,9 @@ class bot_ai : public CreatureAI
         void OnOwnerVehicleDamagedBy(Unit* attacker);
         virtual void OnClassSpellStart(SpellInfo const* /*spellInfo*/) {}
         virtual void OnClassSpellGo(SpellInfo const* /*spell*/) {}
+
+        void SpawnKillReward(Player* looter) const;
+        void FillKillReward(GameObject* go) const;
 
         uint32 GetReviveTimer() const { return _reviveTimer; }
         void SetReviveTimer(uint32 newtime) { _reviveTimer = newtime; }
@@ -582,6 +586,7 @@ class bot_ai : public CreatureAI
         bool _checkImmunities(Unit const* target, SpellInfo const* spellInfo) const;
         static float _getAttackDistance(float distance) { return distance*0.72f; }
         void _extendAttackRange(float& dist) const;
+        bool _canSwitchToTarget(Unit const* from, Unit const* newTarget, int8 byspell) const;
 
         //for moved
         void GetHomePosition(uint16& mapid, Position* pos) const;
@@ -653,7 +658,6 @@ class bot_ai : public CreatureAI
         uint8 _baseLevel;
         WanderNode const* _travel_node_last;
         WanderNode const* _travel_node_cur;
-        std::vector<std::pair<uint32, std::string>> _travelHistory;
 
         float _energyFraction;
 
