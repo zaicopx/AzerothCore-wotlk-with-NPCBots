@@ -1419,6 +1419,15 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                         damage *= BotMgr::GetBotDamageModPhysical();
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
+
+                    if (GetLevel() >= 60)
+                        damage *= 1.1;
+
+                    if (GetLevel() >= 70)
+                        damage *= 1.1;
+
+                    if (GetLevel() >= 80)
+                        damage *= 1.2;
                 }
                 //End NpcBot
 
@@ -1501,6 +1510,15 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                         damage *= BotMgr::GetBotDamageModPhysical();
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
+
+                    if (GetLevel() >= 60)
+                        damage *= 1.1;
+
+                    if (GetLevel() >= 70)
+                        damage *= 1.1;
+
+                    if (GetLevel() >= 80)
+                        damage *= 1.2;
                 }
                 //End NpcBot
 
@@ -1679,6 +1697,15 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             ToCreature()->ApplyBotDamageMultiplierMelee(damageInfo->damages[i].damage, *damageInfo);
             damage = damageInfo->damages[i].damage;
             damage *= BotMgr::GetBotDamageModPhysical();
+
+            if (GetLevel() >= 60)
+                damage *= 1.1;
+
+            if (GetLevel() >= 70)
+                damage *= 1.1;
+
+            if (GetLevel() >= 80)
+                damage *= 1.2;
         }
         //End NpcBot
 
