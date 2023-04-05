@@ -14,6 +14,7 @@
 #include "Map.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
+#include "ScriptMgr.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "WorldDatabase.h"
@@ -336,7 +337,7 @@ void BotDataMgr::LoadNpcBots(bool spawn)
 
 void BotDataMgr::LoadNpcBotGroupData()
 {
-    LOG_INFO("server.loading", "Loading NPCBot Group members...");
+    LOG_INFO("server.loading", "Loading NPCBot group members...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -528,10 +529,11 @@ void BotDataMgr::LoadWanderMap(bool reload)
     WanderNode::DoForAllWPs([&](WanderNode const* wp) {
         if (tops.count(wp) == 0u && wp->GetLinks().size() == 1u)
         {
-            LOG_TRACE("server.loading", "Node {} ('{}') has single connection!", wp->GetWPId(), wp->GetName().c_str());
+            LOG_DEBUG("server.loading", "Node {} ('{}') has single connection!", wp->GetWPId(), wp->GetName().c_str());
             WanderNode const* tn = wp->GetLinks().front();
             std::vector<WanderNode const*> sc_chain;
             sc_chain.push_back(wp);
+            tops.emplace(wp);
             while (tn != wp)
             {
                 if (tn->GetLinks().size() != 2u)
@@ -547,8 +549,7 @@ void BotDataMgr::LoadWanderMap(bool reload)
             }
             if (sc_chain.back()->GetLinks().size() == 1u)
             {
-                LOG_TRACE("server.loading", "Node {} ('{}') has single connection!", tn->GetWPId(), tn->GetName().c_str());
-                tops.emplace(sc_chain.front());
+                LOG_DEBUG("server.loading", "Node {} ('{}') has single connection!", tn->GetWPId(), tn->GetName().c_str());
                 tops.emplace(sc_chain.back());
                 std::ostringstream ss;
                 ss << "Node " << (sc_chain.size() == 2u ? "pair " : "chain ");
@@ -585,7 +586,7 @@ void BotDataMgr::GenerateWanderingBots()
     };
 
     /// @TODO: manage allowed world maps HERE: 0, 1 530, 571
-    const std::array wbot_allowed_maps{ 0u };
+    const std::array wbot_allowed_maps{ 0u, 1u };
 
     const uint32 wandering_bots_desired = BotMgr::GetDesiredWanderingBotsCount();
 
@@ -792,6 +793,8 @@ void BotDataMgr::GenerateWanderingBots()
         bot_template = *orig_template;
         bot_template.Entry = bot_id;
         bot_template.SubName = "";
+        bot_template.speed_run = 1.05f;
+        bot_template.flags_extra &= ~(CREATURE_FLAG_EXTRA_NO_XP);
         bot_template.InitializeQueryData();
 
         NpcBotData* bot_data = new NpcBotData(bot_ai::DefaultRolesForClass(bot_class), bot_faction, bot_ai::DefaultSpecForClass(bot_class));
@@ -996,6 +999,7 @@ void BotDataMgr::CreateWanderingBotsSortedGear()
                     case INVTYPE_SHIELD:
                         if (proto.Armor == 0)
                             break;
+                        _botsWanderCreaturesSortedGear[BOT_CLASS_WARRIOR][BOT_SLOT_OFFHAND][reqLstep].push_back(itemId);
                         _botsWanderCreaturesSortedGear[BOT_CLASS_PALADIN][BOT_SLOT_OFFHAND][reqLstep].push_back(itemId);
                         _botsWanderCreaturesSortedGear[BOT_CLASS_SHAMAN][BOT_SLOT_OFFHAND][reqLstep].push_back(itemId);
                         _botsWanderCreaturesSortedGear[BOT_CLASS_SPELLBREAKER][BOT_SLOT_OFFHAND][reqLstep].push_back(itemId);
@@ -1330,7 +1334,7 @@ Item* BotDataMgr::GenerateWanderingBotItem(uint8 slot, uint8 botclass, uint8 lev
     if (!itemIdVec.empty())
     {
         uint32 itemId;
-        uint32 tries = 0;
+        uint8 tries = 0;
         bool can_equip = false;
         do
         {
@@ -1340,12 +1344,15 @@ Item* BotDataMgr::GenerateWanderingBotItem(uint8 slot, uint8 botclass, uint8 lev
 
         } while (!can_equip && tries < 20);
 
-        if (Item* newItem = Item::CreateItem(itemId, 1, nullptr))
+        if (can_equip)
         {
-            if (uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemId))
-                newItem->SetItemRandomProperties(randomPropertyId);
+            if (Item* newItem = Item::CreateItem(itemId, 1, nullptr))
+            {
+                if (uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemId))
+                    newItem->SetItemRandomProperties(randomPropertyId);
 
-            return newItem;
+                return newItem;
+            }
         }
     }
 
@@ -1969,8 +1976,7 @@ WanderNode const* BotDataMgr::GetNextWanderNode(WanderNode const* curNode, Wande
     //Overleveled or died: no viable nodes in reach, find one for teleport
     if (links.empty())
     {
-        //todo: use all wps
-        WanderNode::DoForAllMapWPs(curNode->GetMapId(), [&links, lvl = lvl, fac = faction](WanderNode const* wp) {
+        WanderNode::DoForAllWPs([&links, lvl = lvl, fac = faction](WanderNode const* wp) {
             if (IsWanderNodeAvailableForBotFaction(wp, fac) && wp->HasFlag(BotWPFlags::BOTWP_FLAG_SPAWN) && node_viable(wp, lvl))
                 links.push_back(wp);
         });
@@ -1994,6 +2000,24 @@ WanderNode const* BotDataMgr::GetClosestWanderNode(WorldLocation const* loc)
     });
 
     return closestNode;
+}
+
+class AC_GAME_API WanderingBotXpGainFormulaScript : public FormulaScript
+{
+    static constexpr float WANDERING_BOT_XP_GAIN_MULT = 10.0f;
+
+public:
+    WanderingBotXpGainFormulaScript() : FormulaScript("WanderingBotXpGainFormulaScript") {}
+
+    void OnGainCalculation(uint32& gain, Player* /*player*/, Unit* unit) override
+    {
+        if (gain && unit->IsNPCBot() && unit->ToCreature()->IsWandererBot())
+            gain *= WANDERING_BOT_XP_GAIN_MULT;
+    }
+};
+void AddSC_wandering_bot_xp_gain_script()
+{
+    new WanderingBotXpGainFormulaScript();
 }
 
 #ifdef _MSC_VER
