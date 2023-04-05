@@ -87,7 +87,7 @@ public:
         void Reset() override
         {
             summons.DoAction(ACTION_DESPAWN_ADDS);
-            BossAI::Reset();
+            //BossAI::Reset();
             me->SummonCreature(NPC_ANUB_AR_CRUSHER, 542.9f, 519.5f, 741.24f, 2.14f);
         }
 
@@ -239,7 +239,7 @@ public:
         void Reset() override
         {
             summons.DespawnAll();
-            events.Reset();
+            //events.Reset();
 
             if (me->ToTempSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
@@ -264,7 +264,7 @@ public:
         {
             if (param == ACTION_DESPAWN_ADDS)
             {
-                summons.DoAction(ACTION_DESPAWN_ADDS);
+                //summons.DoAction(ACTION_DESPAWN_ADDS);
                 summons.DespawnAll();
             }
         }
