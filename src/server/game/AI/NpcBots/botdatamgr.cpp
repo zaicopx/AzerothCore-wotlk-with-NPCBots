@@ -14,6 +14,7 @@
 #include "Map.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
+#include "ScriptMgr.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "WorldDatabase.h"
@@ -47,10 +48,6 @@ typedef std::array<ItemIdVector, DEFAULT_MAX_LEVEL / ITEM_SORTING_LEVEL_STEP + 1
 typedef std::array<ItemLeveledArr, BOT_INVENTORY_SIZE> ItemPerSlot;
 typedef std::array<ItemPerSlot, BOT_CLASS_END> ItemPerBotClassMap;
 ItemPerBotClassMap _botsWanderCreaturesSortedGear;
-
-constexpr uint32 FLAGS_ONLY_A = AsUnderlyingType(BotWPFlags::BOTWP_FLAG_ALLIANCE_ONLY);
-constexpr uint32 FLAGS_ONLY_H = AsUnderlyingType(BotWPFlags::BOTWP_FLAG_HORDE_ONLY);
-constexpr uint32 FLAGS_ONLY_A_OR_H = FLAGS_ONLY_A | FLAGS_ONLY_H;
 
 static bool allBotsLoaded = false;
 
@@ -793,6 +790,7 @@ void BotDataMgr::GenerateWanderingBots()
         bot_template.Entry = bot_id;
         bot_template.SubName = "";
         bot_template.speed_run = 1.05f;
+        bot_template.flags_extra &= ~(CREATURE_FLAG_EXTRA_NO_XP);
         bot_template.InitializeQueryData();
 
         NpcBotData* bot_data = new NpcBotData(bot_ai::DefaultRolesForClass(bot_class), bot_faction, bot_ai::DefaultSpecForClass(bot_class));
@@ -1998,6 +1996,24 @@ WanderNode const* BotDataMgr::GetClosestWanderNode(WorldLocation const* loc)
     });
 
     return closestNode;
+}
+
+class AC_GAME_API WanderingBotXpGainFormulaScript : public FormulaScript
+{
+    static constexpr float WANDERING_BOT_XP_GAIN_MULT = 10.0f;
+
+public:
+    WanderingBotXpGainFormulaScript() : FormulaScript("WanderingBotXpGainFormulaScript") {}
+
+    void OnGainCalculation(uint32& gain, Player* /*player*/, Unit* unit) override
+    {
+        if (gain && unit->IsNPCBot() && unit->ToCreature()->IsWandererBot())
+            gain *= WANDERING_BOT_XP_GAIN_MULT;
+    }
+};
+void AddSC_wandering_bot_xp_gain_script()
+{
+    new WanderingBotXpGainFormulaScript();
 }
 
 #ifdef _MSC_VER

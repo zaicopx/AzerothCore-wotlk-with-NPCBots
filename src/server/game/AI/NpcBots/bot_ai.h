@@ -20,8 +20,9 @@ class TeleportFinishEvent;
 class AwaitStateRemovalEvent;
 
 enum CombatRating : uint8;
-enum GossipOptionIcon;
-enum MeleeHitOutcome;
+enum EnchantmentSlot : uint16;
+enum GossipOptionIcon : uint8;
+enum MeleeHitOutcome : uint8;
 
 struct CleanDamage;
 struct CalcDamageInfo;
@@ -31,6 +32,7 @@ struct SpellNonMeleeDamage;
 
 class Aura;
 class DamageInfo;
+class GameObject;
 class Item;
 class Spell;
 class SpellCastTargets;
@@ -243,6 +245,9 @@ class bot_ai : public CreatureAI
         virtual void OnClassSpellStart(SpellInfo const* /*spellInfo*/) {}
         virtual void OnClassSpellGo(SpellInfo const* /*spell*/) {}
 
+        void SpawnKillReward(Player* looter) const;
+        void FillKillReward(GameObject* go) const;
+
         uint32 GetReviveTimer() const { return _reviveTimer; }
         void SetReviveTimer(uint32 newtime) { _reviveTimer = newtime; }
         void UpdateReviveTimer(uint32 diff);
@@ -263,7 +268,7 @@ class bot_ai : public CreatureAI
         void ReInitFaction() { InitFaction(); }
         void ReinitOwner() { InitOwner(); }
         void SetSpec(uint8 spec, bool activate = true);
-        uint8 GetSpec() const { return _spec; }
+        uint8 GetSpec() const;
         static uint8 DefaultSpecForClass(uint8 m_class);
         static uint32 TextForSpec(uint8 spec);
         static bool IsValidSpecForClass(uint8 m_class, uint8 spec);
