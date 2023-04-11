@@ -134,7 +134,6 @@ public:
 };
 
 typedef std::set<Creature const*> NpcBotRegistry;
-typedef std::set<Creature*> NpcBotRegistryBG;
 
 class BotDataMgr
 {

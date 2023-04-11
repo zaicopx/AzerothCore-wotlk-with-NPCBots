@@ -48,18 +48,6 @@
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
- //NPCBOT
-#include "bot_ai.h"
-#include "botcommon.h"
-#include "botmgr.h"
-#include "Chat.h"
-#include "Creature.h"
-#include "botdatamgr.h"
-#include <botspell.h>
-
-extern NpcBotRegistry _existingBots;
-extern uint8 _maxNpcBots;
-
 //npcbot
 #include "botmgr.h"
 //end npcbot
@@ -447,7 +435,7 @@ inline void Battleground::_ProcessProgress(uint32 diff)
         EndBattleground(GetPrematureWinner());
         m_PrematureCountDown = false;
     }
-    else if (!sBattlegroundMgr->isTesting() && !sBattlegroundMgr->isSoloMode())
+    else if (!sBattlegroundMgr->isTesting())
     {
         uint32 newtime = m_PrematureCountDownTimer - diff;
         // announce every minute
@@ -1182,108 +1170,9 @@ void Battleground::AddPlayer(Player* player)
 
     sScriptMgr->OnBattlegroundAddPlayer(this, player);
 
-    //Add NPCBots
-    if (sBattlegroundMgr->isSoloMode())
-    {
-        if (player->GetTeamId() == TEAM_HORDE && GetPlayersCountByTeam(TEAM_HORDE) <= 2)
-            AddPlayerNPCBots(player);
-        if (player->GetTeamId() == TEAM_ALLIANCE && GetPlayersCountByTeam(TEAM_ALLIANCE) <= 2)
-            AddPlayerNPCBots(player);
-    }
-
     // Log
     LOG_DEBUG("bg.battleground", "BATTLEGROUND: Player {} joined the battle.", player->GetName());
 }
-
-void Battleground::AddPlayerNPCBots(Player* player)
-{
-    //npcbot - handle player's bots
-    //Boxhead: Spawn random bots into group
-    uint8 currBots = player->GetNpcBotsCount();
-    uint32 botsNeeded = GetMaxPlayersPerTeam() / 2 - currBots;
-    uint8 maxBots = _maxNpcBots;
-    _maxNpcBots = 14;
-
-    if (botsNeeded < 0)
-        botsNeeded = 0;
-    if (botsNeeded > 14)
-        botsNeeded = 14;
-
-    NpcBotRegistry allBots = _existingBots;
-    while (botsNeeded > 0)
-    {
-        //Group is full or not enough bots
-        if (botsNeeded == 0 || allBots.size() == 0)
-        {
-            if (allBots.size() == 0)
-                LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: Not enough NPC-Bots spawned for dungeon finder!");
-
-            break;
-        }
-
-        //Better way for this?
-        NpcBotRegistry::const_iterator ci = allBots.begin();
-        std::advance(ci, urand(0, allBots.size() - 1));
-        Creature const* bot = *ci;
-        bot_ai const* ai = bot->GetBotAI();
-
-        if (!bot)
-        {
-            //possible but still
-            allBots.erase(bot);
-            LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %u not found!", bot->GetEntry());
-            continue;
-        }
-
-        //Bot is busy, don't Add it
-        if (bot->IsInCombat() || !bot->IsAlive() || bot_ai::CCed(bot) || ai->IsDuringTeleport() ||
-            bot->HasUnitState(UNIT_STATE_CASTING) || ai->GetBotOwnerGuid() || bot->HasAura(BERSERK) || ai->IsWanderer())
-        {
-            allBots.erase(bot);
-            //TC_LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot class %u not hired!", bot->GetBotClass());
-            continue;
-        }
-
-        //Bot faction is not the same as player
-        if (BotMgr::FilterRaces())
-        {
-            if (BotMgr::FilterRaces() && bot->GetBotClass() < BOT_CLASS_EX_START && (bot->GetRaceMask() & RACEMASK_ALL_PLAYABLE) &&
-                !(bot->GetRaceMask() & ((player->GetRaceMask() & RACEMASK_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE)))
-            {
-                allBots.erase(bot);
-                continue;
-            }
-        }
-
-        BotMgr* mgr = player->GetBotMgr();
-        if (!mgr)
-            mgr = new BotMgr(player);
-
-        uint8 botclass = bot->GetBotClass();
-        if (botclass == BOT_CLASS_WARRIOR || botclass == BOT_CLASS_PALADIN ||
-            botclass == BOT_CLASS_HUNTER || botclass == BOT_CLASS_ROGUE ||
-            botclass == BOT_CLASS_PRIEST || botclass == BOT_CLASS_SHAMAN ||
-            (botclass == BOT_CLASS_DEATH_KNIGHT && player->GetLevel() >= 55) ||
-            botclass == BOT_CLASS_MAGE || botclass == BOT_CLASS_WARLOCK ||
-            botclass == BOT_CLASS_DRUID)
-        {
-            Unit* cre = ObjectAccessor::GetUnit(*bot, bot->GetGUID());
-            Creature* newBot = cre->ToCreature();
-            mgr->AddBot(newBot, false);
-            sBattlegroundMgr->_bgbots.insert(newBot);
-            //Set bot talents and erase it from list
-            mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_NONE);
-            mgr->AddBotToGroup(newBot);
-            allBots.erase(bot);
-            botsNeeded--;
-            continue;
-        }
-        //Remove not needed bot from list
-        allBots.erase(bot);
-    }
-    _maxNpcBots = maxBots;
-}
-
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
 void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, TeamId teamId)

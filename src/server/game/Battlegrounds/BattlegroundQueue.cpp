@@ -622,7 +622,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bgTemplate, BattlegroundB
     auto CanStartMatch = [this, bgTemplate, minPlayers]()
     {
         //allow 1v0 if debug bg
-        if ((sBattlegroundMgr->isTesting() || sBattlegroundMgr->isSoloMode()) && bgTemplate->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
+        if (sBattlegroundMgr->isTesting() && bgTemplate->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
             return true;
 
         //return true if there are enough players in selection pools - enable to work .debug bg command correctly
@@ -814,7 +814,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId 
         MinPlayersPerTeam = sBattlegroundMgr->isArenaTesting() ? 1 : arenaType;
         MaxPlayersPerTeam = arenaType;
     }
-    else if (sBattlegroundMgr->isTesting() || sBattlegroundMgr->isSoloMode())
+    else if (sBattlegroundMgr->isTesting())
         MinPlayersPerTeam = 1;
 
     sScriptMgr->OnQueueUpdate(this, diff, bgTypeId, bracket_id, arenaType, isRated, arenaRating);

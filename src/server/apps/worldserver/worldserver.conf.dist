@@ -4498,12 +4498,3 @@ NpcBot.DesiredWanderingBotsCount = 0
 
 #
 ###################################################################################################
-
-# SOLO PvP
-#
-#    SoloLFG.Enable
-#        Description: Enable the module.
-#        Default:     true  - (Enabled)
-#                     false  - (Disabled)
-
-SoloPvP.Enable = true

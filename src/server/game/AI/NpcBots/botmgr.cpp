@@ -674,98 +674,6 @@ void BotMgr::Update(uint32 diff)
         }
     }
 
-    //Despawn all bg bots if conditions met:
-    NpcBotRegistryBG _allbgbots = sBattlegroundMgr->GetBGBots();
-    if (_allbgbots.size() > 0)
-    {
-        for (NpcBotRegistryBG::iterator ci = _allbgbots.begin(); ci != _allbgbots.end(); ++ci)
-        {
-
-            Creature* bot = *ci;
-            ai = bot->GetBotAI();
-
-            if (!ai->GetBotOwnerGuid())
-            {
-                sBattlegroundMgr->RemoveBGBotFromList(bot);
-                continue;
-            }
-
-            if (ai->IAmFree())
-                continue;
-
-            if (!bot->IsInWorld())
-            {
-                continue;
-            }
-
-            if (_owner == bot->GetBotOwner())
-            {
-                //Revive bot instantly if owner is dead
-                if (!bot->IsAlive() && !_owner->IsAlive() && _owner->GetHealth() == 1)
-                {
-                    if (bot->IsInWorld() && !_owner->IsBeingTeleported() &&
-                        !_owner->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH) &&
-                        !_owner->HasInvisibilityAura() && !_owner->HasStealthAura())
-                    {
-                        _reviveBot(bot);
-                        continue;
-                    }
-                }
-
-                //Check BG Over and leave group
-                if (_owner->GetMap()->IsBattleground())
-                    if (_owner->GetBattleground()->GetStatus() == STATUS_WAIT_LEAVE)
-                        RemoveBotFromGroup(bot);
-
-                //Check if owner left BG
-                if (!bot->GetMap()->IsBattleground() && !_owner->GetMap()->IsBattleground())
-                {
-                    if (!ai->IAmFree())
-                    {
-                        bot->GetBotAI()->ResetBotAI(BOTAI_RESET_LFG);
-                        RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
-                    }
-                    sBattlegroundMgr->RemoveBGBotFromList(bot);
-                }
-            }
-        }
-    }
-
-    /*
-    if (_bots.size() > 0)
-    {
-        for (BotMap::iterator ci = _bots.begin(); ci != _bots.end(); ++ci)
-        {
-
-            Creature* bot = ci->second;
-            ai = bot->GetBotAI();
-
-            if (!ai->GetBotOwnerGuid())
-            {
-                sBattlegroundMgr->RemoveBGBotFromList(bot);
-                continue;
-            }
-
-            if (ai->IAmFree())
-                continue;
-
-            if (!bot->IsInWorld())
-            {
-                continue;
-            }
-
-            if (_owner == bot->GetBotOwner())
-            {
-                homepos.Relocate(me);
-                if (!IsTempBot())
-                    CheckOwnerExpiry(false);
-            }
-
-        }
-
-    }
-    */
-
     for (BotMap::const_iterator itr = _bots.begin(); itr != _bots.end(); ++itr)
     {
         //guid = itr->first;
@@ -2138,14 +2046,6 @@ void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
         bot->GetBotAI()->ToggleRole(BOT_ROLE_DPS, true);
     }
 
-    if (botrole == BOT_ROLE_NONE)
-    {
-        bot->GetBotAI()->ToggleRole(BOT_ROLE_DPS, true);
-        if (botclass == BOT_CLASS_PALADIN || botclass == BOT_CLASS_PRIEST ||
-            botclass == BOT_CLASS_SHAMAN || botclass == BOT_CLASS_DRUID)
-            bot->GetBotAI()->ToggleRole(BOT_ROLE_HEAL, true);
-    }
-
     //Talents
     uint8 spec;
     uint8 rand;
@@ -2384,15 +2284,6 @@ void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
         if (botrole == BOT_ROLE_HEAL)
         {
             spec = BOT_SPEC_DRUID_RESTORATION;
-            bot->GetBotAI()->ToggleRole(BOT_ROLE_RANGED, true);
-        }
-    }
-
-    if (botrole == BOT_ROLE_NONE)
-    {
-        spec = bot->GetBotAI()->DefaultSpecForClass(botclass);
-        if (!bot->GetBotAI()->IsMeleeClass(botclass))
-        {
             bot->GetBotAI()->ToggleRole(BOT_ROLE_RANGED, true);
         }
     }
