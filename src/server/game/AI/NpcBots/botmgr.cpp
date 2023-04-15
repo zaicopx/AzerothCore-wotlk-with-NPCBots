@@ -207,9 +207,6 @@ BotMgr::BotMgr(Player* const master) : _owner(master), _dpstracker(new DPSTracke
 
     _botsHidden = false;
     _quickrecall = false;
-
-    _dpstracker->SetOwner(master->GetGUID().GetCounter());
-    master->SetBotMgr(this);
 }
 BotMgr::~BotMgr()
 {
@@ -628,7 +625,7 @@ bool BotMgr::CanBotParryWhileCasting(Creature const* bot)
 
 bool BotMgr::IsWanderingWorldBot(Creature const* bot)
 {
-    return (bot->IsWandererBot() && !(bot->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT));
+    return (bot->IsWandererBot() && !(bot->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP));
 }
 
 void BotMgr::Update(uint32 diff)
@@ -730,7 +727,7 @@ void BotMgr::Update(uint32 diff)
         if (!bot->GetMap()->IsRaid())
         {
             /// Normal revive
-            if (partyCombat == false)
+            if (partyCombat == false || _owner->InBattleground())
             {
                 ai->UpdateReviveTimer(diff);
 
@@ -966,9 +963,10 @@ void BotMgr::_reviveBot(Creature* bot, WorldLocation* dest)
     //bot->GetBotAI()->Reset();
     bot->GetBotAI()->SetShouldUpdateStats();
 
-    bot->SetHealth(bot->GetMaxHealth() / (bot->IsWandererBot() ? 1 : 4)); //25% of max health
+    uint8 restore_factor = (bot->IsWandererBot() || (!bot->GetBotAI()->IAmFree() && bot->GetBotOwner()->InBattleground())) ? 1 : 4;
+    bot->SetHealth(bot->GetMaxHealth() / restore_factor); //25% of max health
     if (bot->GetMaxPower(POWER_MANA) > 1)
-        bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA) / (bot->IsWandererBot() ? 1 : 4)); //25% of max mana
+        bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA) / restore_factor); //25% of max mana
 
     if (!bot->GetBotAI()->IAmFree() && !bot->GetBotAI()->HasBotCommandState(BOT_COMMAND_MASK_UNMOVING))
         bot->GetBotAI()->SetBotCommandState(BOT_COMMAND_FOLLOW, true);
@@ -1152,34 +1150,37 @@ void BotMgr::_teleportBot(Creature* bot, Map* newMap, float x, float y, float z,
                         return;
                     }
                 }
-                else if (newMap != mymap)
-                    bg->AddBot(bot);
-
-                if (!bot->IsAlive())
+                else
                 {
-                    ObjectGuid shGuid = ObjectGuid::Empty;
-                    float mindist = 0.0f;
-                    for (ObjectGuid bgCreGuid : bg->BgCreatures)
+                    if (newMap != mymap)
+                        bg->AddBot(bot);
+
+                    if (!bot->IsAlive())
                     {
-                        if (Creature const* bgCre = newMap->GetCreature(bgCreGuid))
+                        ObjectGuid shGuid = ObjectGuid::Empty;
+                        float mindist = 0.0f;
+                        for (ObjectGuid bgCreGuid : bg->BgCreatures)
                         {
-                            if (bgCre->IsSpiritService())
+                            if (Creature const* bgCre = newMap->GetCreature(bgCreGuid))
                             {
-                                float dist = bot->GetExactDist2d(bgCre);
-                                if (shGuid == ObjectGuid::Empty || dist < mindist)
+                                if (bgCre->IsSpiritService())
                                 {
-                                    mindist = dist;
-                                    shGuid = bgCreGuid;
+                                    float dist = bot->GetExactDist2d(bgCre);
+                                    if (shGuid == ObjectGuid::Empty || dist < mindist)
+                                    {
+                                        mindist = dist;
+                                        shGuid = bgCreGuid;
+                                    }
                                 }
                             }
                         }
-                    }
-                    if (shGuid)
-                        bg->AddPlayerToResurrectQueue(shGuid, bot->GetGUID());
-                    else
-                    {
-                        LOG_ERROR("npcbots", "TeleportBot: Bot {} '{}' can't find SpiritHealer in bg {}!",
-                            bot->GetEntry(), bot->GetName().c_str(), bg->GetName().c_str());
+                        if (shGuid)
+                            bg->AddPlayerToResurrectQueue(shGuid, bot->GetGUID());
+                        else
+                        {
+                            LOG_ERROR("npcbots", "TeleportBot: Bot {} '{}' can't find SpiritHealer in bg {}!",
+                                bot->GetEntry(), bot->GetName().c_str(), bg->GetName().c_str());
+                        }
                     }
                 }
             }
