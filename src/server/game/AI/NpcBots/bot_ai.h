@@ -174,7 +174,7 @@ class bot_ai : public CreatureAI
         bool IsDuringTeleport() const { return teleFinishEvent || teleHomeEvent || _duringTeleport; }
         void SetTeleportFinishEvent(TeleportFinishEvent* tfevent) { ASSERT(!teleFinishEvent); teleFinishEvent = tfevent; }
         void AbortTeleport();
-        void SetInDuringTeleport(bool value) { _duringTeleport = value; }
+        void SetIsDuringTeleport(bool value) { _duringTeleport = value; }
 
         uint8 GetPlayerClass() const;
         uint8 GetPlayerRace() const;
@@ -556,7 +556,7 @@ class bot_ai : public CreatureAI
 
         bool _canCureTarget(Unit const* target, uint32 cureSpell) const;
         void _getBotDispellableAuraList(Unit const* target, uint32 dispelMask, std::list<Aura const*> &dispelList) const;
-        void _calculatePos(Position& pos) const;
+        void _calculatePos(Unit const* followUnit, Position& pos) const;
         void _updateMountedState();
         void _updateStandState() const;
         void _updateRations();

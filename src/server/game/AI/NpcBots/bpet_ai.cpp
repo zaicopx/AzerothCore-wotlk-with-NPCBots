@@ -1315,7 +1315,7 @@ void bot_pet_ai::RefreshAura(uint32 spellId, int8 count, Unit* target) const
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        LOG_ERROR("entities.player", "bot_pet_ai::RefreshAura(): Invalid spellInfo for spell %u! Bot - {} (botclass: {}, entry: {})",
+        LOG_ERROR("entities.player", "bot_pet_ai::RefreshAura(): Invalid spellInfo for spell {}! Bot - {} (botclass: {}, entry: {})",
             spellId, me->GetName().c_str(), uint32(petOwner->GetBotClass()), me->GetEntry());
         return;
     }
@@ -2065,6 +2065,11 @@ bool bot_pet_ai::StartAttack(Unit const* u, bool force)
 void bot_pet_ai::JustDied(Unit*)
 {
     KillEvents(false);
+}
+
+void bot_pet_ai::KilledUnit(Unit* u)
+{
+    GetPetsOwner()->GetBotAI()->KilledUnit(u);
 }
 
 void bot_pet_ai::AttackStart(Unit* /*u*/)
