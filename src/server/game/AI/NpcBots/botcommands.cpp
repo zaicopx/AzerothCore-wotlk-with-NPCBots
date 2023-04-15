@@ -3622,7 +3622,7 @@ public:
         BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &guidlow);
         bot->GetBotAI()->ReinitOwner();
 
-        if (owner->GetBotMgr()->AddBot(bot) == BOT_ADD_SUCCESS)
+        if (owner->GetBotMgr()->AddBot(bot, true) == BOT_ADD_SUCCESS)
         {
             handler->PSendSysMessage("%s is now your npcbot", bot->GetName().c_str());
             return true;

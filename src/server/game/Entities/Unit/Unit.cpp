@@ -1420,14 +1420,29 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
 
-                    if (GetLevel() >= 60)
-                        damage *= 1.1;
+                    if (!BotMgr::IsWanderingWorldBot(ToCreature()))
+                    {
+                        if (GetLevel() >= 20)
+                            damage *= 1.075;
 
-                    if (GetLevel() >= 70)
-                        damage *= 1.1;
+                        if (GetLevel() >= 30)
+                            damage *= 1.075;
 
-                    if (GetLevel() >= 80)
-                        damage *= 1.2;
+                        if (GetLevel() >= 40)
+                            damage *= 1.15;
+
+                        if (GetLevel() >= 50)
+                            damage *= 1.15;
+
+                        if (GetLevel() >= 60)
+                            damage *= 1.25;
+
+                        if (GetLevel() >= 70)
+                            damage *= 1.25;
+
+                        if (GetLevel() >= 80)
+                            damage *= 1.4;
+                    }
 
                     damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModSpell());
                 }
@@ -1513,14 +1528,29 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
 
-                    if (GetLevel() >= 60)
-                        damage *= 1.1;
+                    if (!BotMgr::IsWanderingWorldBot(ToCreature()))
+                    {
+                        if (GetLevel() >= 20)
+                            damage *= 1.075;
 
-                    if (GetLevel() >= 70)
-                        damage *= 1.1;
+                        if (GetLevel() >= 30)
+                            damage *= 1.075;
 
-                    if (GetLevel() >= 80)
-                        damage *= 1.2;
+                        if (GetLevel() >= 40)
+                            damage *= 1.15;
+
+                        if (GetLevel() >= 50)
+                            damage *= 1.15;
+
+                        if (GetLevel() >= 60)
+                            damage *= 1.25;
+
+                        if (GetLevel() >= 70)
+                            damage *= 1.25;
+
+                        if (GetLevel() >= 80)
+                            damage *= 1.4;
+                    }
 
                     damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModSpell());
                 }
@@ -1702,14 +1732,29 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             damage = damageInfo->damages[i].damage;
             damage *= BotMgr::GetBotDamageModPhysical();
 
-            if (GetLevel() >= 60)
-                damage *= 1.1;
+            if (!BotMgr::IsWanderingWorldBot(ToCreature()))
+            {
+                if (GetLevel() >= 20)
+                    damage *= 1.075;
 
-            if (GetLevel() >= 70)
-                damage *= 1.1;
+                if (GetLevel() >= 30)
+                    damage *= 1.075;
 
-            if (GetLevel() >= 80)
-                damage *= 1.2;
+                if (GetLevel() >= 40)
+                    damage *= 1.15;
+
+                if (GetLevel() >= 50)
+                    damage *= 1.15;
+
+                if (GetLevel() >= 60)
+                    damage *= 1.25;
+
+                if (GetLevel() >= 70)
+                    damage *= 1.25;
+
+                if (GetLevel() >= 80)
+                    damage *= 1.4;
+            }
 
             damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModPhysical());
         }
