@@ -110,6 +110,9 @@ public:
 
                 queue.RemovePlayer(bot->GetGUID(), false);
 
+                //BG is set second time in Battleground::AddBot() but it's the same value so this is alright
+                bot->GetBotAI()->SetBG(bg);
+
                 TeamId teamId = BotDataMgr::GetTeamIdForFaction(bot->GetFaction());
                 BotMgr::TeleportBot(const_cast<Creature*>(bot), bgPlayer->GetMap(), bg->GetTeamStartPosition(teamId), true, false);
             }
@@ -2181,7 +2184,7 @@ Creature const* BotDataMgr::FindBot(uint32 entry)
     }
     return nullptr;
 }
-Creature const* BotDataMgr::FindBot(std::string_view name, LocaleConstant loc)
+Creature const* BotDataMgr::FindBot(std::string_view name, LocaleConstant loc, std::vector<uint32> const* not_ids)
 {
     std::wstring wname;
     if (Utf8toWStr(name, wname))
@@ -2190,6 +2193,9 @@ Creature const* BotDataMgr::FindBot(std::string_view name, LocaleConstant loc)
         std::shared_lock<std::shared_mutex> lock(*GetLock());
         for (NpcBotRegistry::const_iterator ci = _existingBots.cbegin(); ci != _existingBots.cend(); ++ci)
         {
+            if (not_ids && std::find(not_ids->cbegin(), not_ids->cend(), (*ci)->GetEntry()) != not_ids->cend())
+                continue;
+
             std::string basename = (*ci)->GetName();
             if (CreatureLocale const* creatureInfo = sObjectMgr->GetCreatureLocale((*ci)->GetEntry()))
             {
