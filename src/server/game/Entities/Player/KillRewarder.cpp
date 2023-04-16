@@ -186,7 +186,7 @@ void KillRewarder::_RewardXP(Player* player, float rate)
         {
             if (victim->GetCreatureTemplate()->rank == CREATURE_ELITE_RARE || victim->GetCreatureTemplate()->rank == CREATURE_ELITE_RAREELITE)
             {
-                xp *= 20;
+                xp *= 12.5;
             }
         }
 
