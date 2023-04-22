@@ -6567,26 +6567,53 @@ void bot_ai::_OnHealthUpdate() const
     //Level multipliers
     if (!BotMgr::IsWanderingWorldBot(me))
     {
-        if (mylevel >= 20)
-            m_totalhp *= 1.15;
+        if (me->GetMap()->IsDungeon() || me->GetMap()->IsRaid())
+        {
+            if (mylevel >= 20)
+                m_totalhp *= 1.15;
 
-        if (mylevel >= 30)
-            m_totalhp *= 1.15;
+            if (mylevel >= 30)
+                m_totalhp *= 1.15;
 
-        if (mylevel >= 40)
-            m_totalhp *= 1.15;
+            if (mylevel >= 40)
+                m_totalhp *= 1.15;
 
-        if (mylevel >= 50)
-            m_totalhp *= 1.15;
+            if (mylevel >= 50)
+                m_totalhp *= 1.15;
 
-        if (mylevel >= 60)
-            m_totalhp *= 1.3;
+            if (mylevel >= 60)
+                m_totalhp *= 1.3;
 
-        if (mylevel >= 70)
-            m_totalhp *= 1.3;
+            if (mylevel >= 70)
+                m_totalhp *= 1.3;
 
-        if (mylevel >= 80)
-            m_totalhp *= 1.6;
+            if (mylevel >= 80)
+                m_totalhp *= 1.3;
+        }
+
+        if (!me->GetMap()->IsDungeon() && !me->GetMap()->IsRaid() && !me->GetMap()->IsBattlegroundOrArena())
+        {
+            if (mylevel >= 20)
+                m_totalhp *= 1.05;
+
+            if (mylevel >= 30)
+                m_totalhp *= 1.05;
+
+            if (mylevel >= 40)
+                m_totalhp *= 1.05;
+
+            if (mylevel >= 50)
+                m_totalhp *= 1.05;
+
+            if (mylevel >= 60)
+                m_totalhp *= 1.1;
+
+            if (mylevel >= 70)
+                m_totalhp *= 1.1;
+
+            if (mylevel >= 80)
+                m_totalhp *= 1.1;
+        }
     }
 
     //hp bonuses
@@ -6665,26 +6692,53 @@ void bot_ai::_OnManaUpdate() const
     //Level multipliers
     if (!BotMgr::IsWanderingWorldBot(me))
     {
-        if (mylevel >= 20)
-            m_basemana *= 1.15;
+        if (me->GetMap()->IsDungeon() || me->GetMap()->IsRaid())
+        {
+            if (mylevel >= 20)
+                m_basemana *= 1.15;
 
-        if (mylevel >= 30)
-            m_basemana *= 1.15;
+            if (mylevel >= 30)
+                m_basemana *= 1.15;
 
-        if (mylevel >= 40)
-            m_basemana *= 1.15;
+            if (mylevel >= 40)
+                m_basemana *= 1.15;
 
-        if (mylevel >= 50)
-            m_basemana *= 1.15;
+            if (mylevel >= 50)
+                m_basemana *= 1.15;
 
-        if (mylevel >= 60)
-            m_basemana *= 1.3;
+            if (mylevel >= 60)
+                m_basemana *= 1.3;
 
-        if (mylevel >= 70)
-            m_basemana *= 1.3;
+            if (mylevel >= 70)
+                m_basemana *= 1.3;
 
-        if (mylevel >= 80)
-            m_basemana *= 1.6;
+            if (mylevel >= 80)
+                m_basemana *= 1.3;
+        }
+
+        if (!me->GetMap()->IsDungeon() && !me->GetMap()->IsRaid() && !me->GetMap()->IsBattlegroundOrArena())
+        {
+            if (mylevel >= 20)
+                m_basemana *= 1.075;
+
+            if (mylevel >= 30)
+                m_basemana *= 1.075;
+
+            if (mylevel >= 40)
+                m_basemana *= 1.075;
+
+            if (mylevel >= 50)
+                m_basemana *= 1.075;
+
+            if (mylevel >= 60)
+                m_basemana *= 1.2;
+
+            if (mylevel >= 70)
+                m_basemana *= 1.2;
+
+            if (mylevel >= 80)
+                m_basemana *= 1.2;
+        }
     }
 
     //mana bonuses
