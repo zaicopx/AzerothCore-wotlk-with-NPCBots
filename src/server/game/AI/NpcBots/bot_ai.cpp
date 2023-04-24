@@ -6582,13 +6582,13 @@ void bot_ai::_OnHealthUpdate() const
                 m_totalhp *= 1.15;
 
             if (mylevel >= 60)
-                m_totalhp *= 1.3;
+                m_totalhp *= 1.33;
 
             if (mylevel >= 70)
-                m_totalhp *= 1.3;
+                m_totalhp *= 1.33;
 
             if (mylevel >= 80)
-                m_totalhp *= 1.3;
+                m_totalhp *= 1.33;
         }
 
         if (!me->GetMap()->IsDungeon() && !me->GetMap()->IsRaid() && !me->GetMap()->IsBattlegroundOrArena())
@@ -6707,13 +6707,13 @@ void bot_ai::_OnManaUpdate() const
                 m_basemana *= 1.15;
 
             if (mylevel >= 60)
-                m_basemana *= 1.3;
+                m_basemana *= 1.2;
 
             if (mylevel >= 70)
-                m_basemana *= 1.3;
+                m_basemana *= 1.2;
 
             if (mylevel >= 80)
-                m_basemana *= 1.3;
+                m_basemana *= 1.2;
         }
 
         if (!me->GetMap()->IsDungeon() && !me->GetMap()->IsRaid() && !me->GetMap()->IsBattlegroundOrArena())

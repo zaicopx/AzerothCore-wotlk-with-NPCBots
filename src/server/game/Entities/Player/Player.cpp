@@ -1899,9 +1899,9 @@ void Player::Regenerate(Powers power)
                     addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * 0.001f * m_regenTimer;
 
                 if (IsInCombat())
-                    addvalue *= 3.0;
+                    addvalue *= 4.0;
                 else
-                    addvalue *= 9.0;
+                    addvalue *= 12.0;
             }
             break;
         case POWER_RAGE:                                    // Regenerate rage
@@ -2057,9 +2057,9 @@ void Player::RegenerateHealth()
         addvalue = 0;
 
     if (IsInCombat())
-        addvalue *= 1.5;
+        addvalue *= 2;
     else
-        addvalue *= 4.5;
+        addvalue *= 6;
 
     ModifyHealth(int32(addvalue));
 }
