@@ -122,7 +122,7 @@ public:
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.RescheduleEvent(EVENT_SPELL_FORCEFUL_SMASH, 14s, 16s);
-                events.RescheduleEvent(EVENT_SPELL_OVERLORDS_BRAND, 4s, 6s);
+                //events.RescheduleEvent(EVENT_SPELL_OVERLORDS_BRAND, 4s, 6s);
                 events.RescheduleEvent(EVENT_RIMEFANG_SPELL_ICY_BLAST, 5s);
                 events.RescheduleEvent(EVENT_SPELL_MARK_OF_RIMEFANG, 25s);
             }
