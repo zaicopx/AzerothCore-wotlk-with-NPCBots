@@ -1,4 +1,5 @@
 #include "Battleground.h"
+#include "BattlegroundAB.h"
 #include "BattlegroundWS.h"
 #include "bot_ai.h"
 #include "bot_Events.h"
@@ -10470,7 +10471,22 @@ void bot_ai::FillKillReward(GameObject* go) const
     loot.loot_type = LOOT_CORPSE;
 
     //gold
-    loot.gold = uint32(me->GetLevel() * std::min<uint32>(std::max<int32>(125 + int32(_killsCount * 5) - int32(_deathsCount * 50), 125), 1250));
+    float lvl = float(std::min<uint8>(me->GetLevel(), DEFAULT_MAX_LEVEL));
+    float gold = 125.0f;
+    switch (me->GetLevel() / 10)
+    {
+        case 0: gold *= 0.100f; break;
+        case 1: gold *= 0.125f; break;
+        case 2: gold *= 0.175f; break;
+        case 3: gold *= 0.225f; break;
+        case 4: gold *= 0.300f; break;
+        case 5: gold *= 0.400f; break;
+        case 6: gold *= 0.550f; break;
+        case 7: gold *= 0.750f; break;
+        default:gold *= 1.000f; break;
+    }
+
+    loot.gold = uint32(lvl * std::min<float>(std::max<float>(gold + _killsCount * gold * 0.04f - _deathsCount * gold * 0.4f, gold), gold * 10.0f));
 
     //items
     uint32 loot_items_count = 0;
@@ -16075,6 +16091,19 @@ bool bot_ai::GlobalUpdate(uint32 diff)
     if (!BotMgr::IsNpcBotModEnabled() || !BotDataMgr::AllBotsLoaded())
         return false;
 
+    if (IsWanderer())
+    {
+        if (Battleground* bg = GetBG())
+        {
+            if (bg->GetStatus() == STATUS_WAIT_LEAVE)
+            {
+                if (std::find_if(bg->GetPlayers().cbegin(), bg->GetPlayers().cend(), [](auto const& kv) { return kv.first.IsPlayer(); }) == bg->GetPlayers().cend())
+                    bg->RemoveBotAtLeave(me->GetGUID());
+                return false;
+            }
+        }
+    }
+
     //db saves with cd
     //  1) disabled spells
     if (_saveDisabledSpells && _saveDisabledSpellsTimer <= diff)
@@ -16794,20 +16823,25 @@ void bot_ai::UpdateReviveTimer(uint32 diff)
         {
             BotMgr::ReviveBot(me);
 
-            if (IsWanderer() && me->GetMap()->GetEntry()->IsContinent())
+            if (IsWanderer())
             {
-                TeamId my_team = BotDataMgr::GetTeamIdForFaction(me->GetFaction());
-                GraveyardStruct const* gy = sGraveyard->GetClosestGraveyard((Player*)me, my_team == TEAM_HORDE ? TEAM_HORDE : TEAM_ALLIANCE, false);
                 Position safePos;
-                if (gy)
+                if (me->GetMap()->GetEntry()->IsContinent())
                 {
-                    safePos.Relocate(gy->x, gy->y, gy->z, me->GetOrientation());
-                    BotMgr::TeleportBot(me, sMapMgr->CreateBaseMap(gy->Map), &safePos);
+                    TeamId my_team = BotDataMgr::GetTeamIdForFaction(me->GetFaction());
+                    GraveyardStruct const* gy = sGraveyard->GetClosestGraveyard((Player*)me, my_team == TEAM_HORDE ? TEAM_HORDE : TEAM_ALLIANCE, false);
+                    if (gy)
+                    {
+                        safePos.Relocate(gy->x, gy->y, gy->z, me->GetOrientation());
+                        BotMgr::TeleportBot(me, sMapMgr->CreateBaseMap(gy->Map), &safePos);
+                    }
+                    else
+                        safePos.Relocate(me);
                 }
                 else
                     safePos.Relocate(me);
 
-                if (safePos.GetExactDist2d(homepos) > MAX_WANDER_NODE_DISTANCE)
+                if (safePos.GetExactDist2d(homepos) > MAX_WANDER_NODE_DISTANCE || me->GetMap()->IsBattleground())
                 {
                     WanderNode const* nextNode = GetNextTravelNode(&safePos, true);
                     if (!nextNode)
@@ -17253,6 +17287,7 @@ void bot_ai::OnWanderNodeReached()
             switch (bg->GetBgTypeID())
             {
                 case BATTLEGROUND_WS:
+                {
                     if (bg->GetBotTeamId(me->GetGUID()) == TEAM_ALLIANCE && _travel_node_cur->HasFlag(BotWPFlags::BOTWP_FLAG_HORDE_ONLY))
                     {
                         if (GameObject* go = bg->GetBGObject(BG_WS_OBJECT_H_FLAG))
@@ -17270,6 +17305,75 @@ void bot_ai::OnWanderNodeReached()
                         }
                     }
                     break;
+                }
+                case BATTLEGROUND_AB:
+                {
+                    static const uint32 SPELL_OPENING_FLAG = 21651u;
+
+                    uint8 node = BG_AB_NODE_STABLES;
+                    GameObject* obj = bg->GetBGObject(node*8+BG_AB_OBJECT_BANNER_NEUTRAL);
+                    while (node < BG_AB_DYNAMIC_NODES_COUNT && (!obj || !me->IsWithinDistInMap(obj, 10.0f)))
+                    {
+                        ++node;
+                        obj = bg->GetBGObject(node*8+BG_AB_OBJECT_BANNER_NEUTRAL);
+                    }
+                    if (node < BG_AB_DYNAMIC_NODES_COUNT)
+                    {
+                        TeamId teamId = bg->GetBotTeamId(me->GetGUID());
+                        BattlegroundAB const* bgab = dynamic_cast<BattlegroundAB const*>(bg);
+
+                        if (bgab->IsNodeOccupied(node, teamId) || bgab->IsNodeContested(node, teamId))
+                            break;
+
+                        //at this point node is either neutral or owned/contested by other team
+                        uint8 new_bg_obj_type;
+                        if (bgab->IsNodeOccupied(node, bg->GetOtherTeamId(teamId)))
+                            new_bg_obj_type = BG_AB_OBJECT_BANNER_HORDE;
+                        else if (bgab->IsNodeContested(node, bg->GetOtherTeamId(teamId)))
+                            new_bg_obj_type = BG_AB_OBJECT_BANNER_CONT_H;
+                        else
+                            new_bg_obj_type = BG_AB_OBJECT_BANNER_NEUTRAL;
+
+                        obj = bg->GetBGObject(node*8+new_bg_obj_type);
+                        ASSERT(obj != nullptr);
+
+                        bool already_used = false;
+                        Group const* gr = bg->GetBgRaid(teamId);
+                        ASSERT(gr != nullptr);
+                        for (auto const& slot : gr->GetMemberSlots())
+                        {
+                            if (slot.guid == me->GetGUID())
+                                continue;
+                            Unit const* gunit = nullptr;
+                            if (slot.guid.IsPlayer())
+                            {
+                                if (Player const* other_player = ObjectAccessor::FindPlayer(slot.guid))
+                                    gunit = other_player->ToUnit();
+                            }
+                            else
+                            {
+                                if (Creature const* other_bot = bg->GetBgMap()->GetCreature(slot.guid))
+                                    gunit = other_bot->ToUnit();
+                            }
+                            if (Spell const* curSpell = gunit ? gunit->GetCurrentSpell(CURRENT_GENERIC_SPELL) : nullptr)
+                            {
+                                if (curSpell->m_spellInfo->Id == SPELL_OPENING_FLAG && curSpell->m_targets.GetGOTargetGUID() == obj->GetGUID())
+                                {
+                                    already_used = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (already_used)
+                            break;
+
+                        //LOG_ERROR("npcbots", "OnWanderNodeReached: [AB] Bot {} USES flag {} at node {}",
+                        //    me->GetName().c_str(), obj->GetName().c_str(), uint32(node));
+                        me->CastSpell(obj, SPELL_OPENING_FLAG, false);
+                    }
+                    break;
+                }
                 default:
                     break;
             }
