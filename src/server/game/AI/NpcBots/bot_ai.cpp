@@ -6617,6 +6617,9 @@ void bot_ai::_OnHealthUpdate() const
         }
     }
 
+    if (me->GetMap()->IsBattlegroundOrArena())
+        m_totalhp *= 0.85;
+
     //hp bonuses
     uint8 bonuspct = 0;
     //Endurance Training
@@ -6741,6 +6744,9 @@ void bot_ai::_OnManaUpdate() const
                 m_basemana *= 1.2;
         }
     }
+
+    if (me->GetMap()->IsBattlegroundOrArena())
+        m_basemana *= 0.85;
 
     //mana bonuses
     uint8 bonuspct = 0;

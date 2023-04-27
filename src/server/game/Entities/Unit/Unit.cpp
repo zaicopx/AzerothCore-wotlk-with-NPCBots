@@ -1457,6 +1457,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                         }
                     }
 
+                    if (GetMap()->IsBattlegroundOrArena())
+                        damage *= 0.75;
+
                     damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModSpell());
                 }
                 //End NpcBot
@@ -1567,6 +1570,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                                 damage *= 1.25;
                         }
                     }
+
+                    if (GetMap()->IsBattlegroundOrArena())
+                        damage *= 0.75;
 
                     damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModSpell());
                 }
@@ -1774,6 +1780,9 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
                         damage *= 1.25;
                 }
             }
+
+            if (GetMap()->IsBattlegroundOrArena())
+                damage *= 0.75;
 
             damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModPhysical());
         }
