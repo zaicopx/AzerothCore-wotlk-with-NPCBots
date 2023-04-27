@@ -322,7 +322,7 @@ public:
             //we don't want rogue to swith into stealth for no purpose
             if (IsSpellReady(STEALTH_1, diff, false) && !me->IsInCombat() && !IsTank() && Rand() < 50 && dist < 28 &&
                 (!me->HasAuraType(SPELL_AURA_PERIODIC_DAMAGE) || (mytar->GetTypeId() == TYPEID_PLAYER && dist < 6)) &&
-                (me->GetLevel() >= 35 || (energy >= 40 && me->GetLevel() >= 30) || dist > 8))
+                (me->GetLevel() >= 35 || (energy >= 40 && me->GetLevel() >= 30) || dist > 8) && !IsFlagCarrier(me))
             {
                 if (doCast(me, GetSpell(STEALTH_1)))
                 {}
@@ -820,7 +820,7 @@ public:
         void CheckVanish(uint32 diff)
         {
             if (!IsSpellReady(VANISH_1, diff, false) || !me->IsInCombat() || me->IsMounted() || IsTank() || Rand() > 50 ||
-                me->getAttackers().empty() || me->HasAuraType(SPELL_AURA_MOD_STEALTH) ||
+                me->getAttackers().empty() || IsFlagCarrier(me) || me->HasAuraType(SPELL_AURA_MOD_STEALTH) ||
                 me->HasAuraType(SPELL_AURA_ALLOW_ONLY_ABILITY) || me->HasAuraType(SPELL_AURA_PERIODIC_DAMAGE))
                 return;
 
@@ -979,11 +979,24 @@ public:
 
         void CheckSprint(uint32 diff)
         {
-            if (!IsSpellReady(SPRINT_1, diff, false) || !HasBotCommandState(BOT_COMMAND_FOLLOW) ||
-                me->GetVictim() || me->IsMounted() || IAmFree() || Rand() > 15)
+            if (!IsSpellReady(SPRINT_1, diff) || (!IAmFree() && !HasBotCommandState(BOT_COMMAND_FOLLOW)) || Rand() > 35 || me->IsMounted())
                 return;
 
-            if (me->GetExactDist2d(master) > std::max<uint8>(master->GetBotMgr()->GetBotFollowDist(), 40))
+            if (IAmFree())
+            {
+                InstanceTemplate const* instt = sObjectMgr->GetInstanceTemplate(me->GetMap()->GetId());
+                bool map_allows_mount = (!me->GetMap()->IsDungeon() || me->GetMap()->IsBattlegroundOrArena()) && (!instt || instt->AllowMount);
+                if (me->HasUnitMovementFlag(MOVEMENTFLAG_FORWARD) &&
+                    (!me->GetVictim() ? (!map_allows_mount || me->IsInCombat() || IsFlagCarrier(me)) : !me->IsWithinDist(me->GetVictim(), 8.0f)))
+                {
+                    if (doCast(me, GetSpell(SPRINT_1)))
+                        return;
+                }
+
+                return;
+            }
+
+            if (me->GetExactDist2d(master) > std::max<uint8>(master->GetBotMgr()->GetBotFollowDist(), 45))
             {
                 if (doCast(me, GetSpell(SPRINT_1)))
                     return;
