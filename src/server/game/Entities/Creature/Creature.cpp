@@ -4023,17 +4023,17 @@ Unit* Creature::GetBotsPet() const
 
 bool Creature::IsNPCBot() const
 {
-    return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NPCBOT;
+    return GetCreatureTemplate()->IsNPCBot();
 }
 
 bool Creature::IsNPCBotPet() const
 {
-    return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NPCBOT_PET;
+    return GetCreatureTemplate()->IsNPCBotPet();
 }
 
 bool Creature::IsNPCBotOrPet() const
 {
-    return IsNPCBot() || IsNPCBotPet();
+    return GetCreatureTemplate()->IsNPCBotOrPet();
 }
 
 bool Creature::IsFreeBot() const

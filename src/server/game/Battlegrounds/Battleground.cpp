@@ -820,7 +820,7 @@ uint32 Battleground::GetRealRepFactionForPlayer(uint32 factionId, Player* player
     if (player)
     {
         // if the bg team is not the original team, reverse reputation
-        if (player->GetBgTeamId() != player->GetTeamId(true))
+        if (player->GetBgTeamId() != player->GetTeamId())
         {
             switch (factionId)
             {
@@ -1194,6 +1194,12 @@ void Battleground::RemoveBotAtLeave(ObjectGuid guid)
 
     if (Creature const* bot = BotDataMgr::FindBot(guid.GetEntry()))
     {
+        if (bot->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+            const_cast<Creature*>(bot)->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+        const_cast<Creature*>(bot)->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        const_cast<Creature*>(bot)->RemoveUnitFlag(UNIT_FLAG_IMMUNE);
+        const_cast<Creature*>(bot)->ClearUnitState(UNIT_STATE_STUNNED);
+
         bot->GetBotAI()->SetBG(nullptr);
         if (bot->IsWandererBot())
         {

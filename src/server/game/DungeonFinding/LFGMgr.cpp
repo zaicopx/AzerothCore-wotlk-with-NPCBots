@@ -445,7 +445,7 @@ namespace lfg
                 {
                     if (!itemRequirement->checkLeaderOnly || !group || group->GetLeaderGUID() == player->GetGUID())
                     {
-                        if (itemRequirement->faction == TEAM_NEUTRAL || itemRequirement->faction == player->GetTeamId(true))
+                        if (itemRequirement->faction == TEAM_NEUTRAL || itemRequirement->faction == player->GetTeamId())
                         {
                             if (!player->HasItemCount(itemRequirement->id, 1))
                             {
@@ -461,7 +461,7 @@ namespace lfg
                 {
                     if (!questRequirement->checkLeaderOnly || !group || group->GetLeaderGUID() == player->GetGUID())
                     {
-                        if (questRequirement->faction == TEAM_NEUTRAL || questRequirement->faction == player->GetTeamId(true))
+                        if (questRequirement->faction == TEAM_NEUTRAL || questRequirement->faction == player->GetTeamId())
                         {
                             if (!player->GetQuestRewardStatus(questRequirement->id))
                             {
@@ -483,7 +483,7 @@ namespace lfg
                 {
                     if (!achievementRequirement->checkLeaderOnly || !group || group->GetLeaderGUID() == player->GetGUID())
                     {
-                        if (achievementRequirement->faction == TEAM_NEUTRAL || achievementRequirement->faction == player->GetTeamId(true))
+                        if (achievementRequirement->faction == TEAM_NEUTRAL || achievementRequirement->faction == player->GetTeamId())
                         {
                             if (!player->HasAchieved(achievementRequirement->id))
                             {
