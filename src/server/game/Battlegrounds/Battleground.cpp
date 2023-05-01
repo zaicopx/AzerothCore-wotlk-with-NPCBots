@@ -820,7 +820,7 @@ uint32 Battleground::GetRealRepFactionForPlayer(uint32 factionId, Player* player
     if (player)
     {
         // if the bg team is not the original team, reverse reputation
-        if (player->GetBgTeamId() != player->GetTeamId(true))
+        if (player->GetBgTeamId() != player->GetTeamId())
         {
             switch (factionId)
             {
@@ -919,7 +919,13 @@ void Battleground::EndBattleground(PvPTeamId winnerTeamId)
                 if (!bot->IsAlive())
                     BotMgr::ReviveBot(const_cast<Creature*>(bot));
                 else
-                    const_cast<Creature*>(bot)->SetFullHealth();
+                {
+                    bot->GetBotAI()->UnsummonAll();
+                    const_cast<Creature*>(bot)->InterruptNonMeleeSpells(true);
+                    const_cast<Creature*>(bot)->RemoveAllControlled();
+                    const_cast<Creature*>(bot)->SetUnitFlag(UNIT_FLAG_IMMUNE);
+                    const_cast<Creature*>(bot)->AddUnitState(UNIT_STATE_STUNNED);
+                }
             }
         }
     }
@@ -1057,6 +1063,15 @@ void Battleground::RemovePlayerAtLeave(Player* player)
         player->SpawnCorpseBones();
     }
 
+    //npcbot
+    if (player->HaveBot())
+    {
+        BotMap const* map = player->GetBotMgr()->GetBotMap();
+        for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
+            RemoveBotAtLeave(itr->first);
+    }
+    //end npcbot
+
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // GetStatus might be changed in RemovePlayer - define it here
@@ -1188,6 +1203,12 @@ void Battleground::RemoveBotAtLeave(ObjectGuid guid)
 
     if (Creature const* bot = BotDataMgr::FindBot(guid.GetEntry()))
     {
+        if (bot->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+            const_cast<Creature*>(bot)->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+        const_cast<Creature*>(bot)->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        const_cast<Creature*>(bot)->RemoveUnitFlag(UNIT_FLAG_IMMUNE);
+        const_cast<Creature*>(bot)->ClearUnitState(UNIT_STATE_STUNNED);
+
         bot->GetBotAI()->SetBG(nullptr);
         if (bot->IsWandererBot())
         {
