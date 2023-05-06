@@ -2204,21 +2204,21 @@ public:
             //    botPet = nullptr;
             if (summon->GetEntry() == BOT_PET_SPIRIT_WOLF)
             {
-                bool found = false;
+                //bool found = false;
                 for (uint8 i = 0; i != MAX_WOLVES; ++i)
                 {
                     if (_wolves[i] == summon->GetGUID())
                     {
                         _wolves[i] = ObjectGuid::Empty;
-                        found = true;
+                        //found = true;
                         break;
                     }
                 }
-                if (!found)
-                {
-                    LOG_ERROR("entities.unit", "Shaman_bot:SummonedCreatureDespawn() wolf is not found in array");
-                    ASSERT(false);
-                }
+                //if (!found)
+                //{
+                //    LOG_ERROR("entities.unit", "Shaman_bot:SummonedCreatureDespawn() wolf is not found in array");
+                //    ASSERT(false);
+                //}
             }
         }
 

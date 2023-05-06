@@ -3753,8 +3753,8 @@ void ObjectMgr::LoadPlayerInfo()
                 info->positionY = positionY;
                 info->positionZ = positionZ;
                 info->orientation = orientation;
-                info->displayId_m = rEntry->MaleDisplayID;
-                info->displayId_f = rEntry->FemaleDisplayID;
+                info->displayId_m = rEntry->model_m;
+                info->displayId_f = rEntry->model_f;
                 _playerInfo[current_race][current_class] = info;
 
                 ++count;
@@ -8843,10 +8843,10 @@ void ObjectMgr::LoadCreatureOutfits()
         switch (co.gender)
         {
             case GENDER_FEMALE:
-                _creatureTemplateStore[entry].Modelid1 = rEntry->FemaleDisplayID;
+                _creatureTemplateStore[entry].Modelid1 = rEntry->model_f;
                 break;
             case GENDER_MALE:
-                _creatureTemplateStore[entry].Modelid1 = rEntry->MaleDisplayID;
+                _creatureTemplateStore[entry].Modelid1 = rEntry->model_m;
                 break;
             default:
                 LOG_ERROR("server.loading", ">> Creature entry {} in `creature_template_outfits` has invalid gender {}", entry, uint32(co.gender));
