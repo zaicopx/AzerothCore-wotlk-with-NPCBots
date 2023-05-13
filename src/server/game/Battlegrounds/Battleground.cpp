@@ -820,7 +820,7 @@ uint32 Battleground::GetRealRepFactionForPlayer(uint32 factionId, Player* player
     if (player)
     {
         // if the bg team is not the original team, reverse reputation
-        if (player->GetBgTeamId() != player->GetTeamId())
+        if (player->GetBgTeamId() != player->GetTeamId(true))
         {
             switch (factionId)
             {
@@ -1062,6 +1062,15 @@ void Battleground::RemovePlayerAtLeave(Player* player)
         player->ResurrectPlayer(1.0f);
         player->SpawnCorpseBones();
     }
+
+    //npcbot
+    if (player->HaveBot())
+    {
+        BotMap const* map = player->GetBotMgr()->GetBotMap();
+        for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
+            RemoveBotAtLeave(itr->first);
+    }
+    //end npcbot
 
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
