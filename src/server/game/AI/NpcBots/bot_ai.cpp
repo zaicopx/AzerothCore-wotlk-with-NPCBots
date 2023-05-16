@@ -6875,6 +6875,9 @@ void bot_ai::_OnManaRegenUpdate() const
     if (me->GetMap()->IsDungeon())
         power_regen_mp5 *= 5;
 
+    if (me->GetBotClass() == BOT_CLASS_PRIEST)
+        power_regen_mp5 *= 3;
+
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(value, modManaRegenInterrupt));
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + value);
 }
