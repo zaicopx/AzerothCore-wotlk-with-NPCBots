@@ -970,7 +970,7 @@ public:
             }
             //Drain Soul: only if can quad damage
             if (IsSpellReady(DRAIN_SOUL_1, diff) && can_do_shadow && mytar->GetTypeId() == TYPEID_UNIT &&
-                Rand() < (50 + 85 * me->GetMap()->IsDungeon()) && GetHealthPCT(mytar) < 25 &&
+                Rand() < (50 + 85 * me->GetMap()->IsDungeon()) && GetHealthPCT(mytar) < 10 &&
                 mytar->GetHealth() > me->GetMaxHealth() / 2 && dist < CalcSpellMaxRange(DRAIN_SOUL_1))
             {
                 if (doCast(mytar, GetSpell(DRAIN_SOUL_1)))
