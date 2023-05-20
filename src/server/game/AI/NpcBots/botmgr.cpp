@@ -42,6 +42,7 @@ TODO: Move creature hooks here
 # define GetBoolDefault GetOption<bool>
 # define GetIntDefault GetOption<int32>
 # define GetFloatDefault GetOption<float>
+# define GetStringDefault GetOption<std::string>
 #endif
 
 static std::list<BotMgr::delayed_teleport_callback_type> delayed_bot_teleports;
@@ -79,6 +80,7 @@ bool _displayEquipment;
 bool _showCloak;
 bool _showHelm;
 bool _sendEquipListItems;
+bool _enableBotGearBank;
 bool _transmog_enable;
 bool _transmog_mixArmorClasses;
 bool _transmog_mixWeaponClasses;
@@ -225,6 +227,7 @@ void BotMgr::Initialize()
 
     BotDataMgr::LoadNpcBots();
     BotDataMgr::LoadNpcBotGroupData();
+    BotDataMgr::LoadNpcBotGearStorage();
 }
 
 void BotMgr::ReloadConfig()
@@ -296,6 +299,7 @@ void BotMgr::LoadConfig(bool reload)
     _showCloak                      = sConfigMgr->GetBoolDefault("NpcBot.EquipmentDisplay.ShowCloak", true);
     _showHelm                       = sConfigMgr->GetBoolDefault("NpcBot.EquipmentDisplay.ShowHelm", false);
     _sendEquipListItems             = sConfigMgr->GetBoolDefault("NpcBot.Gossip.ShowEquipmentListItems", false);
+    _enableBotGearBank              = sConfigMgr->GetBoolDefault("NpcBot.GearBank.Enable", false);
     _transmog_enable                = sConfigMgr->GetBoolDefault("NpcBot.Transmog.Enable", false);
     _transmog_mixArmorClasses       = sConfigMgr->GetBoolDefault("NpcBot.Transmog.MixArmorClasses", false);
     _transmog_mixWeaponClasses      = sConfigMgr->GetBoolDefault("NpcBot.Transmog.MixWeaponClasses", false);
@@ -468,6 +472,11 @@ bool BotMgr::ShowEquippedHelm()
 bool BotMgr::SendEquipListItems()
 {
     return _sendEquipListItems;
+}
+
+bool BotMgr::IsGearBankEnabled()
+{
+    return _enableBotGearBank;
 }
 
 bool BotMgr::IsTransmogEnabled()
