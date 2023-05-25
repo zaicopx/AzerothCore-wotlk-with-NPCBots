@@ -150,7 +150,7 @@ public:
                     }
                 case EVENT_SHATTER:
                     {
-                        me->CastSpell((Unit*)nullptr, DUNGEON_MODE(SHATTER, SHATTER_H), false);
+                        me->CastSpell((Unit*)nullptr, SHATTER, false);
                         Talk(SAY_SHATTER);
                         events.RescheduleEvent(EVENT_REMOVE_STONED, 1500ms);
                         break;
