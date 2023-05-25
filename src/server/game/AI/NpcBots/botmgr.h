@@ -91,6 +91,7 @@ class AC_GAME_API BotMgr
         static bool ShowEquippedCloak();
         static bool ShowEquippedHelm();
         static bool SendEquipListItems();
+        static bool IsGearBankEnabled();
         static bool IsTransmogEnabled();
         static bool MixArmorClasses();
         static bool MixWeaponClasses();
@@ -104,6 +105,9 @@ class AC_GAME_API BotMgr
         static bool FilterRaces();
         static bool FillNpcBotsDungeons();
         static bool IsBotGenerationEnabledBGs();
+        static bool IsBotHKEnabled();
+        static bool IsBotHKMessageEnabled();
+        static bool IsBotHKAchievementsEnabled();
         static uint8 GetMaxClassBots();
         static uint8 GetHealTargetIconFlags();
         static uint8 GetTankTargetIconFlags();
@@ -114,6 +118,7 @@ class AC_GAME_API BotMgr
         static uint32 GetBaseUpdateDelay();
         static uint32 GetOwnershipExpireTime();
         static uint32 GetDesiredWanderingBotsCount();
+        static float GetBotHKHonorRate();
         static float GetBotStatLimitDodge();
         static float GetBotStatLimitParry();
         static float GetBotStatLimitBlock();
@@ -141,6 +146,7 @@ class AC_GAME_API BotMgr
         static void OnBotSpellInterrupt(Unit const* caster, CurrentSpellTypes spellType);
         static void OnBotSpellGo(Unit const* caster, Spell const* spell, bool ok = true);
         static void OnBotOwnerSpellGo(Unit const* caster, Spell const* spell, bool ok = true);
+        static void OnBotChannelFinish(Unit const* caster, Spell const* spell);
         static void OnVehicleSpellGo(Unit const* caster, Spell const* spell, bool ok = true);
         static void OnVehicleAttackedBy(Unit* attacker, Unit const* victim);
         static void OnBotDamageTaken(Unit* attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellInfo const* spellInfo);
@@ -178,6 +184,8 @@ class AC_GAME_API BotMgr
         static bool LimitBots(Map const* map);
         static bool CanBotParryWhileCasting(Creature const* bot);
         static bool IsWanderingWorldBot(Creature const* bot);
+        static bool IsBotContestedPvP(Creature const* bot);
+        static void SetBotContestedPvP(Creature const* bot);
         bool RestrictBots(Creature const* bot, bool add) const;
         bool IsPartyInCombat() const;
         bool HasBotClass(uint8 botclass) const;
@@ -188,6 +196,8 @@ class AC_GAME_API BotMgr
         static uint32 GetNpcBotCost(uint8 level, uint8 botclass);
         static std::string GetNpcBotCostStr(uint8 level, uint8 botclass);
         static uint8 BotClassByClassName(std::string const& className);
+        static uint8 GetBotPlayerClass(Creature const* bot);
+        static uint8 GetBotPlayerRace(Creature const* bot);
 
         std::string GetTargetIconString(uint8 icon) const;
 

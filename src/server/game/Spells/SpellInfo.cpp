@@ -904,7 +904,7 @@ SpellInfo::~SpellInfo()
 
 SpellInfo const* SpellInfo::TryGetSpellInfoOverride(WorldObject const* caster) const
 {
-    SpellInfo const* spellInfoOverride = (caster && caster->IsNPCBot()) ? GetBotSpellInfoOverride(Id) : nullptr;
+    SpellInfo const* spellInfoOverride = (caster && caster->IsNPCBotOrPet()) ? GetBotSpellInfoOverride(Id) : nullptr;
     return spellInfoOverride ? spellInfoOverride : this;
 }
 
@@ -2154,6 +2154,7 @@ AuraStateType SpellInfo::LoadAuraState() const
         case 35331: // Black Blood
         case 9806:  // Phantom Strike
         case 35325: // Glowing Blood
+        case 35328: // Lambent Blood
         case 16498: // Faerie Fire
         case 6950:
         case 20656:

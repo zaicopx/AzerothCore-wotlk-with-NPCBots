@@ -246,9 +246,11 @@ class bot_ai : public CreatureAI
         void OnBotSpellInterrupted(SpellSchoolMask schoolMask, uint32 unTimeMs);
         void OnBotSpellGo(Spell const* spell, bool ok = true);
         void OnBotOwnerSpellGo(Spell const* spell, bool ok = true);
+        void OnBotChannelFinish(Spell const* spell);
         void OnOwnerVehicleDamagedBy(Unit* attacker);
         virtual void OnClassSpellStart(SpellInfo const* /*spellInfo*/) {}
         virtual void OnClassSpellGo(SpellInfo const* /*spell*/) {}
+        virtual void OnClassChannelFinish(Spell const* /*spell*/) {}
 
         void SpawnKillReward(Player* looter) const;
         void FillKillReward(GameObject* go) const;
@@ -311,6 +313,11 @@ class bot_ai : public CreatureAI
         static bool IsDamagingSpell(SpellInfo const* spellInfo);
 
         bool IsImmunedToMySpellEffect(Unit const* unit, SpellInfo const* spellInfo, SpellEffIndex index) const;
+
+        bool IsContestedPvP() const;
+        void SetContestedPvP();
+        void ResetContestedPvP();
+        void UpdateContestedPvP();
 
         static bool IsFlagCarrier(Unit const* unit, BattlegroundTypeId bgTypeId = BATTLEGROUND_TYPE_NONE);
 
@@ -649,6 +656,7 @@ class bot_ai : public CreatureAI
         uint32 evadeDelayTimer;
         uint32 indoorsTimer;
         uint32 outdoorsTimer;
+        uint32 _contestedPvPTimer;
         //save timers
         uint32 _saveDisabledSpellsTimer;
 

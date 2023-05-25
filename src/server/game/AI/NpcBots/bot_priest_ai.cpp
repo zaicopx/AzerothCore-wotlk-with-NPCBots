@@ -579,6 +579,10 @@ public:
 
             StartAttack(mytar, IsMelee());
 
+            CheckAttackState();
+            if (!me->IsAlive() || !mytar->IsAlive())
+                return;
+
             MoveBehind(mytar);
 
             if (GC_Timer > diff)
