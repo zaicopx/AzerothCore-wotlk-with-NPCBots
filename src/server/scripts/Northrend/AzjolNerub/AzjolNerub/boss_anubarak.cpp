@@ -217,15 +217,23 @@ class boss_anub_arak : public CreatureScript
                     case EVENT_SUMMON_ASSASSINS:
                         SummonHelpers(509.32f, 247.42f, 239.48f, SPELL_SUMMON_ASSASSIN);
                         SummonHelpers(589.51f, 240.19f, 236.0f, SPELL_SUMMON_ASSASSIN);
+                        SummonHelpers(509.32f, 247.42f, 239.48f, SPELL_SUMMON_ASSASSIN);
+                        SummonHelpers(589.51f, 240.19f, 236.0f, SPELL_SUMMON_ASSASSIN);
+                        SummonHelpers(509.32f, 247.42f, 239.48f, SPELL_SUMMON_ASSASSIN);
+                        SummonHelpers(589.51f, 240.19f, 236.0f, SPELL_SUMMON_ASSASSIN);
                         break;
                     case EVENT_SUMMON_DARTER:
+                        SummonHelpers(509.32f, 247.42f, 239.48f, SPELL_SUMMON_DARTER);
+                        SummonHelpers(589.51f, 240.19f, 236.0f, SPELL_SUMMON_DARTER);
                         SummonHelpers(509.32f, 247.42f, 239.48f, SPELL_SUMMON_DARTER);
                         SummonHelpers(589.51f, 240.19f, 236.0f, SPELL_SUMMON_DARTER);
                         break;
                     case EVENT_SUMMON_GUARDIAN:
                         SummonHelpers(550.34f, 316.00f, 234.30f, SPELL_SUMMON_GUARDIAN);
+                        SummonHelpers(550.34f, 316.00f, 234.30f, SPELL_SUMMON_GUARDIAN);
                         break;
                     case EVENT_SUMMON_VENOMANCER:
+                        SummonHelpers(550.34f, 316.00f, 234.30f, SPELL_SUMMON_VENOMANCER);
                         SummonHelpers(550.34f, 316.00f, 234.30f, SPELL_SUMMON_VENOMANCER);
                         break;
                 }
