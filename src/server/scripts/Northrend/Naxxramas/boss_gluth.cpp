@@ -218,7 +218,7 @@ public:
                             }
                             (rand == 2 ? rand = 0 : rand++);
                         }
-                        events.Repeat(10s);
+                        events.Repeat(7s);
                         break;
                     }
                 case EVENT_CAN_EAT_ZOMBIE:
