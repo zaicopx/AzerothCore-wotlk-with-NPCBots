@@ -5365,7 +5365,8 @@ uint32 bot_ai::_selectMountSpell() const
     {
         using MountArray = std::array<uint32, NUM_MOUNTS_PER_SPEED>;
 
-        bool can_fly = !IAmFree() ? master->CanFly() : (!instt && me->GetMap()->GetEntry()->addon > 0);
+        //bool can_fly = !IAmFree() ? master->CanFly() : (!instt && me->GetMap()->GetEntry()->addon > 0);
+        bool can_fly = !IAmFree() && master->CanFly();
         bool useSlowMount = can_fly ? (me->GetLevel() < 70 || maxMountSpeed < 220) : (me->GetLevel() < 40 || maxMountSpeed < 80);
 
         if (!can_fly)
