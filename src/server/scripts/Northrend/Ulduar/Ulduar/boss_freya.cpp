@@ -1119,7 +1119,7 @@ public:
             if (me->GetEntry() == NPC_ANCIENT_CONSERVATOR)
             {
                 me->CastSpell(me, SPELL_HEALTHY_SPORE_SUMMON, true);
-                events.ScheduleEvent(EVENT_ANCIENT_CONSERVATOR_GRIP, 6s);
+                //events.ScheduleEvent(EVENT_ANCIENT_CONSERVATOR_GRIP, 6s);
                 events.ScheduleEvent(EVENT_ANCIENT_CONSERVATOR_NATURE_FURY, 14s);
                 _stackCount = ACTION_REMOVE_25_STACK;
             }
