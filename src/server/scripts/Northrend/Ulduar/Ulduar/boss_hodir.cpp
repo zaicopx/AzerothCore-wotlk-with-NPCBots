@@ -119,10 +119,11 @@ enum HodirEvents
     EVENT_FROZEN_BLOWS                  = 2,
     EVENT_BERSERK                       = 3,
     EVENT_FREEZE                        = 4,
-    EVENT_SMALL_ICICLES_ENABLE          = 5,
-    EVENT_HARD_MODE_MISSED              = 6,
-    EVENT_DESPAWN_CHEST                 = 7,
-    EVENT_FAIL_HM                       = 8,
+    EVENT_STOP_SMALL_ICICLES            = 5,
+    EVENT_SMALL_ICICLES_ENABLE          = 6,
+    EVENT_HARD_MODE_MISSED              = 7,
+    EVENT_DESPAWN_CHEST                 = 8,
+    EVENT_FAIL_HM                       = 9,
 
     EVENT_TRY_FREE_HELPER               = 10,
     EVENT_PRIEST_DISPELL_MAGIC          = 11,
@@ -269,7 +270,8 @@ public:
             me->CastSpell(me, SPELL_BITING_COLD_BOSS_AURA, true);
             SmallIcicles(true);
             events.Reset();
-            events.ScheduleEvent(EVENT_FLASH_FREEZE, 48s, 49s);
+            //events.ScheduleEvent(EVENT_FLASH_FREEZE, 48s, 49s);
+            events.ScheduleEvent(EVENT_STOP_SMALL_ICICLES, 30s, 45s);
             events.ScheduleEvent(EVENT_FREEZE, 17s, 20s);
             events.ScheduleEvent(EVENT_BERSERK, 8min);
             events.ScheduleEvent(EVENT_HARD_MODE_MISSED, 3min);
@@ -465,6 +467,13 @@ public:
                         events.ScheduleEvent(EVENT_SMALL_ICICLES_ENABLE, Is25ManRaid() ? 12s : 24s);
                         events.ScheduleEvent(EVENT_FROZEN_BLOWS, 15s);
                         events.RescheduleEvent(EVENT_FREEZE, 17s, 20s);
+                    }
+                    break;
+                case EVENT_STOP_SMALL_ICICLES:
+                    {
+                        SmallIcicles(false);
+                        events.ScheduleEvent(EVENT_SMALL_ICICLES_ENABLE, Is25ManRaid() ? 24s : 48s);
+                        events.ScheduleEvent(EVENT_STOP_SMALL_ICICLES, 60s, 75s);
                     }
                     break;
                 case EVENT_SMALL_ICICLES_ENABLE:
