@@ -533,7 +533,8 @@ public:
                 events.ScheduleEvent(EVENT_THORIM_UNBALANCING_STRIKE, 8s, 0, EVENT_PHASE_RING);
                 events.ScheduleEvent(EVENT_THORIM_LIGHTNING_CHARGE, 12s + 500ms, 0, EVENT_PHASE_RING);
                 events.ScheduleEvent(EVENT_THORIM_CHAIN_LIGHTNING, 13s, 0, EVENT_PHASE_RING);
-                events.ScheduleEvent(EVENT_THORIM_BERSERK, 5min, 0, EVENT_PHASE_RING);
+                events.ScheduleEvent(EVENT_THORIM_BERSERK, 9min, 0, EVENT_PHASE_RING);
+                events.CancelEvent(EVENT_THORIM_NOT_REACH_IN_TIME);
 
                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                 me->GetMotionMaster()->MoveJump(Middle.GetPositionX(), Middle.GetPositionY(), Middle.GetPositionZ(), 20, 20);
@@ -702,15 +703,16 @@ public:
                         }
 
                         // No players found
-                        Talk(SAY_WIPE);
-                        me->SummonCreature(NPC_LIGHTNING_ORB, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        // Talk(SAY_WIPE);
+                        // me->SummonCreature(NPC_LIGHTNING_ORB, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
 
-                        _isArenaEmpty = true;
-                        events.CancelEvent(EVENT_THORIM_NOT_REACH_IN_TIME);
+                        // _isArenaEmpty = true;
+                        // events.CancelEvent(EVENT_THORIM_NOT_REACH_IN_TIME);
                         break;
                     }
                 case EVENT_THORIM_NOT_REACH_IN_TIME:
                     _isArenaEmpty = true;
+                    Talk(SAY_WIPE);
                     events.CancelEvent(EVENT_THORIM_LIGHTNING_ORB);
                     me->CastSpell(me, SPELL_BERSERK_FRIENDS, true);
                     me->SummonCreature(NPC_LIGHTNING_ORB, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
