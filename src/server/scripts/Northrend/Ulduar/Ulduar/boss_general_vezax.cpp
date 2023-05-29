@@ -160,7 +160,7 @@ public:
             events.RescheduleEvent(EVENT_SPELL_VEZAX_SHADOW_CRASH, 13s);
             events.RescheduleEvent(EVENT_SPELL_SEARING_FLAMES, 10s, 1);
             events.RescheduleEvent(EVENT_SPELL_SURGE_OF_DARKNESS, 63s);
-            events.RescheduleEvent(EVENT_SPELL_MARK_OF_THE_FACELESS, 20s);
+            //events.RescheduleEvent(EVENT_SPELL_MARK_OF_THE_FACELESS, 20s);
             events.RescheduleEvent(EVENT_SPELL_SUMMON_SARONITE_VAPORS, 30s);
             events.RescheduleEvent(EVENT_BERSERK, 10min);
 
