@@ -7234,7 +7234,14 @@ bool bot_ai::Wait()
     else
         waitTimer = __rand;
 
-    waitTimer += BotMgr::GetBaseUpdateDelay();
+    if (me->GetMap()->IsBattleground())
+        waitTimer += BotMgr::GetBaseUpdateDelay() / 5;
+    else if (me->GetMap()->IsBattleArena())
+        waitTimer = __rand;
+    else if (!me->GetMap()->IsRaid() && !me->GetMap()->IsDungeon())
+        waitTimer += BotMgr::GetBaseUpdateDelay();
+
+
 
     return false;
 }
