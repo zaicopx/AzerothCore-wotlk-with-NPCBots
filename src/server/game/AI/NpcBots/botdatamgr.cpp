@@ -483,20 +483,37 @@ public:
             return false;
 
         uint32 total_bots_in_brackets = 0;
-        for (size_t i = 0; i + 1u < BracketsCount; ++i)
+        for (size_t k = 0; k < BracketsCount; ++k)
         {
-            if (!bracketPcts[i])
+            if (!bracketPcts[k])
                 continue;
-            bots_per_bracket[i] = CalculatePct(count, bracketPcts[i]);
-            total_bots_in_brackets += bots_per_bracket[i];
+            bots_per_bracket[k] = CalculatePct(count, bracketPcts[k]);
+            total_bots_in_brackets += bots_per_bracket[k];
         }
-        bots_per_bracket[BracketsCount - 1] = count - total_bots_in_brackets;
-
-        for (uint32 i = 1; i <= count && !teamSpareBotIdsPerClass.empty();) // i is a counter, NOT used as index or value
+        for (int32 j = BracketsCount - 1; j >= 0; --j)
         {
-            uint8 bracket;
-            for (bracket = 0; bracket < BracketsCount && bots_per_bracket[bracket] == 0; ++bracket) {}
-            ASSERT(bots_per_bracket[bracket] > 0);
+            if (bots_per_bracket[j])
+            {
+                bots_per_bracket[j] += count - total_bots_in_brackets;
+                break;
+            }
+        }
+
+        std::vector<uint8> brackets_shuffled;
+        brackets_shuffled.reserve(count);
+        for (uint8 bracket = 0; bracket < BracketsCount; ++bracket)
+        {
+            while (bots_per_bracket[bracket])
+            {
+                brackets_shuffled.push_back(bracket);
+                --bots_per_bracket[bracket];
+            }
+        }
+        Acore::Containers::RandomShuffle(brackets_shuffled);
+
+        for (size_t i = 0; i < brackets_shuffled.size() && !teamSpareBotIdsPerClass.empty();) // i is a counter, NOT used as index or value
+        {
+            uint8 bracket = brackets_shuffled[i];
 
             int8 tries = 100;
             do {
@@ -505,7 +522,6 @@ public:
                 {
                     ++i;
                     ++spawned;
-                    --bots_per_bracket[bracket];
                     break;
                 }
             } while (tries >= 0);
