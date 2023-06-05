@@ -210,13 +210,13 @@ private:
         ASSERT(next_bot_id > BOT_ENTRY_BEGIN);
 
         for (uint8 c = BOT_CLASS_WARRIOR; c < BOT_CLASS_END; ++c)
-            if (c != BOT_CLASS_BM && BotMgr::IsClassEnabled(c) && _spareBotIdsPerClassMap.find(c) == _spareBotIdsPerClassMap.cend())
+            if (BotMgr::IsClassEnabled(c) && _spareBotIdsPerClassMap.find(c) == _spareBotIdsPerClassMap.cend())
                 _spareBotIdsPerClassMap.insert({ c, {} });
 
         for (decltype(_botsExtras)::value_type const& vt : _botsExtras)
         {
             uint8 c = vt.second->bclass;
-            if (c != BOT_CLASS_NONE && c != BOT_CLASS_BM && BotMgr::IsClassEnabled(c))
+            if (c != BOT_CLASS_NONE && BotMgr::IsClassEnabled(c))
             {
                 ++enabledBotsCount;
                 if (_botsData.find(vt.first) == _botsData.end())
@@ -235,12 +235,12 @@ private:
     uint32 GetDefaultFactionForRaceClass(uint8 bot_class, uint8 bot_race) const
     {
         ChrRacesEntry const* rentry = sChrRacesStore.LookupEntry(bot_race);
-        return
-            (bot_class >= BOT_CLASS_EX_START) ? wbot_faction_for_ex_class.find(bot_class)->second : rentry ? rentry->FactionID : 14;
+        return (bot_class >= BOT_CLASS_EX_START) ? wbot_faction_for_ex_class.find(bot_class)->second : rentry ? rentry->FactionID : 14u;
     }
 
-    bool GenerateWanderingBotToSpawn(std::map<uint8, std::set<uint32>>& spareBotIdsPerClass,
-        NodeVec const& spawns_a, NodeVec const& spawns_h, NodeVec const& spawns_n, bool immediate, PvPDifficultyEntry const* bracketEntry, NpcBotRegistry* registry)
+    bool GenerateWanderingBotToSpawn(std::map<uint8, std::set<uint32>>& spareBotIdsPerClass, uint8 desired_bracket,
+        NodeVec const& spawns_a, NodeVec const& spawns_h, NodeVec const& spawns_n,
+        bool immediate, PvPDifficultyEntry const* bracketEntry, NpcBotRegistry* registry)
     {
         ASSERT(!spareBotIdsPerClass.empty());
 
@@ -273,10 +273,10 @@ private:
         }
         NodeVec level_nodes;
         level_nodes.reserve(bot_spawn_nodes->size());
-        uint8 myminlevel = BotDataMgr::GetMinLevelForBotClass(bot_class);
+        desired_bracket = std::max<uint8>(desired_bracket, BotDataMgr::GetMinLevelForBotClass(bot_class) / 10);
         for (WanderNode const* node : *bot_spawn_nodes)
         {
-            if (myminlevel <= node->GetLevels().second)
+            if (desired_bracket * 10 + 9 >= node->GetLevels().first && node->GetLevels().second >= desired_bracket * 10)
                 level_nodes.push_back(node);
         }
 
@@ -297,7 +297,11 @@ private:
             bot_template.maxlevel = std::min<uint32>(bracketEntry->maxLevel, DEFAULT_MAX_LEVEL);
         }
         else
+        {
+            bot_template.minlevel = std::min<uint32>(std::max<uint32>(desired_bracket * 10, 1), DEFAULT_MAX_LEVEL);
+            bot_template.maxlevel = std::min<uint32>(std::min<uint32>(desired_bracket * 10 + 9, spawnLoc->GetLevels().second), DEFAULT_MAX_LEVEL);
             bot_template.flags_extra &= ~(CREATURE_FLAG_EXTRA_NO_XP);
+        }
 
         bot_template.InitializeQueryData();
 
@@ -420,6 +424,8 @@ public:
         }
 
         decltype (_spareBotIdsPerClassMap) teamSpareBotIdsPerClass;
+        BotBrackets bracketPcts{};
+        BotBrackets bots_per_bracket{};
 
         if (team == -1)
         {
@@ -428,9 +434,11 @@ public:
 
             //make a full copy
             teamSpareBotIdsPerClass = _spareBotIdsPerClassMap;
+            bracketPcts = BotMgr::GetBotWandererLevelBrackets();
         }
         else
         {
+            bracketPcts[bracketEntry->minLevel / 10] = 100u;
             switch (team)
             {
                 case ALLIANCE:
@@ -474,12 +482,43 @@ public:
         if (teamSpareBotIdsPerClass.empty())
             return false;
 
-        for (uint32 i = 1; i <= count && !teamSpareBotIdsPerClass.empty();) // i is a counter, NOT used as index or value
+        uint32 total_bots_in_brackets = 0;
+        for (size_t k = 0; k < BracketsCount; ++k)
         {
+            if (!bracketPcts[k])
+                continue;
+            bots_per_bracket[k] = CalculatePct(count, bracketPcts[k]);
+            total_bots_in_brackets += bots_per_bracket[k];
+        }
+        for (int32 j = BracketsCount - 1; j >= 0; --j)
+        {
+            if (bots_per_bracket[j])
+            {
+                bots_per_bracket[j] += count - total_bots_in_brackets;
+                break;
+            }
+        }
+
+        std::vector<uint8> brackets_shuffled;
+        brackets_shuffled.reserve(count);
+        for (uint8 bracket = 0; bracket < BracketsCount; ++bracket)
+        {
+            while (bots_per_bracket[bracket])
+            {
+                brackets_shuffled.push_back(bracket);
+                --bots_per_bracket[bracket];
+            }
+        }
+        Acore::Containers::RandomShuffle(brackets_shuffled);
+
+        for (size_t i = 0; i < brackets_shuffled.size() && !teamSpareBotIdsPerClass.empty();) // i is a counter, NOT used as index or value
+        {
+            uint8 bracket = brackets_shuffled[i];
+
             int8 tries = 100;
             do {
                 --tries;
-                if (GenerateWanderingBotToSpawn(teamSpareBotIdsPerClass, spawns_a, spawns_h, spawns_n, immediate, bracketEntry, registry))
+                if (GenerateWanderingBotToSpawn(teamSpareBotIdsPerClass, bracket, spawns_a, spawns_h, spawns_n, immediate, bracketEntry, registry))
                 {
                     ++i;
                     ++spawned;
@@ -694,7 +733,7 @@ void BotDataMgr::LoadNpcBots(bool spawn)
             //load data
             uint8 slot =            field[++index].Get<uint8>();
             uint32 item_id =        field[++index].Get<uint32>();
-            uint32 fake_id =        field[++index].Get<uint32>();
+            int32 fake_id =         field[++index].Get<int32>();
 
             _botsTransmogData[entry]->transmogs[slot] = { item_id, fake_id };
 
@@ -2148,7 +2187,7 @@ NpcBotTransmogData const* BotDataMgr::SelectNpcBotTransmogs(uint32 entry)
     NpcBotTransmogDataMap::const_iterator itr = _botsTransmogData.find(entry);
     return itr != _botsTransmogData.cend() ? itr->second : nullptr;
 }
-void BotDataMgr::UpdateNpcBotTransmogData(uint32 entry, uint8 slot, uint32 item_id, uint32 fake_id, bool update_db)
+void BotDataMgr::UpdateNpcBotTransmogData(uint32 entry, uint8 slot, uint32 item_id, int32 fake_id, bool update_db)
 {
     ASSERT(slot < BOT_TRANSMOG_INVENTORY_SIZE);
 
@@ -2181,7 +2220,7 @@ void BotDataMgr::ResetNpcBotTransmogData(uint32 entry, bool update_db)
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         for (uint8 i = 0; i != BOT_TRANSMOG_INVENTORY_SIZE; ++i)
         {
-            if (_botsTransmogData[entry]->transmogs[i].first == 0 && _botsTransmogData[entry]->transmogs[i].second == 0)
+            if (_botsTransmogData[entry]->transmogs[i].first == 0 && _botsTransmogData[entry]->transmogs[i].second == -1)
                 continue;
 
             CharacterDatabasePreparedStatement* bstmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_NPCBOT_TRANSMOG);
@@ -2189,7 +2228,7 @@ void BotDataMgr::ResetNpcBotTransmogData(uint32 entry, bool update_db)
             bstmt->SetData(0, entry);
             bstmt->SetData(1, i);
             bstmt->SetData(2, 0);
-            bstmt->SetData(3, 0);
+            bstmt->SetData(3, -1);
             trans->Append(bstmt);
         }
 
@@ -2198,7 +2237,7 @@ void BotDataMgr::ResetNpcBotTransmogData(uint32 entry, bool update_db)
     }
 
     for (uint8 i = 0; i != BOT_TRANSMOG_INVENTORY_SIZE; ++i)
-        _botsTransmogData[entry]->transmogs[i] = { 0, 0 };
+        _botsTransmogData[entry]->transmogs[i] = { 0, -1 };
 }
 
 void BotDataMgr::RegisterBot(Creature const* bot)

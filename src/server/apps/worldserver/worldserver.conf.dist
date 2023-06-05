@@ -4452,28 +4452,48 @@ NpcBot.Gossip.ShowEquipmentListItems = 0
 NpcBot.GearBank.Enable = 0
 
 #
-#    NpcBot.NewClasses.<Class>.Enable
-#        Description: Allow players to hire bots of non-standard classes.
-#        Note:        Some bot abilities may be unbalanced or game breaking.
-#        Default:     1 - (NpcBot.NewClasses.Blademaster.Enable)
-#                     1 - (NpcBot.NewClasses.ObsidianDestroyer.Enable)
-#                     1 - (NpcBot.NewClasses.Archmage.Enable)
-#                     1 - (NpcBot.NewClasses.Dreadlord.Enable)
-#                     1 - (NpcBot.NewClasses.SpellBreaker.Enable)
-#                     1 - (NpcBot.NewClasses.DarkRanger.Enable)
-#                     1 - (NpcBot.NewClasses.Necromancer.Enable)
-#                     1 - (NpcBot.NewClasses.SeaWitch.Enable)
-#                     1 - (NpcBot.NewClasses.CryptLord.Enable)
+#    NpcBot.Classes.<Class>.Enable
+#        Description: Allow players to hire bots of certain classes.
+#        Note:        Some non-standard class abilities may be unbalanced or game breaking.
+#        Default:     1 - (NpcBot.Classes.Warrior.Enable)
+#                     1 - (NpcBot.Classes.Paladin.Enable)
+#                     1 - (NpcBot.Classes.Hunter.Enable)
+#                     1 - (NpcBot.Classes.Rogue.Enable)
+#                     1 - (NpcBot.Classes.Priest.Enable)
+#                     1 - (NpcBot.Classes.DeathKnight.Enable)
+#                     1 - (NpcBot.Classes.Shaman.Enable)
+#                     1 - (NpcBot.Classes.Mage.Enable)
+#                     1 - (NpcBot.Classes.Warlock.Enable)
+#                     1 - (NpcBot.Classes.Druid.Enable)
+#                     0 - (NpcBot.Classes.Blademaster.Enable)
+#                     1 - (NpcBot.Classes.ObsidianDestroyer.Enable)
+#                     1 - (NpcBot.Classes.Archmage.Enable)
+#                     1 - (NpcBot.Classes.Dreadlord.Enable)
+#                     1 - (NpcBot.Classes.SpellBreaker.Enable)
+#                     1 - (NpcBot.Classes.DarkRanger.Enable)
+#                     1 - (NpcBot.Classes.Necromancer.Enable)
+#                     1 - (NpcBot.Classes.SeaWitch.Enable)
+#                     1 - (NpcBot.Classes.CryptLord.Enable)
 
-NpcBot.NewClasses.Blademaster.Enable       = 1
-NpcBot.NewClasses.ObsidianDestroyer.Enable = 1
-NpcBot.NewClasses.Archmage.Enable          = 1
-NpcBot.NewClasses.Dreadlord.Enable         = 1
-NpcBot.NewClasses.SpellBreaker.Enable      = 1
-NpcBot.NewClasses.DarkRanger.Enable        = 1
-NpcBot.NewClasses.Necromancer.Enable       = 1
-NpcBot.NewClasses.SeaWitch.Enable          = 1
-NpcBot.NewClasses.CryptLord.Enable         = 1
+NpcBot.Classes.Warrior.Enable           = 1
+NpcBot.Classes.Paladin.Enable           = 1
+NpcBot.Classes.Hunter.Enable            = 1
+NpcBot.Classes.Rogue.Enable             = 1
+NpcBot.Classes.Priest.Enable            = 1
+NpcBot.Classes.DeathKnight.Enable       = 1
+NpcBot.Classes.Shaman.Enable            = 1
+NpcBot.Classes.Mage.Enable              = 1
+NpcBot.Classes.Warlock.Enable           = 1
+NpcBot.Classes.Druid.Enable             = 1
+NpcBot.Classes.Blademaster.Enable       = 0
+NpcBot.Classes.ObsidianDestroyer.Enable = 1
+NpcBot.Classes.Archmage.Enable          = 1
+NpcBot.Classes.Dreadlord.Enable         = 1
+NpcBot.Classes.SpellBreaker.Enable      = 1
+NpcBot.Classes.DarkRanger.Enable        = 1
+NpcBot.Classes.Necromancer.Enable       = 1
+NpcBot.Classes.SeaWitch.Enable          = 1
+NpcBot.Classes.CryptLord.Enable         = 1
 
 #
 #    NpcBot.Stats.Limits.Enable
@@ -4538,6 +4558,16 @@ NpcBot.EnrageOnDismiss = 1
 NpcBot.WanderingBots.Continents.Count = 0
 
 #
+#    NpcBot.WanderingBots.Continents.Levels
+#        Description: Percentage of wandering bots to spawn per level bracket:
+#                     0-9, 10-19, 20,29, ... , 70-79, 80+.
+#        Note:        Total percentage must be exactly 100.
+#        Note2:       Classes with minimum level requirement may ignore this parameter.
+#        Default:     25,15,15,10,5,10,20,0,0
+
+NpcBot.WanderingBots.Continents.Levels = 25,15,15,10,5,10,20,0,0
+
+#
 #    NpcBot.WanderingBots.BG.Enable
 #        Description: Allow wandering bots generation for Battlegrounds.
 #        Note:        Bots are temporarily borrowed from non-spawned bots pool.
@@ -4545,6 +4575,39 @@ NpcBot.WanderingBots.Continents.Count = 0
 #                     1 - (Enable)
 
 NpcBot.WanderingBots.BG.Enable = 0
+
+#
+#    NpcBot.HK.Enable
+#        Description: Count NPCBot kill at honor kill.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+NpcBot.HK.Enable = 1
+
+#
+#    NpcBot.HK.Message.Enable
+#        Description: Show 'HK: <rank>' message for NPCBot honor kills.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+NpcBot.HK.Message.Enable = 0
+
+#
+#    NpcBot.HK.Achievements.Enable
+#        Description: Count NPCBot honor kills towards PvP achievements.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+NpcBot.HK.Achievements.Enable = 0
+
+#
+#    NpcBot.HK.Rate.Honor
+#        Description: Honor gained multiplier for NPCBot honor kills.
+#        Default:     1.0
+#        Minimum:     0.1
+#        Maximum:    10.0
+
+NpcBot.HK.Rate.Honor = 1.0
 
 #
 ###################################################################################################

@@ -86,6 +86,16 @@ bool _transmog_mixArmorClasses;
 bool _transmog_mixWeaponClasses;
 bool _transmog_mixWeaponInvTypes;
 bool _transmog_useEquipmentSlots;
+bool _enableclass_warrior;
+bool _enableclass_paladin;
+bool _enableclass_hunter;
+bool _enableclass_rogue;
+bool _enableclass_priest;
+bool _enableclass_deathknight;
+bool _enableclass_shaman;
+bool _enableclass_mage;
+bool _enableclass_warlock;
+bool _enableclass_druid;
 bool _enableclass_blademaster;
 bool _enableclass_sphynx;
 bool _enableclass_archmage;
@@ -98,6 +108,9 @@ bool _enableclass_cryptlord;
 bool _enrageOnDismiss;
 bool _botStatLimits;
 bool _enableWanderingBotsBG;
+bool _bothk_enable;
+bool _bothk_message_enable;
+bool _bothk_achievements_enable;
 float _botStatLimits_dodge;
 float _botStatLimits_parry;
 float _botStatLimits_block;
@@ -129,7 +142,9 @@ float _mult_dmg_darkranger;
 float _mult_dmg_necromancer;
 float _mult_dmg_seawitch;
 float _mult_dmg_cryptlord;
+float _bothk_rate_honor;
 std::vector<float> _mult_dmg_levels;
+BotBrackets _botwanderer_pct_level_brackets;
 
 bool __firstload = true;
 
@@ -312,15 +327,25 @@ void BotMgr::LoadConfig(bool reload)
     _transmog_mixWeaponClasses      = sConfigMgr->GetBoolDefault("NpcBot.Transmog.MixWeaponClasses", false);
     _transmog_mixWeaponInvTypes     = sConfigMgr->GetBoolDefault("NpcBot.Transmog.MixWeaponInventoryTypes", false);
     _transmog_useEquipmentSlots     = sConfigMgr->GetBoolDefault("NpcBot.Transmog.UseEquipmentSlots", false);
-    _enableclass_blademaster        = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.Blademaster.Enable", true);
-    _enableclass_sphynx             = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.ObsidianDestroyer.Enable", true);
-    _enableclass_archmage           = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.Archmage.Enable", true);
-    _enableclass_dreadlord          = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.Dreadlord.Enable", true);
-    _enableclass_spellbreaker       = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.SpellBreaker.Enable", true);
-    _enableclass_darkranger         = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.DarkRanger.Enable", true);
-    _enableclass_necromancer        = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.Necromancer.Enable", true);
-    _enableclass_seawitch           = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.SeaWitch.Enable", true);
-    _enableclass_cryptlord          = sConfigMgr->GetBoolDefault("NpcBot.NewClasses.CryptLord.Enable", true);
+    _enableclass_warrior            = sConfigMgr->GetBoolDefault("NpcBot.Classes.Warrior.Enable", true);
+    _enableclass_paladin            = sConfigMgr->GetBoolDefault("NpcBot.Classes.Paladin.Enable", true);
+    _enableclass_hunter             = sConfigMgr->GetBoolDefault("NpcBot.Classes.Hunter.Enable", true);
+    _enableclass_rogue              = sConfigMgr->GetBoolDefault("NpcBot.Classes.Rogue.Enable", true);
+    _enableclass_priest             = sConfigMgr->GetBoolDefault("NpcBot.Classes.Priest.Enable", true);
+    _enableclass_deathknight        = sConfigMgr->GetBoolDefault("NpcBot.Classes.DeathKnight.Enable", true);
+    _enableclass_shaman             = sConfigMgr->GetBoolDefault("NpcBot.Classes.Shaman.Enable", true);
+    _enableclass_mage               = sConfigMgr->GetBoolDefault("NpcBot.Classes.Mage.Enable", true);
+    _enableclass_warlock            = sConfigMgr->GetBoolDefault("NpcBot.Classes.Warlock.Enable", true);
+    _enableclass_druid              = sConfigMgr->GetBoolDefault("NpcBot.Classes.Druid.Enable", true);
+    _enableclass_blademaster        = false; // sConfigMgr->GetBoolDefault("NpcBot.Classes.Blademaster.Enable", false);
+    _enableclass_sphynx             = sConfigMgr->GetBoolDefault("NpcBot.Classes.ObsidianDestroyer.Enable", true);
+    _enableclass_archmage           = sConfigMgr->GetBoolDefault("NpcBot.Classes.Archmage.Enable", true);
+    _enableclass_dreadlord          = sConfigMgr->GetBoolDefault("NpcBot.Classes.Dreadlord.Enable", true);
+    _enableclass_spellbreaker       = sConfigMgr->GetBoolDefault("NpcBot.Classes.SpellBreaker.Enable", true);
+    _enableclass_darkranger         = sConfigMgr->GetBoolDefault("NpcBot.Classes.DarkRanger.Enable", true);
+    _enableclass_necromancer        = sConfigMgr->GetBoolDefault("NpcBot.Classes.Necromancer.Enable", true);
+    _enableclass_seawitch           = sConfigMgr->GetBoolDefault("NpcBot.Classes.SeaWitch.Enable", true);
+    _enableclass_cryptlord          = sConfigMgr->GetBoolDefault("NpcBot.Classes.CryptLord.Enable", true);
     _enrageOnDismiss                = sConfigMgr->GetBoolDefault("NpcBot.EnrageOnDismiss", true);
     _botStatLimits                  = sConfigMgr->GetBoolDefault("NpcBot.Stats.Limits.Enable", false);
     _botStatLimits_dodge            = sConfigMgr->GetFloatDefault("NpcBot.Stats.Limits.Dodge", 95.0f);
@@ -329,10 +354,14 @@ void BotMgr::LoadConfig(bool reload)
     _botStatLimits_crit             = sConfigMgr->GetFloatDefault("NpcBot.Stats.Limits.Crit", 95.0f);
     _desiredWanderingBotsCount      = sConfigMgr->GetIntDefault("NpcBot.WanderingBots.Continents.Count", 0);
     _enableWanderingBotsBG          = sConfigMgr->GetBoolDefault("NpcBot.WanderingBots.BG.Enable", false);
+    _bothk_enable                   = sConfigMgr->GetBoolDefault("NpcBot.HK.Enable", true);
+    _bothk_message_enable           = sConfigMgr->GetBoolDefault("NpcBot.HK.Message.Enable", false);
+    _bothk_achievements_enable      = sConfigMgr->GetBoolDefault("NpcBot.HK.Achievements.Enable", false);
+    _bothk_rate_honor               = sConfigMgr->GetFloatDefault("NpcBot.HK.Rate.Honor", 1.0);
 
     std::string mult_dps_by_levels  = sConfigMgr->GetStringDefault("NpcBot.Mult.Damage.Levels", "1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0");
     std::vector<std::string_view> toks = Acore::Tokenize(mult_dps_by_levels, ',', false);
-    ASSERT(toks.size() >= DEFAULT_MAX_LEVEL / 10 + 1, "NpcBot.Mult.Damage.Levels must has at least %u values", DEFAULT_MAX_LEVEL / 10 + 1);
+    ASSERT(toks.size() >= BracketsCount, "NpcBot.Mult.Damage.Levels must has at least %u values", BracketsCount);
     _mult_dmg_levels.reserve(toks.size());
     for (decltype(toks)::size_type i = 0; i != toks.size(); ++i)
     {
@@ -343,6 +372,22 @@ void BotMgr::LoadConfig(bool reload)
         RoundToInterval(fval, 0.1f, 10.f);
         _mult_dmg_levels.push_back(fval);
     }
+
+    _botwanderer_pct_level_brackets = {};
+    std::string wanderers_by_levels  = sConfigMgr->GetStringDefault("NpcBot.WanderingBots.Continents.Levels", "20,15,15,10,10,15,15,0,0");
+    std::vector<std::string_view> toks2 = Acore::Tokenize(wanderers_by_levels, ',', false);
+    ASSERT(toks2.size() >= BracketsCount, "NpcBot.WanderingBots.Continents.Levels must has at least %u values", BracketsCount);
+    uint32 total_pct = 0;
+    for (decltype(toks)::size_type i = 0; i != toks2.size(); ++i)
+    {
+        Optional<uint32> val = Acore::StringTo<uint32>(toks2[i]);
+        if (val == std::nullopt)
+            LOG_ERROR("server.loading", "NpcBot.Mult.Damage.Levels contains invalid uint32 value '{}', set to default", std::string(toks[i]).c_str());
+        uint32 uval = val.value_or(uint32(0));
+        total_pct += uval;
+        _botwanderer_pct_level_brackets[i] = uval;
+    }
+    ASSERT(total_pct == 100u, "NpcBot.WanderingBots.Continents.Levels sum of values must be exactly 100!");
 
     //limits
     RoundToInterval(_mult_dmg_physical, 0.1f, 10.f);
@@ -372,6 +417,7 @@ void BotMgr::LoadConfig(bool reload)
     RoundToInterval(_mult_dmg_necromancer, 0.1f, 10.f);
     RoundToInterval(_mult_dmg_seawitch, 0.1f, 10.f);
     RoundToInterval(_mult_dmg_cryptlord, 0.1f, 10.f);
+    RoundToInterval(_bothk_rate_honor, 0.1f, 10.f);
 
     //exclusions
     uint8 dpsFlags = /*_tankingTargetIconFlags | _offTankingTargetIconFlags | */_dpsTargetIconFlags | _rangedDpsTargetIconFlags;
@@ -513,6 +559,26 @@ bool BotMgr::IsClassEnabled(uint8 m_class)
 {
     switch (m_class)
     {
+        case BOT_CLASS_WARRIOR:
+            return _enableclass_warrior;
+        case BOT_CLASS_PALADIN:
+            return _enableclass_paladin;
+        case BOT_CLASS_HUNTER:
+            return _enableclass_hunter;
+        case BOT_CLASS_ROGUE:
+            return _enableclass_rogue;
+        case BOT_CLASS_PRIEST:
+            return _enableclass_priest;
+        case BOT_CLASS_DEATH_KNIGHT:
+            return _enableclass_deathknight;
+        case BOT_CLASS_SHAMAN:
+            return _enableclass_shaman;
+        case BOT_CLASS_MAGE:
+            return _enableclass_mage;
+        case BOT_CLASS_WARLOCK:
+            return _enableclass_warlock;
+        case BOT_CLASS_DRUID:
+            return _enableclass_druid;
         case BOT_CLASS_BM:
             return _enableclass_blademaster;
         case BOT_CLASS_SPHYNX:
@@ -560,6 +626,18 @@ bool BotMgr::IsBotGenerationEnabledBGs()
 {
     return _enableWanderingBotsBG;
 }
+bool BotMgr::IsBotHKEnabled()
+{
+    return _bothk_enable;
+}
+bool BotMgr::IsBotHKMessageEnabled()
+{
+    return _bothk_message_enable;
+}
+bool BotMgr::IsBotHKAchievementsEnabled()
+{
+    return _bothk_achievements_enable;
+}
 uint8 BotMgr::GetMaxClassBots()
 {
     return _maxClassNpcBots;
@@ -599,6 +677,10 @@ uint32 BotMgr::GetOwnershipExpireTime()
 uint32 BotMgr::GetDesiredWanderingBotsCount()
 {
     return _desiredWanderingBotsCount;
+}
+float BotMgr::GetBotHKHonorRate()
+{
+    return _bothk_rate_honor;
 }
 float BotMgr::GetBotStatLimitDodge()
 {
@@ -643,6 +725,16 @@ bool BotMgr::LimitBots(Map const* map)
         return true;
 
     return false;
+}
+
+bool BotMgr::IsBotContestedPvP(Creature const* bot)
+{
+    return bot->GetBotAI()->IsContestedPvP();
+}
+
+void BotMgr::SetBotContestedPvP(Creature const* bot)
+{
+    bot->GetBotAI()->SetContestedPvP();
 }
 
 bool BotMgr::CanBotParryWhileCasting(Creature const* bot)
@@ -1080,6 +1172,7 @@ void BotMgr::_teleportBot(Creature* bot, Map* newMap, float x, float y, float z,
             if (reset)
                 bot->GetBotAI()->Reset();
             bot->GetBotAI()->SetIsDuringTeleport(false);
+            bot->GetBotAI()->ResetContestedPvP();
 
             if (newMap->IsBattleground())
             {
@@ -1563,6 +1656,16 @@ uint8 BotMgr::BotClassByClassName(std::string const& className)
         return iter->second;
 
     return BOT_CLASS_NONE;
+}
+
+uint8 BotMgr::GetBotPlayerClass(Creature const* bot)
+{
+    return bot->GetBotAI()->GetPlayerClass();
+}
+
+uint8 BotMgr::GetBotPlayerRace(Creature const* bot)
+{
+    return bot->GetBotAI()->GetPlayerRace();
 }
 
 std::string BotMgr::GetTargetIconString(uint8 icon) const
@@ -2065,6 +2168,10 @@ float BotMgr::GetBotWandererHPMod()
 float BotMgr::GetBotWandererSpeedMod()
 {
     return _mult_speed_wanderer;
+}
+BotBrackets BotMgr::GetBotWandererLevelBrackets()
+{
+    return _botwanderer_pct_level_brackets;
 }
 float BotMgr::GetBotDamageModByClass(uint8 botclass)
 {
