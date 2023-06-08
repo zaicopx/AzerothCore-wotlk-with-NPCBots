@@ -25,6 +25,7 @@ struct CleanDamage;
 struct GroupQueueInfo;
 struct Position;
 
+enum BattlegroundTypeId : uint8;
 enum CurrentSpellTypes : uint8;
 enum DamageEffectType : uint8;
 
@@ -120,6 +121,7 @@ class AC_GAME_API BotMgr
         static uint32 GetBaseUpdateDelay();
         static uint32 GetOwnershipExpireTime();
         static uint32 GetDesiredWanderingBotsCount();
+        static uint32 GetBGTargetTeamPlayersCount(BattlegroundTypeId bgTypeId);
         static float GetBotHKHonorRate();
         static float GetBotStatLimitDodge();
         static float GetBotStatLimitParry();
