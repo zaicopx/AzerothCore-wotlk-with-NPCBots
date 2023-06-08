@@ -347,7 +347,10 @@ public:
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->DisableRotate(true);
                     me->SendMovementFlagUpdate();
-                    me->CastSpell((Unit*)nullptr, SPELL_SMASH, false);
+                    if (me->GetDisplayId() == DISPLAYID_DEFAULT)
+                        me->CastSpell((Unit*)nullptr, SPELL_SMASH, false);
+                    else
+                        me->CastSpell((Unit*)nullptr, SPELL_DARK_SMASH, false);
                     events.Repeat(9s, 11s);
                     events.RescheduleEvent(EVENT_UNROOT, 3750ms);
                     break;
