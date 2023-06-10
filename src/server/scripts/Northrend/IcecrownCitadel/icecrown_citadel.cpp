@@ -2966,7 +2966,7 @@ public:
             switch (a)
             {
                 case CLASS_PALADIN:
-                    me->CastSpell(me, 71953, true);
+                    //me->CastSpell(me, 71953, true);
                     break;
                 case CLASS_DRUID:
                     //me->CastSpell(me, 57655, true);
