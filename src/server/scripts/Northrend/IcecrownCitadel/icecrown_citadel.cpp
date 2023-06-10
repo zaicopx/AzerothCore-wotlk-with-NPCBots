@@ -600,7 +600,7 @@ public:
         void Reset() override
         {
             _events.Reset();
-            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
+            //_events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
             _events.ScheduleEvent(EVENT_STOMP, 5s, 8s);
             _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 10s, 15s);
         }
