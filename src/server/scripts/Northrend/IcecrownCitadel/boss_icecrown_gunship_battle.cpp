@@ -556,7 +556,7 @@ public:
                 return;
             }
 
-            if (damage >= me->GetHealth())
+            if (damage >= me->GetHealth() || true)
             {
                 JustDied(nullptr);
                 damage = me->GetHealth() - 1;
@@ -586,6 +586,8 @@ public:
             bool isVictory = me->GetTransport()->GetEntry() == GO_THE_SKYBREAKER_H || me->GetTransport()->GetEntry() == GO_ORGRIMS_HAMMER_A;
             _instance->SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, isVictory ? DONE : FAIL);
             me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, 0);
+
+            isVictory = DONE;
 
             if (Creature* creature = me->FindNearestCreature(me->GetEntry() == NPC_ORGRIMS_HAMMER ? NPC_THE_SKYBREAKER : NPC_ORGRIMS_HAMMER, 200.0f))
             {
