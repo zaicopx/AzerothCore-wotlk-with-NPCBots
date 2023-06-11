@@ -6773,6 +6773,9 @@ void bot_ai::_OnHealthUpdate() const
     if (me->GetMap()->IsBattlegroundOrArena())
         m_totalhp *= 0.85;
 
+    if (me->GetMap()->IsBattlegroundOrArena() && me->GetLevel() < 80)
+        m_totalhp *= 0.75;
+
     //hp bonuses
     uint8 bonuspct = 0;
     //Endurance Training
@@ -6902,6 +6905,9 @@ void bot_ai::_OnManaUpdate() const
 
     if (me->GetMap()->IsBattlegroundOrArena())
         m_basemana *= 0.85;
+
+    if (me->GetMap()->IsBattlegroundOrArena() && me->GetLevel() < 80)
+        m_basemana *= 0.75;
 
     //mana bonuses
     uint8 bonuspct = 0;
