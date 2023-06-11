@@ -1298,18 +1298,6 @@ AllowTickets = 1
 DeletedCharacterTicketTrace = 0
 
 #
-#     DungeonFinder.OptionsMask
-#        Description: Dungeon and raid finder system.
-#        Value is a bitmask consisting of:
-#           LFG_OPTION_ENABLE_DUNGEON_FINDER    = 1,     Enable the dungeon finder browser
-#           LFG_OPTION_ENABLE_RAID_BROWSER      = 2,     Enable the raid browser
-#           LFG_OPTION_ENABLE_SEASONAL_BOSSES   = 4,     Enable seasonal bosses
-
-#        Default:     5
-
-DungeonFinder.OptionsMask = 5
-
-#
 #   DBC.EnforceItemAttributes
 #        Disallow overriding item attributes stored in DBC files with values from the database
 #        Default: 0 - Off, Use DB values
@@ -3683,6 +3671,17 @@ Calculate.Gameoject.Zone.Area.Data = 0
 Group.Raid.LevelRestriction = 10
 
 #
+#     DungeonFinder.OptionsMask
+#        Description: Dungeon and raid finder system.
+#        Value is a bitmask consisting of:
+#           LFG_OPTION_ENABLE_DUNGEON_FINDER    = 1,     Enable the dungeon finder browser
+#           LFG_OPTION_ENABLE_RAID_BROWSER      = 2,     Enable the raid browser
+#           LFG_OPTION_ENABLE_SEASONAL_BOSSES   = 4,     Enable seasonal bosses
+#        Default:     5
+
+DungeonFinder.OptionsMask = 5
+
+#
 #    LFG.Location.All
 #
 #     Includes satellite to search for work elsewhere LFG
@@ -4566,6 +4565,14 @@ NpcBot.WanderingBots.Continents.Count = 0
 #        Default:     25,15,15,10,5,10,20,0,0
 
 NpcBot.WanderingBots.Continents.Levels = 25,15,15,10,5,10,20,0,0
+
+#
+#    NpcBot.WanderingBots.Continents.Maps
+#        Description: Continent map IDs where wandering bots are allowed to spawn.
+#        Note:        Wandering bots will never outlevel the map they are in.
+#        Default:     0,1,530,571 - (Eastern Kingdoms, Kalimdor, Outland, Northrend)
+
+NpcBot.WanderingBots.Continents.Maps = 0,1,530,571
 
 #
 #    NpcBot.WanderingBots.BG.Enable

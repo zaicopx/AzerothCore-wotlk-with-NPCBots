@@ -152,6 +152,7 @@ float _mult_dmg_cryptlord;
 float _bothk_rate_honor;
 std::vector<float> _mult_dmg_levels;
 BotBrackets _botwanderer_pct_level_brackets;
+std::vector<uint32> _enabled_wander_node_maps;
 
 bool __firstload = true;
 
@@ -372,10 +373,10 @@ void BotMgr::LoadConfig(bool reload)
     _bothk_achievements_enable      = sConfigMgr->GetBoolDefault("NpcBot.HK.Achievements.Enable", false);
     _bothk_rate_honor               = sConfigMgr->GetFloatDefault("NpcBot.HK.Rate.Honor", 1.0);
 
-    std::string mult_dps_by_levels  = sConfigMgr->GetStringDefault("NpcBot.Mult.Damage.Levels", "1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0");
+    _mult_dmg_levels.clear();
+    std::string mult_dps_by_levels = sConfigMgr->GetStringDefault("NpcBot.Mult.Damage.Levels", "1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0");
     std::vector<std::string_view> toks = Acore::Tokenize(mult_dps_by_levels, ',', false);
     ASSERT(toks.size() >= BracketsCount, "NpcBot.Mult.Damage.Levels must has at least %u values", BracketsCount);
-    _mult_dmg_levels.reserve(toks.size());
     for (decltype(toks)::size_type i = 0; i != toks.size(); ++i)
     {
         Optional<float> val = Acore::StringTo<float>(toks[i]);
@@ -387,20 +388,46 @@ void BotMgr::LoadConfig(bool reload)
     }
 
     _botwanderer_pct_level_brackets = {};
-    std::string wanderers_by_levels  = sConfigMgr->GetStringDefault("NpcBot.WanderingBots.Continents.Levels", "20,15,15,10,10,15,15,0,0");
+    std::string wanderers_by_levels = sConfigMgr->GetStringDefault("NpcBot.WanderingBots.Continents.Levels", "20,15,15,10,10,15,15,0,0");
     std::vector<std::string_view> toks2 = Acore::Tokenize(wanderers_by_levels, ',', false);
     ASSERT(toks2.size() >= BracketsCount, "NpcBot.WanderingBots.Continents.Levels must has at least %u values", BracketsCount);
     uint32 total_pct = 0;
-    for (decltype(toks)::size_type i = 0; i != toks2.size(); ++i)
+    for (decltype(toks2)::size_type i = 0; i != toks2.size(); ++i)
     {
         Optional<uint32> val = Acore::StringTo<uint32>(toks2[i]);
         if (val == std::nullopt)
-            LOG_ERROR("server.loading", "NpcBot.Mult.Damage.Levels contains invalid uint32 value '{}', set to default", std::string(toks[i]).c_str());
+            LOG_ERROR("server.loading", "NpcBot.Mult.Damage.Levels contains invalid uint32 value '{}', set to default", std::string(toks2[i]).c_str());
         uint32 uval = val.value_or(uint32(0));
         total_pct += uval;
         _botwanderer_pct_level_brackets[i] = uval;
     }
     ASSERT(total_pct == 100u, "NpcBot.WanderingBots.Continents.Levels sum of values must be exactly 100!");
+
+    _enabled_wander_node_maps.clear();
+    std::string enabled_wander_node_maps = sConfigMgr->GetStringDefault("NpcBot.WanderingBots.Continents.Maps", "0,1,530,571");
+    std::vector<std::string_view> toks3 = Acore::Tokenize(enabled_wander_node_maps, ',', false);
+    for (decltype(toks3)::size_type i = 0; i != toks3.size(); ++i)
+    {
+        Optional<uint32> val = Acore::StringTo<uint32>(toks3[i]);
+        if (val == std::nullopt)
+        {
+            LOG_ERROR("server.loading", "NpcBot.WanderingBots.Continents.Maps contains invalid uint32 value '{}', skipped", std::string(toks3[i]).c_str());
+            continue;
+        }
+        uint32 uval = val.value_or(uint32(0));
+        MapEntry const* mapEntry = sMapStore.LookupEntry(uval);
+        if (!mapEntry || !mapEntry->IsContinent())
+        {
+            LOG_ERROR("server.loading", "NpcBot.WanderingBots.Continents.Maps contains invalid continent map id '{}', skipped", uval);
+            continue;
+        }
+        _enabled_wander_node_maps.push_back(uval);
+    }
+    if (_enabled_wander_node_maps.empty())
+    {
+        LOG_ERROR("server.loading", "NpcBot.WanderingBots.Continents.Maps does not provide any valid maps! Wandering bots will not be spawned!");
+        _desiredWanderingBotsCount = 0;
+    }
 
     //limits
     RoundToInterval(_mult_dmg_physical, 0.1f, 10.f);
@@ -432,13 +459,31 @@ void BotMgr::LoadConfig(bool reload)
     RoundToInterval(_mult_dmg_cryptlord, 0.1f, 10.f);
     RoundToInterval(_bothk_rate_honor, 0.1f, 10.f);
 
-    //exclusions
+    //conflicts
     uint8 dpsFlags = /*_tankingTargetIconFlags | _offTankingTargetIconFlags | */_dpsTargetIconFlags | _rangedDpsTargetIconFlags;
     if (uint8 interFlags = (_noDpsTargetIconFlags & dpsFlags))
     {
         _noDpsTargetIconFlags &= ~interFlags;
-        LOG_ERROR("scripts", "BotMgr::LoadConfig: NoDPSTargetIconMask intersects with dps targets flags {:#X}! Removed, new mask: {:#X}",
+        LOG_ERROR("server.loading", "BotMgr::LoadConfig: NoDPSTargetIconMask intersects with dps targets flags {:#X}! Removed, new mask: {:#X}",
             uint32(interFlags), uint32(_noDpsTargetIconFlags));
+    }
+
+    if (!_enabled_wander_node_maps.empty())
+    {
+        uint8 maxbotlevel = 0;
+        for (uint32 mapid : _enabled_wander_node_maps)
+            maxbotlevel = std::max<uint8>(maxbotlevel, BotDataMgr::GetMaxLevelForMapId(mapid));
+        for (uint8 i = maxbotlevel / 10 + 1; i < _botwanderer_pct_level_brackets.size(); ++i)
+        {
+            if (_botwanderer_pct_level_brackets[i] > 0)
+            {
+                uint32 pct = _botwanderer_pct_level_brackets[i];
+                _botwanderer_pct_level_brackets[0] += pct;
+                _botwanderer_pct_level_brackets[i] = 0;
+                LOG_WARN("server.loading", "NpcBot.WanderingBots.Continents.Levels conflicts with NpcBot.WanderingBots.Continents.Maps: no map for levels {}-{}! Transferring extra {}% to levels {}-{}",
+                    uint32((i ? i * 10 : 1)), uint32(i * 10 + 9), pct, uint32(1), uint32(9));
+            }
+        }
     }
 }
 
@@ -638,6 +683,10 @@ bool BotMgr::FilterRaces()
 bool BotMgr::IsBotGenerationEnabledBGs()
 {
     return _enableWanderingBotsBG;
+}
+bool BotMgr::IsBotGenerationEnabledWorldMapId(uint32 mapId)
+{
+    return std::find(std::cbegin(_enabled_wander_node_maps), std::cend(_enabled_wander_node_maps), mapId) != std::cend(_enabled_wander_node_maps);
 }
 bool BotMgr::IsBotHKEnabled()
 {
@@ -2003,6 +2052,213 @@ void BotMgr::BuildBotPartyMemberStatsPacket(ObjectGuid bot_guid, WorldPacket* da
         *data << uint32(bot->GetVehicle()->GetVehicleInfo()->m_seatID[bot->m_movementInfo.transport.seat]);
 }
 
+void BotMgr::BuildBotPartyMemberStatsChangedPacket(Creature const* bot, WorldPacket* data)
+{
+    uint32 mask = bot->GetBotAI()->GetGroupUpdateFlag();
+
+    if (mask == GROUP_UPDATE_FLAG_NONE)
+        return;
+
+    if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)                // if update power type, update current/max power also
+        mask |= (GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER);
+
+    if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)            // same for pets
+        mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
+
+    uint32 byteCount = 0;
+    for (int i = 1; i < GROUP_UPDATE_FLAGS_COUNT; ++i)
+        if (mask & (1 << i))
+            byteCount += GroupUpdateLength[i];
+
+    data->Initialize(SMSG_PARTY_MEMBER_STATS, 8 + 4 + byteCount);
+    *data << bot->GetPackGUID();
+    *data << uint32(mask);
+
+    if (mask & GROUP_UPDATE_FLAG_STATUS)
+    {
+        uint16 playerStatus = MEMBER_STATUS_ONLINE;
+        if (bot->IsPvP())
+            playerStatus |= MEMBER_STATUS_PVP;
+
+        if (!bot->IsAlive())
+            playerStatus |= MEMBER_STATUS_DEAD;
+
+        if (bot->IsFFAPvP())
+            playerStatus |= MEMBER_STATUS_PVP_FFA;
+
+        *data << uint16(playerStatus);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_CUR_HP)
+        *data << uint32(bot->GetHealth());
+
+    if (mask & GROUP_UPDATE_FLAG_MAX_HP)
+        *data << uint32(bot->GetMaxHealth());
+
+    Powers powerType = bot->GetPowerType();
+    if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)
+        *data << uint8(powerType);
+
+    if (mask & GROUP_UPDATE_FLAG_CUR_POWER)
+        *data << uint16(bot->GetPower(powerType));
+
+    if (mask & GROUP_UPDATE_FLAG_MAX_POWER)
+        *data << uint16(bot->GetMaxPower(powerType));
+
+    if (mask & GROUP_UPDATE_FLAG_LEVEL)
+        *data << uint16(bot->GetLevel());
+
+    if (mask & GROUP_UPDATE_FLAG_ZONE)
+        *data << uint16(bot->GetZoneId());
+
+    if (mask & GROUP_UPDATE_FLAG_POSITION)
+    {
+        *data << uint16(bot->GetPositionX());
+        *data << uint16(bot->GetPositionY());
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_AURAS)
+    {
+        uint64 auramask = GetBotAuraUpdateMaskForRaid(bot);
+        *data << uint64(auramask);
+        for (uint32 i = 0; i < MAX_AURAS_GROUP_UPDATE; ++i)
+        {
+            if (auramask & (uint64(1) << i))
+            {
+                AuraApplication const* aurApp = const_cast<Creature*>(bot)->GetVisibleAura(i);
+                *data << uint32(aurApp ? aurApp->GetBase()->GetId() : 0);
+                *data << uint8(1);
+            }
+        }
+    }
+
+    Creature const* pet = nullptr; //bot->GetBotAI()->GetBotsPet();
+    if (mask & GROUP_UPDATE_FLAG_PET_GUID)
+    {
+        if (pet)
+            *data << pet->GetGUID();
+        else
+            *data << (uint64) 0;
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_NAME)
+    {
+        if (pet)
+            *data << pet->GetName();
+        else
+            *data << uint8(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_MODEL_ID)
+    {
+        if (pet)
+            *data << uint16(pet->GetDisplayId());
+        else
+            *data << uint16(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_CUR_HP)
+    {
+        if (pet)
+            *data << uint32(pet->GetHealth());
+        else
+            *data << uint32(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_MAX_HP)
+    {
+        if (pet)
+            *data << uint32(pet->GetMaxHealth());
+        else
+            *data << uint32(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
+    {
+        if (pet)
+            *data << uint8(pet->GetPowerType());
+        else
+            *data << uint8(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_CUR_POWER)
+    {
+        if (pet)
+            *data << uint16(pet->GetPower(pet->GetPowerType()));
+        else
+            *data << uint16(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_MAX_POWER)
+    {
+        if (pet)
+            *data << uint16(pet->GetMaxPower(pet->GetPowerType()));
+        else
+            *data << uint16(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PET_AURAS)
+    {
+        if (pet)
+        {
+            uint64 auramask = GetBotPetAuraUpdateMaskForRaid(pet);
+            *data << uint64(auramask);
+            for (uint32 i = 0; i < MAX_AURAS_GROUP_UPDATE; ++i)
+            {
+                if (auramask & (uint64(1) << i))
+                {
+                    AuraApplication const* aurApp = const_cast<Creature*>(pet)->GetVisibleAura(i);
+                    *data << uint32(aurApp ? aurApp->GetBase()->GetId() : 0);
+                    *data << uint8(aurApp ? aurApp->GetFlags() : 0);
+                }
+            }
+        }
+        else
+            *data << uint64(0);
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
+    {
+        if (Vehicle* veh = bot->GetVehicle())
+            *data << uint32(veh->GetVehicleInfo()->m_seatID[bot->m_movementInfo.transport.seat]);
+        else
+            *data << uint32(0);
+    }
+}
+
+//uint32 BotMgr::GetBotGroupUpdateFlag(Creature const* bot)
+//{
+//    bot->GetBotAI()->GetGroupUpdateFlags
+//}
+void BotMgr::SetBotGroupUpdateFlag(Creature const* bot, uint32 flag)
+{
+    bot->GetBotAI()->SetGroupUpdateFlag(flag);
+}
+uint64 BotMgr::GetBotAuraUpdateMaskForRaid(Creature const* bot)
+{
+    return bot->GetBotAI()->GetAuraUpdateMaskForRaid();
+}
+void BotMgr::SetBotAuraUpdateMaskForRaid(Creature const* bot, uint8 slot)
+{
+    bot->GetBotAI()->SetAuraUpdateMaskForRaid(slot);
+}
+void BotMgr::ResetBotAuraUpdateMaskForRaid(Creature const* bot)
+{
+    bot->GetBotAI()->ResetAuraUpdateMaskForRaid();
+}
+uint64 BotMgr::GetBotPetAuraUpdateMaskForRaid(Creature const* botpet)
+{
+    return botpet->GetBotPetAI()->GetAuraUpdateMaskForRaid();
+}
+void BotMgr::SetBotPetAuraUpdateMaskForRaid(Creature const* botpet, uint8 slot)
+{
+    botpet->GetBotPetAI()->SetAuraUpdateMaskForRaid(slot);
+}
+void BotMgr::ResetBotPetAuraUpdateMaskForRaid(Creature const* botpet)
+{
+    botpet->GetBotPetAI()->ResetAuraUpdateMaskForRaid();
+}
+
 void BotMgr::PropagateEngageTimers() const
 {
     uint32 delay_dps = GetEngageDelayDPS();
@@ -2449,6 +2705,25 @@ float BotMgr::GetBotDamageModByLevel(uint8 botlevel)
     if (bracket < _mult_dmg_levels.size())
         return _mult_dmg_levels[bracket];
     return 1.0f;
+}
+
+Group* BotMgr::GetBotGroup(Creature const* bot)
+{
+    return bot->GetBotAI() ? bot->GetBotAI()->GetGroup() : nullptr;
+}
+void BotMgr::SetBotGroup(Creature const* bot, Group* group)
+{
+    bot->GetBotAI()->SetGroup(group);
+}
+void BotMgr::SetBotGroup(ObjectGuid::LowType bot_id, Group* group)
+{
+    Creature const* bot = BotDataMgr::FindBot(bot_id);
+    ASSERT(bot);
+    SetBotGroup(bot, group);
+}
+void BotMgr::SetBotGroup(ObjectGuid botguid, Group* group)
+{
+    SetBotGroup(botguid.GetEntry(), group);
 }
 
 void BotMgr::InviteBotToBG(ObjectGuid botguid, GroupQueueInfo* ginfo, Battleground* bg)
