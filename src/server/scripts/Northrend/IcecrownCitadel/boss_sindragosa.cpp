@@ -330,7 +330,7 @@ public:
 
             summons.DespawnAll();
             events.Reset();
-            events.ScheduleEvent(EVENT_BERSERK, 10min);
+            events.ScheduleEvent(EVENT_BERSERK, 15min);
             events.ScheduleEvent(EVENT_AIR_PHASE, 50s);
             events.ScheduleEvent(EVENT_CLEAVE, 10s, EVENT_GROUP_LAND_PHASE);
             events.ScheduleEvent(EVENT_TAIL_SMASH, 20s, EVENT_GROUP_LAND_PHASE);

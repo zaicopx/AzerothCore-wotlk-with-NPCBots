@@ -702,7 +702,7 @@ public:
             me->SetInCombatWithZone();
             me->RemoveAurasDueToSpell(SPELL_EMOTE_SIT_NO_SHEATH); // just to be sure
 
-            events.ScheduleEvent(EVENT_BERSERK, 15min, EVENT_GROUP_BERSERK);
+            events.ScheduleEvent(EVENT_BERSERK, 22min, EVENT_GROUP_BERSERK);
             events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 15s, EVENT_GROUP_ABILITIES);
             events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOUL, 10s, EVENT_GROUP_ABILITIES);
             events.ScheduleEvent(EVENT_INFEST, 5s, EVENT_GROUP_ABILITIES);

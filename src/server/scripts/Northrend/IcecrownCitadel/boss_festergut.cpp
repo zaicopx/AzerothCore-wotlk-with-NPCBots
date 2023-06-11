@@ -117,7 +117,7 @@ public:
                 return;
             }
 
-            events.ScheduleEvent(EVENT_BERSERK, 5min);
+            events.ScheduleEvent(EVENT_BERSERK, 9min);
             events.ScheduleEvent(EVENT_INHALE_BLIGHT, 25s, 30s);
             events.ScheduleEvent(EVENT_GAS_SPORE, 20s, 25s);
             events.ScheduleEvent(EVENT_VILE_GAS, 30s, 40s, 1);
