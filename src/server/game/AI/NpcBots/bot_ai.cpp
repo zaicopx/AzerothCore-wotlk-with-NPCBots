@@ -581,8 +581,11 @@ void bot_ai::ResetBotAI(uint8 resetType)
     if (resetType == BOTAI_RESET_LOGOUT)
         _saveStats();
 
-    (const_cast<CreatureTemplate*>(me->GetCreatureTemplate()))->unit_flags2 |= (UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-    me->ReplaceAllUnitFlags2(UnitFlags2(me->GetCreatureTemplate()->unit_flags2));
+    if (!IsWanderer() || BotMgr::IsWanderingWorldBot(me))
+    {
+        (const_cast<CreatureTemplate*>(me->GetCreatureTemplate()))->unit_flags2 |= (UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+        me->ReplaceAllUnitFlags2(UnitFlags2(me->GetCreatureTemplate()->unit_flags2));
+    }
 
     if (resetType == BOTAI_RESET_DISMISS && !IsTempBot())
         EnableAllSpells();
@@ -3478,7 +3481,7 @@ bool bot_ai::IsInBotParty(Unit const* unit) const
     //Player-controlled creature case
     if (Creature const* cre = unit->ToCreature())
     {
-        ObjectGuid ownerGuid = unit->GetOwnerGUID() ? unit->GetOwnerGUID() : unit->GetCreatorGUID();
+        ObjectGuid ownerGuid = unit->GetOwnerGUID() ? unit->GetOwnerGUID() : unit->GetCreator() ? unit->GetCreator()->GetGUID() : ObjectGuid::Empty;
         if (!ownerGuid && unit->IsVehicle())
             ownerGuid = unit->GetCharmerGUID();
         //controlled by master
@@ -3606,7 +3609,7 @@ bool bot_ai::CanBotAttack(Unit const* target, int8 byspell, bool secondary) cons
     //    return false;
     if (target->CanHaveThreatList() && GetEngageTimer() > lastdiff)
         return false;
-    if (!BotMgr::IsPvPEnabled() && !IAmFree() && target->IsControlledByPlayer())
+    if (!BotMgr::IsPvPEnabled() && me->IsPvP() && target->IsControlledByPlayer())
         return false;
     if (me->GetFaction() == 35 && IAmFree() && target->GetTypeId() == TYPEID_UNIT && target->GetVictim() != me)
         return false;
@@ -13989,9 +13992,6 @@ void bot_ai::DefaultInit()
         ASSERT(!me->GetBotPetAI());
         me->SetBotAI(this);
     }
-
-    //bot needs to be either directly controlled by player of have pvp flag to be a valid assist target (buffs, heals, etc.)
-    me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
 
     me->SetPvP(master->IsPvP() || IsWanderer());
     if (sWorld->IsFFAPvPRealm())

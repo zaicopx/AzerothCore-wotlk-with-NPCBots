@@ -1422,7 +1422,7 @@ bool bot_pet_ai::IsInBotParty(Unit const* unit) const
     //Player-controlled creature case
     if (Creature const* cre = unit->ToCreature())
     {
-        ObjectGuid ownerGuid = unit->GetOwnerGUID() ? unit->GetOwnerGUID() : unit->GetCreatorGUID();
+        ObjectGuid ownerGuid = unit->GetOwnerGUID() ? unit->GetOwnerGUID() : unit->GetCreator() ? unit->GetCreator()->GetGUID() : ObjectGuid::Empty;
         //controlled by master
         if (ownerGuid == petOwner->GetBotOwner()->GetGUID())
             return true;
@@ -2258,6 +2258,7 @@ void bot_pet_ai::IsSummonedBy(WorldObject* summoner)
     //myType = petOwner->GetBotAI()->GetAIMiscValue(BOTAI_MISC_PET_TYPE);
     //ASSERT(myType);
     me->setActive(true);
+    me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
     ASSERT(!me->GetBotAI());
     ASSERT(!me->GetBotPetAI());
     me->SetBotPetAI(this);
