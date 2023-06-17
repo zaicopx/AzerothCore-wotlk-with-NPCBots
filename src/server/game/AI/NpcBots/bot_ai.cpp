@@ -575,8 +575,11 @@ void bot_ai::ResetBotAI(uint8 resetType)
     if (resetType == BOTAI_RESET_LOGOUT)
         _saveStats();
 
-    (const_cast<CreatureTemplate*>(me->GetCreatureTemplate()))->unit_flags2 |= (UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-    me->ReplaceAllUnitFlags2(UnitFlags2(me->GetCreatureTemplate()->unit_flags2));
+    if (!IsWanderer() || BotMgr::IsWanderingWorldBot(me))
+    {
+        (const_cast<CreatureTemplate*>(me->GetCreatureTemplate()))->unit_flags2 |= (UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+        me->ReplaceAllUnitFlags2(UnitFlags2(me->GetCreatureTemplate()->unit_flags2));
+    }
 
     if (resetType == BOTAI_RESET_DISMISS && !IsTempBot())
         EnableAllSpells();
@@ -609,6 +612,9 @@ SpellCastResult bot_ai::CheckBotCast(Unit const* victim, uint32 spellId) const
     if (spellId == 0)
         return SPELL_FAILED_DONT_REPORT;
 
+    if (HasBotCommandState(BOT_COMMAND_NO_CAST | BOT_COMMAND_INACTION))
+        return SPELL_FAILED_DONT_REPORT;
+
     if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->IsGameMaster())
         return SPELL_FAILED_BAD_TARGETS;
 
@@ -621,14 +627,20 @@ SpellCastResult bot_ai::CheckBotCast(Unit const* victim, uint32 spellId) const
     if (me->IsMounted() && !(spellInfo->Attributes & SPELL_ATTR0_ALLOW_WHILE_MOUNTED))
         return SPELL_FAILED_NOT_MOUNTED;
 
-    if (me->GetMap()->IsDungeon() && spellInfo->CastTimeEntry && !CCed(me, true) && IsWithinAoERadius(*me))
+    if (spellInfo->IsChanneled() && HasBotCommandState(BOT_COMMAND_NO_CAST_LONG))
+        return SPELL_FAILED_NOT_IDLE;
+
+    if (spellInfo->CastTimeEntry)
     {
         int32 castTime = spellInfo->CastTimeEntry->CastTime;
         if (castTime > 0)
             ApplyClassSpellCastTimeMods(spellInfo, castTime);
 
         if (castTime > 0)
-            return SPELL_FAILED_NOT_IDLE;
+        {
+            if (HasBotCommandState(BOT_COMMAND_NO_CAST_LONG) || (me->GetMap()->IsDungeon() && !CCed(me, true) && IsWithinAoERadius(*me)))
+                return SPELL_FAILED_NOT_IDLE;
+        }
     }
 
     if (int32(me->GetPower(Powers(spellInfo->PowerType))) < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
@@ -1174,7 +1186,7 @@ void bot_ai::AbortAwaitStateRemoval()
 
 void bot_ai::SetBotCommandState(uint32 st, bool force, Position* newpos)
 {
-    if (st != BOT_COMMAND_UNBIND)
+    if (!(st & (BOT_COMMAND_UNBIND | BOT_COMMAND_INACTION)))
     {
         if (!me->IsAlive() || JumpingOrFalling())
             return;
@@ -1211,6 +1223,29 @@ void bot_ai::SetBotCommandState(uint32 st, bool force, Position* newpos)
             //me->GetMotionMaster()->MoveFollow(master, mydist, angle);
             RemoveBotCommandState(BOT_COMMAND_STAY | BOT_COMMAND_FULLSTOP | BOT_COMMAND_ATTACK | BOT_COMMAND_COMBATRESET);
         }
+        else if (st & BOT_COMMAND_MASK_NOCAST_ANY)
+        {
+            uint32 removeMask = BOT_COMMAND_MASK_NOCAST_ANY & GetBotCommandState();
+            st &= ~removeMask;
+            RemoveBotCommandState(removeMask);
+            me->InterruptNonMeleeSpells(false);
+            if (mover != me->ToUnit())
+                mover->InterruptNonMeleeSpells(false);
+        }
+        else if (st & BOT_COMMAND_INACTION)
+        {
+            uint32 removeMask = BOT_COMMAND_INACTION & GetBotCommandState();
+            st &= ~removeMask;
+            RemoveBotCommandState(removeMask | BOT_COMMAND_MASK_NOCAST_ANY | BOT_COMMAND_STAY | BOT_COMMAND_FULLSTOP | BOT_COMMAND_ATTACK | BOT_COMMAND_COMBATRESET);
+            me->AttackStop();
+            me->InterruptNonMeleeSpells(true);
+            if (mover != me->ToUnit())
+            {
+                mover->AttackStop();
+                mover->InterruptNonMeleeSpells(true);
+            }
+            opponent = nullptr;
+        }
         else if (st & BOT_COMMAND_FULLSTOP)
         {
             RemoveBotCommandState(BOT_COMMAND_FOLLOW | BOT_COMMAND_STAY | BOT_COMMAND_ATTACK);
@@ -1221,6 +1256,7 @@ void bot_ai::SetBotCommandState(uint32 st, bool force, Position* newpos)
                 mover->AttackStop();
                 mover->InterruptNonMeleeSpells(true);
             }
+            opponent = nullptr;
             if (mover->isMoving())
                 mover->ToCreature()->BotStopMovement();
         }
@@ -2153,7 +2189,7 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
         auto scores = GetBotGearScores();
         botstring << "\nGear score total: " << scores.first << ", avg: " << scores.second;
 
-        botstring << "\n" << LocalizedNpcText(player, BOT_TEXT_COMMAND_STATES) << ":";
+        botstring << "\n" << LocalizedNpcText(player, BOT_TEXT_COMMAND_STATES) << "(" << GetBotCommandState() << "):";
         if (HasBotCommandState(BOT_COMMAND_FOLLOW))
             botstring << " " << LocalizedNpcText(player, BOT_TEXT_COMMAND_FOLLOW);
         if (HasBotCommandState(BOT_COMMAND_ATTACK))
@@ -3469,7 +3505,7 @@ bool bot_ai::IsInBotParty(Unit const* unit) const
     //Player-controlled creature case
     if (Creature const* cre = unit->ToCreature())
     {
-        ObjectGuid ownerGuid = unit->GetOwnerGUID() ? unit->GetOwnerGUID() : unit->GetCreatorGUID();
+        ObjectGuid ownerGuid = unit->GetOwnerGUID() ? unit->GetOwnerGUID() : unit->GetCreator() ? unit->GetCreator()->GetGUID() : ObjectGuid::Empty;
         if (!ownerGuid && unit->IsVehicle())
             ownerGuid = unit->GetCharmerGUID();
         //controlled by master
@@ -3589,7 +3625,7 @@ bool bot_ai::CanBotAttack(Unit const* target, int8 byspell, bool secondary) cons
 {
     if (!target)
         return false;
-    if (HasBotCommandState(BOT_COMMAND_FULLSTOP))
+    if (HasBotCommandState(BOT_COMMAND_FULLSTOP | BOT_COMMAND_INACTION))
         return false;
     if (target->HasUnitState(UNIT_STATE_EVADE | UNIT_STATE_IN_FLIGHT))
         return false;
@@ -3597,7 +3633,7 @@ bool bot_ai::CanBotAttack(Unit const* target, int8 byspell, bool secondary) cons
     //    return false;
     if (target->CanHaveThreatList() && GetEngageTimer() > lastdiff)
         return false;
-    if (!BotMgr::IsPvPEnabled() && !IAmFree() && target->IsControlledByPlayer())
+    if (!BotMgr::IsPvPEnabled() && me->IsPvP() && target->IsControlledByPlayer())
         return false;
     if (me->GetFaction() == 35 && IAmFree() && target->GetTypeId() == TYPEID_UNIT && target->GetVictim() != me)
         return false;
@@ -7014,7 +7050,7 @@ void bot_ai::OnSpellHit(Unit* caster, SpellInfo const* spell)
         }
     }
 
-    if (!HasBotCommandState(BOT_COMMAND_FULLSTOP))
+    if (!HasBotCommandState(BOT_COMMAND_FULLSTOP | BOT_COMMAND_INACTION))
     {
         if (spell->HasAura(SPELL_AURA_MOD_TAUNT) || spell->HasEffect(SPELL_EFFECT_ATTACK_ME))
             if (caster && me->Attack(caster, !HasRole(BOT_ROLE_RANGED)))
@@ -10805,7 +10841,7 @@ void bot_ai::CheckRacials(uint32 diff)
 //This means that anyone who attacks party will be attacked by whole bot party (see GetTarget())
 void bot_ai::OnOwnerDamagedBy(Unit* attacker)
 {
-    if (HasBotCommandState(BOT_COMMAND_FULLSTOP))
+    if (HasBotCommandState(BOT_COMMAND_FULLSTOP | BOT_COMMAND_INACTION))
         return;
 
     bool byspell = false;
@@ -10836,7 +10872,7 @@ void bot_ai::OnOwnerDamagedBy(Unit* attacker)
 //force vehicle targeting and attack if vehicle is damaged
 void bot_ai::OnOwnerVehicleDamagedBy(Unit* attacker)
 {
-    if (HasBotCommandState(BOT_COMMAND_FULLSTOP))
+    if (HasBotCommandState(BOT_COMMAND_FULLSTOP | BOT_COMMAND_INACTION))
         return;
 
     Creature* veh = me->GetVehicleCreatureBase();
@@ -13838,9 +13874,6 @@ void bot_ai::DefaultInit()
         me->SetBotAI(this);
     }
 
-    //bot needs to be either directly controlled by player of have pvp flag to be a valid assist target (buffs, heals, etc.)
-    me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
-
     me->SetPvP(master->IsPvP() || IsWanderer());
     if (sWorld->IsFFAPvPRealm())
         me->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
@@ -14622,6 +14655,8 @@ void bot_ai::FindMaster()
     if (!_ownerGuid)
         return;
     if (!_atHome || _evadeMode)
+        return;
+    if (!BotMgr::IsClassEnabled(_botclass))
         return;
 
     //delay
@@ -16621,10 +16656,7 @@ void bot_ai::UpdateDeadAI(uint32 diff)
 {
     // group update
     if (_groupUpdateTimer <= diff)
-    {
         SendUpdateToOutOfRangeBotGroupMembers();
-        _groupUpdateTimer = BOT_GROUP_UPDATE_TIMER;
-    }
 }
 //opponent unsafe
 bool bot_ai::GlobalUpdate(uint32 diff)
@@ -16728,10 +16760,7 @@ bool bot_ai::GlobalUpdate(uint32 diff)
 
     // group update
     if (_groupUpdateTimer <= diff)
-    {
         SendUpdateToOutOfRangeBotGroupMembers();
-        _groupUpdateTimer = BOT_GROUP_UPDATE_TIMER;
-    }
 
     if (ordersTimer <= diff)
         _ProcessOrders();
@@ -17308,6 +17337,9 @@ bool bot_ai::GlobalUpdate(uint32 diff)
 
     _updateMountedState();
     _updateStandState();
+
+    if (HasBotCommandState(BOT_COMMAND_INACTION))
+        return false;
 
     return true;
 }
@@ -18842,8 +18874,6 @@ bool bot_ai::IsContestedPvP() const
 }
 void bot_ai::SetContestedPvP()
 {
-    ASSERT(IAmFree());
-
     _contestedPvPTimer = 30000;
     if (!me->HasUnitState(UNIT_STATE_ATTACK_PLAYER))
     {
@@ -18873,6 +18903,8 @@ void bot_ai::UpdateContestedPvP()
 
 void bot_ai::SendUpdateToOutOfRangeBotGroupMembers()
 {
+    _groupUpdateTimer = BOT_GROUP_UPDATE_TIMER;
+
     if (_groupUpdateMask == GROUP_UPDATE_FLAG_NONE)
         return;
     if (Group* group = GetGroup())

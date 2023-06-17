@@ -2027,6 +2027,9 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     if ((damageInfo->damages[0].damage + damageInfo->damages[1].damage) && ((damageInfo->hitOutCome == MELEE_HIT_CRIT || damageInfo->hitOutCome == MELEE_HIT_CRUSHING || damageInfo->hitOutCome == MELEE_HIT_NORMAL || damageInfo->hitOutCome == MELEE_HIT_GLANCING) &&
                                GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(M_PI, this)
                                && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss()) && !victim->IsVehicle()))
+    //npcbot: prevent daze caused by bots
+    if (!IsNPCBotOrPet())
+    //end npcbot
     {
         // -probability is between 0% and 40%
         // 20% base chance
@@ -6363,7 +6366,7 @@ GameObject* Unit::GetFirstGameObjectById(uint32 id) const
 
 void Unit::SetCreator(Unit* creator)
 {
-    SetCreatorGUID(creator ? creator->GetGUID() : ObjectGuid::Empty);
+    //creator is unrelated to creator guid
     m_creator = creator;
 }
 //end npcbot
@@ -10688,30 +10691,6 @@ ReputationRank Unit::GetReactionTo(Unit const* target, bool checkOriginalFaction
                     }
                 }
             }
-            ////npcbot: contested guards reaction to bots in contested PvP mode
-            //else if (GetTypeId() == TYPEID_UNIT)
-            //{
-            //    Unit const* bot = IsNPCBotPet() ? ToUnit()->GetCreator() : ToUnit();
-            //    if (bot && bot->IsNPCBot())
-            //    {
-            //        if (FactionTemplateEntry const* targetFactionTemplateEntry = targetUnit->GetFactionTemplateEntry())
-            //        {
-            //            if (FactionEntry const* targetFactionEntry = sFactionStore.LookupEntry(targetFactionTemplateEntry->Faction))
-            //            {
-            //                if (targetFactionEntry->CanHaveReputation())
-            //                {
-            //                    // check contested flags
-            //                    if (targetFactionTemplateEntry->Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD)
-            //                    {
-            //                        if (BotMgr::IsBotContestedPvP(bot->ToCreature()))
-            //                            return REP_HOSTILE;
-            //                    }
-            //                    return REP_FRIENDLY;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
         }
     }
 
@@ -10775,6 +10754,16 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
         if (factionTemplateEntry->factionFlags & FACTION_TEMPLATE_FLAG_ATTACK_PVP_ACTIVE_PLAYERS
                 && targetPlayerOwner->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP))
             return REP_HOSTILE;
+
+        //npcbot
+        if (target->IsNPCBotOrPet() && (factionTemplateEntry->factionFlags & FACTION_TEMPLATE_FLAG_ATTACK_PVP_ACTIVE_PLAYERS))
+        {
+            Unit const* bot = target->IsNPCBotPet() ? static_cast<Unit*>(targetPlayerOwner->GetBotMgr()->GetBot(target->GetOwnerGUID())) : target->ToUnit();
+            if (bot && bot->IsNPCBot() && BotMgr::IsBotContestedPvP(bot->ToCreature()))
+                return REP_HOSTILE;
+        }
+        //end npcbot
+
         if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(factionTemplateEntry))
             return *repRank;
         if (!target->HasUnitFlag2(UNIT_FLAG2_IGNORE_REPUTATION))
@@ -10793,17 +10782,11 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
         }
     }
     //npcbot: contested guards reaction to bots in contested PvP mode
-    else if (target->GetTypeId() == TYPEID_UNIT)
+    else if (target->IsNPCBotOrPet() && (factionTemplateEntry->factionFlags & FACTION_TEMPLATE_FLAG_ATTACK_PVP_ACTIVE_PLAYERS))
     {
         Unit const* bot = target->IsNPCBotPet() ? target->ToUnit()->GetCreator() : target->ToUnit();
-        if (bot && bot->IsNPCBot())
-        {
-            if (factionTemplateEntry->factionFlags & FACTION_TEMPLATE_FLAG_ATTACK_PVP_ACTIVE_PLAYERS)
-            {
-                if (BotMgr::IsBotContestedPvP(bot->ToCreature()))
-                    return REP_HOSTILE;
-            }
-        }
+        if (bot && bot->IsNPCBot() && BotMgr::IsBotContestedPvP(bot->ToCreature()))
+            return REP_HOSTILE;
     }
     //end npcbot
 
@@ -11212,6 +11195,12 @@ Player* Unit::GetCharmerOrOwnerPlayerOrPlayerItself() const
     ObjectGuid guid = GetCharmerOrOwnerGUID();
     if (guid.IsPlayer())
         return ObjectAccessor::GetPlayer(*this, guid);
+
+    //npcbot
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsNPCBotOrPet())
+        if (Unit* creator = ToUnit()->GetCreator())
+            return creator->ToPlayer();
+    //end npcbot
 
     return const_cast<Unit*>(this)->ToPlayer();
 }
@@ -14390,8 +14379,8 @@ void Unit::CombatStart(Unit* victim, bool initialAggro)
     Unit* who = victim->GetCharmerOrOwnerOrSelf();
     if (who->GetTypeId() == TYPEID_PLAYER)
         SetContestedPvP(who->ToPlayer());
-    //npcbot: init contested PvP against free bots
-    else if (who->IsPvP() && who->IsNPCBotOrPet())
+    //npcbot: init contested PvP against bots
+    else if (IsPlayer() && who->IsNPCBotOrPet())
         SetContestedPvP();
     //end npcbot
 
@@ -14400,14 +14389,19 @@ void Unit::CombatStart(Unit* victim, bool initialAggro)
     {
         player->UpdatePvP(true);
         player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+        //npcbot: init contested PvP for owned bots
+        if (IsNPCBotOrPet() && who->IsNPCBotOrPet())
+        {
+            if (Unit* bot = IsNPCBotPet() ? static_cast<Unit*>(player->GetBotMgr()->GetBot(GetOwnerGUID())) : this)
+            {
+                BotMgr::SetBotContestedPvP(bot->ToCreature());
+                bot->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+            }
+        }
+        //end npcbot
     }
     //npcbot: init contested PvP for free bots
-    else if (player && who->IsPvP() && who->IsNPCBotOrPet())
-    {
-        player->UpdatePvP(true);
-        player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
-    }
-    else if (!player && who->GetTypeId() == TYPEID_PLAYER && who->IsPvP() && IsNPCBotOrPet())
+    else if (!player && IsNPCBotOrPet())
     {
         if (Unit* bot = IsNPCBotPet() ? GetCreator() : this)
         {
@@ -14436,20 +14430,29 @@ void Unit::CombatStartOnCast(Unit* target, bool initialAggro, uint32 duration)
     Unit* who = target->GetCharmerOrOwnerOrSelf();
     if (who->GetTypeId() == TYPEID_PLAYER)
         SetContestedPvP(who->ToPlayer());
+    //npcbot: init contested PvP against free bots
+    else if (IsPlayer() && who->IsPvP() && who->IsNPCBotOrPet())
+        SetContestedPvP();
+    //end npcbot
 
     Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
     if (player && who->IsPvP() && (who->GetTypeId() != TYPEID_PLAYER || !player->duel || player->duel->Opponent != who))
     {
         player->UpdatePvP(true);
         player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+        //npcbot: init contested PvP for owned bots
+        if (IsNPCBotOrPet() && who->IsNPCBotOrPet())
+        {
+            if (Unit* bot = IsNPCBotPet() ? static_cast<Unit*>(player->GetBotMgr()->GetBot(GetOwnerGUID())) : this)
+            {
+                BotMgr::SetBotContestedPvP(bot->ToCreature());
+                bot->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+            }
+        }
+        //end npcbot
     }
     //npcbot: init contested PvP for free bots
-    else if (player && who->IsPvP() && who->IsNPCBotOrPet())
-    {
-        player->UpdatePvP(true);
-        player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
-    }
-    else if (!player && who->GetTypeId() == TYPEID_PLAYER && who->IsPvP() && IsNPCBotOrPet())
+    else if (!player && who->IsPvP() && IsNPCBotOrPet())
     {
         if (Unit* bot = IsNPCBotPet() ? GetCreator() : this)
         {
@@ -14680,6 +14683,9 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
             return false;
     }
     // check flags
+    //npcbot: rewrite all that
+    /*
+    //end npcbot
     if (target->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NON_ATTACKABLE_2)
             || (!HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && target->IsImmuneToNPC())
             || (!target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && IsImmuneToNPC())
@@ -14687,6 +14693,28 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
             // check if this is a world trigger cast - GOs are using world triggers to cast their spells, so we need to ignore their immunity flag here, this is a temp workaround, needs removal when go cast is implemented properly
             || ((GetEntry() != WORLD_TRIGGER && (!obj || !obj->isType(TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT))) && target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && IsImmuneToPC()))
         return false;
+    //npcbot
+    */
+    if (target->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NON_ATTACKABLE_2))
+        return false;
+
+    // not checked in AC for some reason - not changing
+    //if (!(bySpell && bySpell->IsPositive() && bySpell->HasAttribute(SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC)))
+    {
+        if (!HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && !IsNPCBotOrPet() && target->IsImmuneToNPC())
+            return false;
+
+        if (!target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && !target->IsNPCBotOrPet() && IsImmuneToNPC())
+            return false;
+
+        if ((HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || IsNPCBotOrPet()) && target->IsImmuneToPC())
+            return false;
+
+        if ((target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || target->IsNPCBotOrPet()) && IsImmuneToPC() &&
+            GetEntry() != WORLD_TRIGGER && (!obj || !obj->isType(TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT)))
+            return false;
+    }
+    //end npcbot
 
     //npcbot: CvB, BvC case
     if (((IsNPCBotOrPet() && ToCreature()->IsFreeBot()) || (target->IsNPCBotOrPet() && target->ToCreature()->IsFreeBot())) &&
@@ -14711,6 +14739,11 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     }
     //end npcbot
 
+    //npcbot
+    if (IsNPCBotOrPet() || target->IsNPCBotOrPet())
+    {}
+    else
+    //end npcbot
     // CvC case - can attack each other only when one of them is hostile
     if (!HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && !target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
         return GetReactionTo(target) <= REP_HOSTILE || target->GetReactionTo(this) <= REP_HOSTILE;
@@ -14754,6 +14787,13 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     Player const* playerAffectingAttacker = HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : nullptr;
     Player const* playerAffectingTarget = target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? target->GetAffectingPlayer() : nullptr;
 
+    //npcbot: get affectingplayers for bots
+    if (!playerAffectingAttacker && IsNPCBotOrPet())
+        playerAffectingAttacker = GetAffectingPlayer();
+    if (!playerAffectingTarget && target->IsNPCBotOrPet())
+        playerAffectingTarget = target->GetAffectingPlayer();
+    //end npcbot
+
     // check duel - before sanctuary checks
     if (playerAffectingAttacker && playerAffectingTarget)
         if (playerAffectingAttacker->duel && playerAffectingAttacker->duel->Opponent == playerAffectingTarget && playerAffectingAttacker->duel->State == DUEL_STATE_IN_PROGRESS)
@@ -14763,6 +14803,13 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     // however, 13850 client doesn't allow to attack when one of the unit's has sanctuary flag and is pvp
     if (target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && (target->IsInSanctuary() || IsInSanctuary()))
         return false;
+
+    //npcbot: BvP, PvB, BvB sanctuary case
+    if ((target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || target->IsNPCBotOrPet()) &&
+        (HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || IsNPCBotOrPet()) &&
+        (target->IsInSanctuary() || IsInSanctuary()))
+        return false;
+    //end npcbot
 
     // additional checks - only PvP case
     if (playerAffectingAttacker && playerAffectingTarget)
@@ -14842,6 +14889,13 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
             if (target->IsImmuneToPC())
                 return false;
         }
+        //npcbot
+        else if (IsNPCBotOrPet())
+        {
+            if (target->IsImmuneToPC())
+                return false;
+        }
+        //end npcbot
         else
         {
             if (target->IsImmuneToNPC())
@@ -14888,6 +14942,21 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         if (Creature const* creatureTarget = target->ToCreature())
             return creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT || creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST;
     }
+
+    //npcbot: PvP (BvB) case
+    if (IsNPCBotOrPet() && target->IsNPCBotOrPet())
+    {
+        Player const* selfPlayerOwner = GetAffectingPlayer();
+        Player const* targetPlayerOwner = target->GetAffectingPlayer();
+        if (selfPlayerOwner && targetPlayerOwner && selfPlayerOwner != targetPlayerOwner && targetPlayerOwner->duel)
+            return false;
+        if (target->IsFFAPvP() && !IsFFAPvP())
+            return false;
+        if (target->IsPvP() && IsInSanctuary() && !target->IsInSanctuary())
+            return false;
+    }
+    //end npcbot
+
     return true;
 }
 
@@ -15007,9 +15076,8 @@ bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
                     return true;
 
     //npcbot - bots are always visible for owner
-    if (Creature const* bot = ToCreature())
-        if ((bot->GetBotAI() || bot->GetBotPetAI()) && seer->GetGUID() == bot->GetBotOwner()->GetGUID())
-            return true;
+    if (GetCreator() && seer->GetGUID() == GetCreator()->GetGUID())
+        return true;
     //end npcbot
 
     return false;
@@ -16384,7 +16452,7 @@ void Unit::SetHealth(uint32 val)
             if (BotMgr::GetBotGroup(ToCreature()))
                 BotMgr::SetBotGroupUpdateFlag(ToCreature(), GROUP_UPDATE_FLAG_CUR_HP);
         }
-        else if (GetOwnerGUID().IsCreature())
+        else
         {
             Unit const* owner = GetOwner();
             if (owner && owner->IsNPCBot() && owner->ToCreature()->GetBotsPet() == this && BotMgr::GetBotGroup(owner->ToCreature()))
@@ -16435,7 +16503,7 @@ void Unit::SetMaxHealth(uint32 val)
             if (BotMgr::GetBotGroup(ToCreature()))
                 BotMgr::SetBotGroupUpdateFlag(ToCreature(), GROUP_UPDATE_FLAG_MAX_HP);
         }
-        else if (GetOwnerGUID().IsCreature())
+        else
         {
             Unit const* owner = GetOwner();
             if (owner && owner->IsNPCBot() && owner->ToCreature()->GetBotsPet() == this && BotMgr::GetBotGroup(owner->ToCreature()))
@@ -16519,7 +16587,7 @@ void Unit::SetPower(Powers power, uint32 val, bool withPowerUpdate /*= true*/, b
             if (BotMgr::GetBotGroup(ToCreature()))
                 BotMgr::SetBotGroupUpdateFlag(ToCreature(), GROUP_UPDATE_FLAG_CUR_POWER);
         }
-        else if (GetOwnerGUID().IsCreature())
+        else
         {
             Unit const* owner = GetOwner();
             if (owner && owner->IsNPCBot() && owner->ToCreature()->GetBotsPet() == this && BotMgr::GetBotGroup(owner->ToCreature()))
@@ -16561,7 +16629,7 @@ void Unit::SetMaxPower(Powers power, uint32 val)
             if (BotMgr::GetBotGroup(ToCreature()))
                 BotMgr::SetBotGroupUpdateFlag(ToCreature(), GROUP_UPDATE_FLAG_MAX_POWER);
         }
-        else if (GetOwnerGUID().IsCreature())
+        else
         {
             Unit const* owner = GetOwner();
             if (owner && owner->IsNPCBot() && owner->ToCreature()->GetBotsPet() == this && BotMgr::GetBotGroup(owner->ToCreature()))
@@ -18112,6 +18180,13 @@ void Unit::SendComboPoints()
     {
         owner = ObjectAccessor::GetPlayer(*this, ownerGuid);
     }
+    //npcbot
+    else if (IsNPCBotOrPet())
+    {
+        if (Unit* creator = ToUnit()->GetCreator())
+            owner = creator->ToPlayer();
+    }
+    //end npcbot
 
     if (m_movedByPlayer || owner)
     {
@@ -18443,7 +18518,7 @@ void Unit::UpdateAuraForGroup(uint8 slot)
                 BotMgr::SetBotAuraUpdateMaskForRaid(ToCreature(), slot);
             }
         }
-        else if (GetOwnerGUID().IsCreature())
+        else
         {
             Unit const* owner = GetOwner();
             if (owner && owner->IsNPCBot() && owner->ToCreature()->GetBotsPet() == this && BotMgr::GetBotGroup(owner->ToCreature()))
@@ -18972,11 +19047,8 @@ void Unit::Kill(Unit* killer, Unit* victim, bool durabilityLoss, WeaponAttackTyp
     Creature* creature = victim->ToCreature();
 
     //npcbot - loot recipient of bot's vehicle is owner
-    if (!player && killer && killer->IsVehicle() && killer->GetCharmerGUID().IsCreature() && killer->GetCreatorGUID().IsPlayer())
-    {
-        if (Unit* uowner = killer->GetCreator())
-            player = uowner->ToPlayer();
-    }
+    if (!player && killer && killer->IsVehicle() && killer->GetCharmerGUID().IsCreature() && killer->GetCreator() && killer->GetCreator()->IsPlayer())
+        player = killer->GetCreator()->ToPlayer();
     //end npcbot
 
     bool isRewardAllowed = true;
@@ -21533,6 +21605,10 @@ bool Unit::CanSwim() const
         return false;
     if (HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT))
         return true;
+    //npcbot
+    if (IsNPCBotOrPet())
+        return true;
+    //end npcbot
     return HasUnitFlag(UNIT_FLAG_RENAME | UNIT_FLAG_SWIMMING);
 }
 

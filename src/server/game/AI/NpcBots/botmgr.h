@@ -144,6 +144,7 @@ class AC_GAME_API BotMgr
         static void Initialize();
         static void ReloadConfig();
         static void LoadConfig(bool reload = false);
+        static void ResolveConfigConflicts();
 
         //onEvent hooks
         static void OnBotWandererKilled(Creature const* bot, Player* looter);
@@ -211,8 +212,8 @@ class AC_GAME_API BotMgr
         void OnTeleportFar(uint32 mapId, float x, float y, float z, float ori = 0.f);
         void OnOwnerSetGameMaster(bool on);
         void ReviveAllBots();
-        void SendBotCommandState(uint8 state);
-        void SendBotCommandStateRemove(uint8 state);
+        void SendBotCommandState(uint32 state);
+        void SendBotCommandStateRemove(uint32 state);
         void SendBotAwaitState(uint8 state);
         void RecallAllBots(bool teleport = false);
         void RecallBot(Creature* bot);

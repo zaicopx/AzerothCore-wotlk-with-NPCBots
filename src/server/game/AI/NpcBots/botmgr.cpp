@@ -255,8 +255,13 @@ void BotMgr::Initialize()
     LoadConfig();
 
     BotDataMgr::LoadNpcBots();
+    BotDataMgr::LoadWanderMap();
+    BotDataMgr::GenerateWanderingBots();
+    BotDataMgr::CreateWanderingBotsSortedGear();
     BotDataMgr::LoadNpcBotGroupData();
     BotDataMgr::LoadNpcBotGearStorage();
+
+    ResolveConfigConflicts();
 }
 
 void BotMgr::ReloadConfig()
@@ -376,7 +381,7 @@ void BotMgr::LoadConfig(bool reload)
     _mult_dmg_levels.clear();
     std::string mult_dps_by_levels = sConfigMgr->GetStringDefault("NpcBot.Mult.Damage.Levels", "1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0");
     std::vector<std::string_view> toks = Acore::Tokenize(mult_dps_by_levels, ',', false);
-    ASSERT(toks.size() >= BracketsCount, "NpcBot.Mult.Damage.Levels must has at least %u values", BracketsCount);
+    ASSERT(toks.size() >= BracketsCount, "NpcBot.Mult.Damage.Levels must have at least %u values", BracketsCount);
     for (decltype(toks)::size_type i = 0; i != toks.size(); ++i)
     {
         Optional<float> val = Acore::StringTo<float>(toks[i]);
@@ -390,7 +395,7 @@ void BotMgr::LoadConfig(bool reload)
     _botwanderer_pct_level_brackets = {};
     std::string wanderers_by_levels = sConfigMgr->GetStringDefault("NpcBot.WanderingBots.Continents.Levels", "20,15,15,10,10,15,15,0,0");
     std::vector<std::string_view> toks2 = Acore::Tokenize(wanderers_by_levels, ',', false);
-    ASSERT(toks2.size() >= BracketsCount, "NpcBot.WanderingBots.Continents.Levels must has at least %u values", BracketsCount);
+    ASSERT(toks2.size() >= BracketsCount, "NpcBot.WanderingBots.Continents.Levels must have at least %u values", BracketsCount);
     uint32 total_pct = 0;
     for (decltype(toks2)::size_type i = 0; i != toks2.size(); ++i)
     {
@@ -458,8 +463,10 @@ void BotMgr::LoadConfig(bool reload)
     RoundToInterval(_mult_dmg_seawitch, 0.1f, 10.f);
     RoundToInterval(_mult_dmg_cryptlord, 0.1f, 10.f);
     RoundToInterval(_bothk_rate_honor, 0.1f, 10.f);
+}
 
-    //conflicts
+void BotMgr::ResolveConfigConflicts()
+{
     uint8 dpsFlags = /*_tankingTargetIconFlags | _offTankingTargetIconFlags | */_dpsTargetIconFlags | _rangedDpsTargetIconFlags;
     if (uint8 interFlags = (_noDpsTargetIconFlags & dpsFlags))
     {
@@ -470,18 +477,33 @@ void BotMgr::LoadConfig(bool reload)
 
     if (!_enabled_wander_node_maps.empty())
     {
+        uint8 minbotlevel = DEFAULT_MAX_LEVEL;
         uint8 maxbotlevel = 0;
         for (uint32 mapid : _enabled_wander_node_maps)
+        {
+            minbotlevel = std::min<uint8>(minbotlevel, BotDataMgr::GetMinLevelForMapId(mapid));
             maxbotlevel = std::max<uint8>(maxbotlevel, BotDataMgr::GetMaxLevelForMapId(mapid));
+        }
+        for (int8 j = minbotlevel / 10 - 1; j >= 0; --j)
+        {
+            if (_botwanderer_pct_level_brackets[j] > 0)
+            {
+                uint32 pct = _botwanderer_pct_level_brackets[j];
+                _botwanderer_pct_level_brackets[minbotlevel / 10] += pct;
+                _botwanderer_pct_level_brackets[j] = 0;
+                LOG_WARN("server.loading", "NpcBot.WanderingBots.Continents.Levels conflicts with NpcBot.WanderingBots.Continents.Maps: no map for levels {}-{}! Transferring extra {}% to levels {}-{}",
+                    uint32(j ? j * 10 : 1), uint32(j * 10 + 9), pct, std::max<uint32>(minbotlevel / 10 * 10, 1), uint32(minbotlevel / 10 * 10 + 9));
+            }
+        }
         for (uint8 i = maxbotlevel / 10 + 1; i < _botwanderer_pct_level_brackets.size(); ++i)
         {
             if (_botwanderer_pct_level_brackets[i] > 0)
             {
                 uint32 pct = _botwanderer_pct_level_brackets[i];
-                _botwanderer_pct_level_brackets[0] += pct;
+                _botwanderer_pct_level_brackets[maxbotlevel / 10] += pct;
                 _botwanderer_pct_level_brackets[i] = 0;
                 LOG_WARN("server.loading", "NpcBot.WanderingBots.Continents.Levels conflicts with NpcBot.WanderingBots.Continents.Maps: no map for levels {}-{}! Transferring extra {}% to levels {}-{}",
-                    uint32((i ? i * 10 : 1)), uint32(i * 10 + 9), pct, uint32(1), uint32(9));
+                    uint32(i ? i * 10 : 1), uint32(i * 10 + 9), pct, std::max<uint32>(maxbotlevel, 1), uint32(maxbotlevel + 9));
             }
         }
     }
@@ -1078,7 +1100,6 @@ void BotMgr::_reviveBot(Creature* bot, WorldLocation* dest)
     bot->SetLootRecipient(nullptr);
     bot->ResetPlayerDamageReq();
     bot->SetPvP(bot->GetBotOwner()->IsPvP());
-    bot->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
     bot->Motion_Initialize();
     bot->setDeathState(ALIVE);
     //bot->GetBotAI()->Reset();
@@ -1343,7 +1364,7 @@ void BotMgr::CleanupsBeforeBotDelete(ObjectGuid guid, uint8 removetype)
 
     Creature* bot = itr->second;
 
-    ASSERT(bot->GetCreatorGUID() == _owner->GetGUID());
+    ASSERT(bot->GetCreator() && bot->GetCreator()->GetGUID() == _owner->GetGUID());
 
     RemoveBotFromBGQueue(bot);
     if (removetype != BOT_REMOVE_LOGOUT)
@@ -1366,7 +1387,7 @@ void BotMgr::CleanupsBeforeBotDelete(Creature* bot)
     bot->AttackStop();
     bot->CombatStopWithPets(true);
 
-    bot->SetOwnerGUID(ObjectGuid::Empty);
+    //bot->SetOwnerGUID(ObjectGuid::Empty);
     //_owner->m_Controlled.erase(bot);
     bot->SetControlledByPlayer(false);
     //bot->RemoveUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
@@ -1533,13 +1554,12 @@ BotAddResult BotMgr::AddBot(Creature* bot)
 
     _bots[bot->GetGUID()] = bot;
 
-    ASSERT(!bot->GetCreatorGUID());
-    ASSERT(!bot->GetOwnerGUID());
-    bot->SetOwnerGUID(_owner->GetGUID());
+    ASSERT(!bot->GetCreator());
+    //ASSERT(!bot->GetOwnerGUID());
+    //bot->SetOwnerGUID(_owner->GetGUID());
     bot->SetCreator(_owner); //needed in case of FFAPVP
     //_owner->m_Controlled.insert(bot);
     bot->SetControlledByPlayer(true);
-    bot->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
     bot->SetByteValue(UNIT_FIELD_BYTES_2, 1, _owner->GetByteValue(UNIT_FIELD_BYTES_2, 1));
     bot->SetFaction(_owner->GetFaction());
     bot->SetPhaseMask(_owner->GetPhaseMask(), true);
@@ -1852,13 +1872,13 @@ void BotMgr::ReviveAllBots()
         _reviveBot(itr->second);
 }
 
-void BotMgr::SendBotCommandState(uint8 state)
+void BotMgr::SendBotCommandState(uint32 state)
 {
     for (BotMap::const_iterator itr = _bots.begin(); itr != _bots.end(); ++itr)
         itr->second->GetBotAI()->SetBotCommandState(state, true);
 }
 
-void BotMgr::SendBotCommandStateRemove(uint8 state)
+void BotMgr::SendBotCommandStateRemove(uint32 state)
 {
     for (BotMap::const_iterator itr = _bots.begin(); itr != _bots.end(); ++itr)
         itr->second->GetBotAI()->RemoveBotCommandState(state);
