@@ -36,6 +36,7 @@
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "PathGenerator.h"
+#include "PointMovementGenerator.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "TemporarySummon.h"
@@ -980,7 +981,7 @@ bool bot_ai::doCast(Unit* victim, uint32 spellId, TriggerCastFlags flags)
     return true;
 }
 //Follow point calculation
-void bot_ai::_calculatePos(Unit const* followUnit, Position& pos) const
+void bot_ai::_calculatePos(Unit const* followUnit, Position& pos, float* speed/* = nullptr*/) const
 {
     Player const* player = followUnit->ToPlayer();
     uint8 followdist = !player ? BotMgr::GetBotFollowDistDefault() / 2 : player->GetBotMgr()->GetBotFollowDist();
@@ -1074,6 +1075,30 @@ void bot_ai::_calculatePos(Unit const* followUnit, Position& pos) const
     if (me->GetPositionZ() < mpos.GetPositionZ())
         mpos.m_positionZ += 0.5f; //prevent going underground while moving
 
+    if (speed)
+    {
+        const float posdist = bmover->GetDistance(mpos);
+        if (mmover->IsWalking() || HasBotCommandState(BOT_COMMAND_WALK))
+        {
+            const float basewalkspeed = bmover->GetSpeed(MOVE_WALK);
+            *speed = basewalkspeed;
+            if (!HasBotCommandState(BOT_COMMAND_WALK) && posdist > 10.0f && bmover->GetDistance(mmover) > 10.0f)
+                *speed = bmover->GetSpeed(MOVE_RUN);
+            else if (posdist > 7.5f)
+                *speed = basewalkspeed * 1.15f;
+        }
+        else
+        {
+            const float baserunspeed = bmover->GetSpeed(MOVE_RUN);
+            if (posdist > 50.0f)
+                *speed = baserunspeed * 1.75f;
+            else if (posdist > 30.0f)
+                *speed = baserunspeed * 1.5f;
+            else if (posdist > 10.0f)
+                *speed = baserunspeed * 1.25f;
+        }
+    }
+
     pos.Relocate(mpos);
 
     //         TTT
@@ -1090,7 +1115,7 @@ void bot_ai::_calculatePos(Unit const* followUnit, Position& pos) const
 // Movement set
 // Uses MovePoint() for following instead of MoveFollow()
 // This helps bots overcome a bug with fanthom walls on grid borders blocking pathing
-void bot_ai::BotMovement(BotMovementType type, Position const* pos, Unit* target, bool generatePath) const
+void bot_ai::BotMovement(BotMovementType type, Position const* pos, Unit* target, bool generatePath, float speed) const
 {
     Vehicle* veh = me->GetVehicle();
     VehicleSeatEntry const* seat = veh ? veh->GetSeatForPassenger(me) : nullptr;
@@ -1103,10 +1128,10 @@ void bot_ai::BotMovement(BotMovementType type, Position const* pos, Unit* target
     {
         case BOT_MOVE_CHASE:
             ASSERT(target);
-            mover->GetMotionMaster()->MoveChase(target);
+            mover->GetMotionMaster()->MoveChase(target, {}, ChaseAngle(0, float(M_PI / 8.0)));
             break;
         case BOT_MOVE_POINT:
-            mover->GetMotionMaster()->MovePoint(mover->GetMapId(), *pos, generatePath);
+            mover->GetMotionMaster()->Add(new PointMovementGenerator<Creature>(1, pos->m_positionX, pos->m_positionY, pos->m_positionZ, speed, 0.0f, nullptr, generatePath));
             break;
         default:
             LOG_ERROR("scripts", "BotMovement: unhandled bot movement type {}", uint32(type));
@@ -1184,7 +1209,7 @@ void bot_ai::AbortAwaitStateRemoval()
     }
 }
 
-void bot_ai::SetBotCommandState(uint32 st, bool force, Position* newpos)
+void bot_ai::SetBotCommandState(uint32 st, bool force, Position* newpos, float* speed/* = nullptr*/)
 {
     if (!(st & (BOT_COMMAND_UNBIND | BOT_COMMAND_INACTION)))
     {
@@ -1203,10 +1228,11 @@ void bot_ai::SetBotCommandState(uint32 st, bool force, Position* newpos)
         {
             if (!me->IsInMap(master)) return;
             if (CCed(mover, true)/* || master->HasUnitState(UNIT_STATE_FLEEING)*/) return;
+            float myspeed = 0.0f;
             if (!newpos)
             {
                 ASSERT(!IAmFree());
-                _calculatePos(master, movepos);
+                _calculatePos(master, movepos, &myspeed);
             }
             else
             {
@@ -1218,7 +1244,7 @@ void bot_ai::SetBotCommandState(uint32 st, bool force, Position* newpos)
                 me->SetStandState(UNIT_STAND_STATE_STAND);
             if (IsShootingWand())
                 me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-            BotMovement(BOT_MOVE_POINT, &movepos);
+            BotMovement(BOT_MOVE_POINT, &movepos, nullptr, true, speed ? *speed : myspeed);
             //me->GetMotionMaster()->MovePoint(master->GetMapId(), pos);
             //me->GetMotionMaster()->MoveFollow(master, mydist, angle);
             RemoveBotCommandState(BOT_COMMAND_STAY | BOT_COMMAND_FULLSTOP | BOT_COMMAND_ATTACK | BOT_COMMAND_COMBATRESET);
@@ -7839,7 +7865,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         {
                             std::ostringstream msg;
                             msg << obj->GetGOInfo()->name << " (" << LocalizedNpcText(player, BOT_TEXT_DISTANCE_SHORT) << " = " << player->GetExactDist(obj) << ")";
-                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, msg.str().c_str(), GOSSIP_SENDER_CLASS_ACTION, GOSSIP_ACTION_INFO_DEF + ++count);
+                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, msg.str().c_str(), GOSSIP_SENDER_CLASS_ACTION1, GOSSIP_ACTION_INFO_DEF + ++count);
                         }
 
                         //2 Inventory
@@ -7863,7 +7889,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                                     {
                                         std::ostringstream name;
                                         _AddItemLink(player, item, name, false);
-                                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, name.str().c_str(), GOSSIP_SENDER_CLASS_ACTION, GOSSIP_ACTION_INFO_DEF + item->GetGUID().GetCounter());
+                                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, name.str().c_str(), GOSSIP_SENDER_CLASS_ACTION1, GOSSIP_ACTION_INFO_DEF + item->GetGUID().GetCounter());
                                         break;
                                     }
                                 }
@@ -7890,7 +7916,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                                             {
                                                 std::ostringstream name;
                                                 _AddItemLink(player, item, name, false);
-                                                AddGossipItemFor(player, GOSSIP_ICON_CHAT, name.str().c_str(), GOSSIP_SENDER_CLASS_ACTION, GOSSIP_ACTION_INFO_DEF + item->GetGUID().GetCounter());
+                                                AddGossipItemFor(player, GOSSIP_ICON_CHAT, name.str().c_str(), GOSSIP_SENDER_CLASS_ACTION1, GOSSIP_ACTION_INFO_DEF + item->GetGUID().GetCounter());
                                                 ++count;
                                                 break;
                                             }
@@ -8213,7 +8239,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
             }
             break;
         }
-        case GOSSIP_SENDER_CLASS_ACTION:
+        case GOSSIP_SENDER_CLASS_ACTION1:
         {
             switch (_botclass)
             {
@@ -13951,7 +13977,7 @@ void bot_ai::ApplyRacials()
                 InitSpellMap(RACIAL_WARSTOMP, true, false);
             break;
         case RACE_GNOME:
-            RefreshAura(20552); //Arcane Resistance
+            RefreshAura(20592); //Arcane Resistance
             RefreshAura(20591); //Expansive Mind
             if (firstspawn)
                 InitSpellMap(RACIAL_ESCAPE_ARTIST, true, false);
@@ -14332,20 +14358,18 @@ void bot_ai::InitEquips()
         gss << "bot_ai::InitEquips(): Wanderer bot " << me->GetName() << " id " << me->GetEntry() << ' ' << "level " << uint32(lvl) << " generated gear:";
         for (uint8 i = BOT_SLOT_MAINHAND; i < BOT_INVENTORY_SIZE; ++i)
         {
-            if (i == BOT_SLOT_OFFHAND && !_canUseOffHand())
+            if (i == BOT_SLOT_OFFHAND && (!_canUseOffHand() || (lvl < 10 && IsCastingClass(_botclass))))
                 continue;
-            if (i == BOT_SLOT_SHOULDERS && lvl < 16)
+            if ((i == BOT_SLOT_FINGER1 || i == BOT_SLOT_FINGER2 || i == BOT_SLOT_NECK || i == BOT_SLOT_SHOULDERS) && lvl < 20)
                 continue;
-            if ((i == BOT_SLOT_FINGER1 || i == BOT_SLOT_FINGER2) && lvl < 19)
-                continue;
-            if ((i == BOT_SLOT_HEAD || i == BOT_SLOT_TRINKET1 || i == BOT_SLOT_TRINKET2) && lvl < 29)
+            if ((i == BOT_SLOT_TRINKET1 || i == BOT_SLOT_TRINKET2 || i == BOT_SLOT_HEAD) && lvl < 30)
                 continue;
 
             Item* item = BotDataMgr::GenerateWanderingBotItem(i, _botclass, lvl, [this, lslot = i](ItemTemplate const* proto) {
                 if (!_canEquip(proto, lslot, true))
                     return false;
 
-                switch (_spec)
+                switch (GetSpec())
                 {
                     case BOT_SPEC_WARRIOR_ARMS:
                         switch (lslot)
@@ -14464,7 +14488,7 @@ void bot_ai::InitEquips()
             {
                 if (i <= BOT_SLOT_RANGED && einfo->ItemEntry[i] != 0)
                 {
-                    LOG_ERROR("npcbots", "Wanderer bot {} id {} level {} can't generate req gear in slot {}, generating standard item!",
+                    LOG_INFO("npcbots", "Wanderer bot {} id {} level {} can't generate req gear in slot {}, generating standard item!",
                         me->GetName().c_str(), me->GetEntry(), uint32(me->GetLevel()), uint32(i));
 
                     item = Item::CreateItem(einfo->ItemEntry[i], 1);
@@ -16721,9 +16745,6 @@ bool bot_ai::GlobalUpdate(uint32 diff)
                 AfterBotOwnerEnterVehicle();
             }
 
-            //walk mode check
-            if (HasBotCommandState(BOT_COMMAND_WALK) != me->IsWalking())
-                me->SetWalk(!me->IsWalking());
             //gossip availability check
             if (HasBotCommandState(BOT_COMMAND_NOGOSSIP) && me->HasNpcFlag(UNIT_NPC_FLAG_GOSSIP))
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
@@ -17288,7 +17309,8 @@ bool bot_ai::GlobalUpdate(uint32 diff)
 
             if (mmover)
             {
-                _calculatePos(mmover, movepos);
+                float speed = 0.0f;
+                _calculatePos(mmover, movepos, &speed);
                 float maxdist = std::max<float>((mmover->IsPlayer() ? mmover->ToPlayer()->GetBotMgr()->GetBotFollowDist() : BotMgr::GetBotFollowDistDefault() / 2) *
                     ((mmover->m_movementInfo.GetMovementFlags() & MOVEMENTFLAG_FORWARD) ? 0.125f : mmover->isMoving() ? 0.03125f : 0.25f), 3.f);
                 Position destPos;
@@ -17298,7 +17320,7 @@ bool bot_ai::GlobalUpdate(uint32 diff)
                     destPos = me->GetPosition();
 
                 if (!HasBotCommandState(BOT_COMMAND_FOLLOW) || destPos.GetExactDist(&movepos) > maxdist)
-                    SetBotCommandState(BOT_COMMAND_FOLLOW, true, &movepos);
+                    SetBotCommandState(BOT_COMMAND_FOLLOW, true, &movepos, &speed);
             }
             else
                 RemoveBotCommandState(BOT_COMMAND_FOLLOW);
