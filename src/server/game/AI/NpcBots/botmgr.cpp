@@ -931,8 +931,6 @@ void BotMgr::Update(uint32 diff)
                     {
                         if (!ai->IAmFree())
                         {
-                            uint32 newOwner = 0;
-                            BotDataMgr::UpdateNpcBotData(me->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
                             bot->GetBotAI()->ResetBotAI(BOTAI_RESET_LFG);
                             RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
                         }
@@ -943,8 +941,6 @@ void BotMgr::Update(uint32 diff)
                 {
                     if (!ai->IAmFree())
                     {
-                        uint32 newOwner = 0;
-                        BotDataMgr::UpdateNpcBotData(me->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
                         bot->GetBotAI()->ResetBotAI(BOTAI_RESET_LFG);
                         RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
                     }
