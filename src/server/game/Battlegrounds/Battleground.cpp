@@ -1372,8 +1372,7 @@ void Battleground::AddBot(Creature* bot)
     AddOrSetBotToCorrectBgGroup(bot, teamId);
 
     bot->GetBotAI()->SetBG(this);
-    if (GetStatus() != STATUS_IN_PROGRESS && bot->IsWandererBot())
-        bot->GetBotAI()->SetBotCommandState(BOT_COMMAND_STAY);
+    bot->GetBotAI()->OnBotEnterBattleground();
 }
 //end npcbot
 
@@ -1416,7 +1415,7 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, TeamId teamId)
 //end npcbot
 void Battleground::AddOrSetBotToCorrectBgGroup(Creature* bot, TeamId teamId)
 {
-    ObjectGuid playerGuid = bot->GetGUID();
+    ObjectGuid botGuid = bot->GetGUID();
     Group* group = GetBgRaid(teamId);
     if (!group)                                      // first player joined
     {
@@ -1427,7 +1426,12 @@ void Battleground::AddOrSetBotToCorrectBgGroup(Creature* bot, TeamId teamId)
     }
     else
     {
-        if (!group->IsMember(playerGuid))
+        if (group->IsMember(botGuid))
+        {
+            uint8 subgroup = group->GetMemberGroup(botGuid);
+            bot->SetBattlegroundOrBattlefieldRaid(group, subgroup);
+        }
+        else
             group->AddMember(bot);
     }
 }

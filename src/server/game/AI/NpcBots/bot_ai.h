@@ -5,6 +5,7 @@
 
 #include "CreatureAI.h"
 #include "EventProcessor.h"
+#include "GroupReference.h"
 //#include "ItemDefines.h"
 #include "Position.h"
 
@@ -168,15 +169,25 @@ class bot_ai : public CreatureAI
         WanderNode const* GetNextTravelNode(Position const* from, bool random) const;
         WanderNode const* GetNextBGTravelNode() const;
         void OnWanderNodeReached();
+        void OnBotEnterBattleground();
 
-        Group* GetGroup() const { return _group; }
-        void SetGroup(Group* group) { _group = group; }
+        Group* GetGroup() { return _group.getTarget(); }
+        Group const* GetGroup() const { return const_cast<Group const*>(_group.getTarget()); }
+        void SetGroup(Group* group, int8 subgroup);
+        uint8 GetSubGroup() const { return _group.getSubGroup(); }
+        void SetSubGroup(uint8 subgroup) { _group.setSubGroup(subgroup); }
         void SetGroupUpdateFlag(uint32 flag) { _groupUpdateMask |= flag; }
         uint32 GetGroupUpdateFlag() const { return _groupUpdateMask; }
         uint64 GetAuraUpdateMaskForRaid() const { return _auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { _auraRaidUpdateMask |= (uint64(1) << slot); }
         void ResetAuraUpdateMaskForRaid() { _auraRaidUpdateMask = 0; }
         void SendUpdateToOutOfRangeBotGroupMembers();
+        void SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup);
+        void RemoveFromBattlegroundOrBattlefieldRaid();
+        Group* GetOriginalGroup() const { return _originalGroup.getTarget(); }
+        void SetOriginalGroup(Group* group, int8 subgroup);
+        uint8 GetOriginalSubGroup() const { return _originalGroup.getSubGroup(); }
+        void SetOriginalSubGroup(uint8 subgroup) { _originalGroup.setSubGroup(subgroup); }
 
         Battleground* GetBG() const { return _bg; }
         void SetBG(Battleground* bg) { _bg = bg; }
@@ -317,6 +328,7 @@ class bot_ai : public CreatureAI
         bool IsPointedTarget(Unit const* target, uint8 targetFlags) const;
         bool IsPointedHealTarget(Unit const* target) const;
         bool IsPointedTankingTarget(Unit const* target) const;
+        bool IsPointedOffTankingTarget(Unit const* target) const;
         bool IsPointedDPSTarget(Unit const* target) const;
         bool IsPointedRangedDPSTarget(Unit const* target) const;
         bool IsPointedNoDPSTarget(Unit const* target) const;
@@ -694,7 +706,8 @@ class bot_ai : public CreatureAI
 
         uint32 _groupUpdateMask;
         uint64 _auraRaidUpdateMask;
-        Group* _group;
+        GroupBotReference _group;
+        GroupBotReference _originalGroup;
         Battleground* _bg;
 
         float _energyFraction;
