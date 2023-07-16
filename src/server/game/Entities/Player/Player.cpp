@@ -2375,14 +2375,6 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
         {
             if (player->HaveBot())
             {
-                //uint8 players = 0;
-                //Group::MemberSlotList const& members = group->GetMemberSlots();
-                //for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
-                //{
-                //    if (Player* pl = ObjectAccessor::FindPlayer(itr->guid))
-                //        ++players;
-                //}
-
                 //remove npcbots and set up new group if needed
                 player->GetBotMgr()->RemoveAllBotsFromGroup();
                 group = player->GetGroup();
@@ -2406,7 +2398,6 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
             }
         }
         //npcbot - bot is being removed from group - find master and remove bot through botmap
-        //else if (Creature* bot = ObjectAccessor::GetObjectInOrOutOfWorld(guid, (Creature*)NULL))
         else if (guid.IsCreature())
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
@@ -2423,9 +2414,6 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
                     }
                 }
             }
-            //ASSERT(!bot->IsFreeBot());
-            //bot->GetBotOwner()->GetBotMgr()->RemoveBotFromGroup(bot, false);
-            //return;
         }
 
         group->RemoveMember(guid, method, kicker, reason);
@@ -5969,7 +5957,7 @@ float Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
 }
 
 // Calculates how many reputation points player gains in victim's enemy factions
-void Player::RewardReputation(Unit* victim, float rate)
+void Player::RewardReputation(Unit* victim)
 {
     if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
         return;
@@ -5998,7 +5986,6 @@ void Player::RewardReputation(Unit* victim, float rate)
     if (Rep->RepFaction1 && (!Rep->TeamDependent || teamId == TEAM_ALLIANCE))
     {
         float donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->GetLevel(), static_cast<float>(Rep->RepValue1), ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
-        donerep1 *= rate;
 
         FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
         if (factionEntry1)
@@ -6010,7 +5997,6 @@ void Player::RewardReputation(Unit* victim, float rate)
     if (Rep->RepFaction2 && (!Rep->TeamDependent || teamId == TEAM_HORDE))
     {
         float donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->GetLevel(), static_cast<float>(Rep->RepValue2), ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
-        donerep2 *= rate;
 
         FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
         if (factionEntry2)
@@ -13191,22 +13177,6 @@ void Player::SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup)
         //ABORT(); // pussywizard: origanal group can never be bf/bg group
     }
 
-    //npcbot: add bots to new group
-    if (HaveBot() && GetGroup())
-    {
-        BotMap const* map = GetBotMgr()->GetBotMap();
-        for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
-        {
-            Creature* bot = itr->second;
-            if (!bot || !GetGroup()->IsMember(bot->GetGUID()))
-                continue;
-
-            if (!group->IsMember(itr->first))
-                group->AddMember(bot);
-        }
-    }
-    //end npcbot
-
     SetOriginalGroup(GetGroup(), GetSubGroup());
 
     m_group.unlink();
@@ -13639,7 +13609,10 @@ LootItem* Player::StoreLootItem(uint8 lootSlot, Loot* loot, InventoryResult& msg
     LootItem* item = loot->LootItemInSlot(lootSlot, this, &qitem, &ffaitem, &conditem);
     if (!item || item->is_looted)
     {
-        SendEquipError(EQUIP_ERR_ALREADY_LOOTED, nullptr, nullptr);
+        if (!sScriptMgr->CanSendErrorAlreadyLooted(this))
+        {
+            SendEquipError(EQUIP_ERR_ALREADY_LOOTED, nullptr, nullptr);
+        }
         return nullptr;
     }
 
