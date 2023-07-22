@@ -437,7 +437,7 @@ struct boss_cthun : public BossAI
     void ScheduleTasks() override
     {
         scheduler.Schedule(13800ms, [this](TaskContext context)
-        {
+        /* {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NotInStomachSelector()))
             {
                 target->CastSpell(target, SPELL_MOUTH_TENTACLE, true);
@@ -455,7 +455,7 @@ struct boss_cthun : public BossAI
             }
 
             context.Repeat();
-        }).Schedule(30s, [this](TaskContext context)
+        }).Schedule(30s, [this](TaskContext context)*/
         {
             if (Creature* eye = instance->GetCreature(DATA_EYE_OF_CTHUN))
             {
