@@ -1597,11 +1597,32 @@ void Creature::SelectLevel(bool changelevel)
     else
         healthmod = _GetHealthMod(rank);
 
-    if (GetMapId() == 530)
+    MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+    if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsNonRaidDungeon())
+        healthmod *= 2;
+
+    if (mapEntry->Expansion() == CONTENT_61_70 && GetMap()->IsNonRaidDungeon())
         healthmod *= 1.5;
 
-    if (GetMapId() == 571)
-        healthmod *= 2.0;
+    if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() >= 40)
+        healthmod *= 1.15;
+
+    if (mapEntry->Expansion() == CONTENT_61_70)
+        healthmod *= 1.33;
+
+    if (mapEntry->Expansion() == CONTENT_71_80)
+        healthmod *= 1.5;
+
+    if (mapEntry->Expansion() == CONTENT_61_70)
+        healthmod *= 1.33;
+
+    //TBC Bosses Nerf
+    if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+        healthmod *= 0.88;
+
+    //Wotlk Bosses Nerf
+    if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+        healthmod *= 0.75;
 
     uint32 basehp = std::max<uint32>(1, stats->GenerateHealth(cInfo));
     uint32 health = uint32(basehp * healthmod);
@@ -1866,11 +1887,21 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
             else
                 curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
 
-            if (GetMapId() == 530)
+            MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+            if (mapEntry->Expansion() == CONTENT_1_60 && map->IsNonRaidDungeon())
+                curhealth *= 2;
+
+            if (mapEntry->Expansion() == CONTENT_61_70 && map->IsNonRaidDungeon())
                 curhealth *= 1.5;
 
-            if (GetMapId() == 571)
-                curhealth *= 2.0;
+            if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() >= 40)
+                curhealth *= 1.15;
+
+            if (mapEntry->Expansion() == CONTENT_61_70)
+                curhealth *= 1.33;
+
+            if (mapEntry->Expansion() == CONTENT_71_80)
+                curhealth *= 1.5;
 
             if (curhealth < 1)
                 curhealth = 1;
@@ -4005,14 +4036,21 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
             else
                 curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
 
-            if ((GetMapId() == 0 || GetMapId() == 1) && GetLevel() >= 40)
-                curhealth *= 1.25;
+            MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+            if (mapEntry->Expansion() == CONTENT_1_60 && map->IsNonRaidDungeon())
+                curhealth *= 2;
 
-            if (GetMapId() == 530)
+            if (mapEntry->Expansion() == CONTENT_61_70 && map->IsNonRaidDungeon())
                 curhealth *= 1.5;
 
-            if (GetMapId() == 571)
-                curhealth *= 2.0;
+            if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() >= 40)
+                curhealth *= 1.15;
+
+            if (mapEntry->Expansion() == CONTENT_61_70)
+                curhealth *= 1.33;
+
+            if (mapEntry->Expansion() == CONTENT_71_80)
+                curhealth *= 1.5;
 
             if (curhealth < 1)
                 curhealth = 1;
