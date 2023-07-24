@@ -1615,11 +1615,11 @@ void Creature::SelectLevel(bool changelevel)
 
     //TBC Bosses Nerf
     if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-        healthmod *= 0.88;
+        healthmod *= 0.7;
 
     //Wotlk Bosses Nerf
     if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-        healthmod *= 0.75;
+        healthmod *= 0.5;
 
     uint32 basehp = std::max<uint32>(1, stats->GenerateHealth(cInfo));
     uint32 health = uint32(basehp * healthmod);
@@ -1902,11 +1902,11 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
 
             //TBC Bosses Nerf
             if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-                curhealth *= 0.88;
+                curhealth *= 0.7;
 
             //Wotlk Bosses Nerf
             if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-                curhealth *= 0.75;
+                curhealth *= 0.5;
 
             if (curhealth < 1)
                 curhealth = 1;
@@ -4059,11 +4059,11 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
 
             //TBC Bosses Nerf
             if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-                curhealth *= 0.88;
+                curhealth *= 0.7;
 
             //Wotlk Bosses Nerf
             if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-                curhealth *= 0.75;
+                curhealth *= 0.5;
 
             if (curhealth < 1)
                 curhealth = 1;
