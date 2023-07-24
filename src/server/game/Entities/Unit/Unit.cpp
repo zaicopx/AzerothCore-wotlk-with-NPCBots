@@ -76,6 +76,7 @@
 //npcbot
 #include "botdatamgr.h"
 #include "botmgr.h"
+#include <bot_ai.h>
 //end npcbot
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -1463,6 +1464,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     if (GetMap()->IsBattlegroundOrArena() && ToCreature()->GetLevel() < 80)
                         damage *= 0.75;
 
+                    //Reduce pet Damage
+                    if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
+                        damage *= 0.15;
+
                     damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModSpell());
                 }
                 //End NpcBot
@@ -1579,6 +1584,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
                     if (GetMap()->IsBattlegroundOrArena() && ToCreature()->GetLevel() < 80)
                         damage *= 0.75;
+
+                    //Reduce pet Damage
+                    if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
+                        damage *= 0.15;
 
                     damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModSpell());
                 }
@@ -1792,6 +1801,10 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
 
             if (GetMap()->IsBattlegroundOrArena() && ToCreature()->GetLevel() < 80)
                 damage *= 0.75;
+
+            //Reduce pet Damage
+            if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
+                damage *= 0.15;
 
             damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModPhysical());
         }
