@@ -1040,7 +1040,7 @@ public:
                 crok->AI()->AttackStart(me);
             }
             events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9s);
-            events.ScheduleEvent(EVENT_IMPALING_SPEAR, 15s, 20s);
+            //events.ScheduleEvent(EVENT_IMPALING_SPEAR, 15s, 20s);
         }
 
         void KilledUnit(Unit* victim) override

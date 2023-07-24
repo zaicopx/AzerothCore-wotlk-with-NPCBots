@@ -192,7 +192,7 @@ public:
             me->CastSpell(me, SPELL_SHROUD_OF_SORROW, true);
             //me->CastSpell(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
             events.Reset();
-            events.ScheduleEvent(EVENT_BERSERK, 330s);
+            events.ScheduleEvent(EVENT_BERSERK, 520s);
             events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15s);
             //events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms);
             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 10s, 12s);

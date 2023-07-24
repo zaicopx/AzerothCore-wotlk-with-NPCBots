@@ -243,9 +243,6 @@ public:
     LastPhaseIceTombTargetSelector(Creature* source) : _source(source) { }
     bool operator()(Unit const* target) const
     {
-        if (!target)
-            return false;
-
         if (target->GetExactDist(_source) > 80.0f)
             return false;
 
@@ -336,7 +333,7 @@ public:
             events.ScheduleEvent(EVENT_TAIL_SMASH, 20s, EVENT_GROUP_LAND_PHASE);
             events.ScheduleEvent(EVENT_FROST_BREATH, 8s, 12s, EVENT_GROUP_LAND_PHASE);
             events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, 9s, 14s, EVENT_GROUP_LAND_PHASE);
-            events.ScheduleEvent(EVENT_ICY_GRIP, 33s + 500ms, EVENT_GROUP_LAND_PHASE);
+            //events.ScheduleEvent(EVENT_ICY_GRIP, 33s + 500ms, EVENT_GROUP_LAND_PHASE);
 
             me->setActive(true);
             me->SetInCombatWithZone();
@@ -557,8 +554,8 @@ public:
                     Talk(EMOTE_WARN_BLISTERING_COLD);
                     me->CastSpell(me, SPELL_BLISTERING_COLD, false);
                     events.ScheduleEvent(EVENT_BLISTERING_COLD_YELL, 5s, EVENT_GROUP_LAND_PHASE);
-                    if (_isThirdPhase)
-                        events.RescheduleEvent(EVENT_ICY_GRIP, 65s, 70s);
+                    //if (_isThirdPhase)
+                        //events.RescheduleEvent(EVENT_ICY_GRIP, 65s, 70s);
                     break;
                 case EVENT_BLISTERING_COLD_YELL:
                     Talk(SAY_BLISTERING_COLD);
@@ -586,7 +583,7 @@ public:
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 20.0f, 10.0f);
                     events.CancelEventGroup(EVENT_GROUP_LAND_PHASE);
-                    events.ScheduleEvent(EVENT_AIR_PHASE, 110s);
+                    events.ScheduleEvent(EVENT_AIR_PHASE, 150s);
                     break;
                 case EVENT_AIR_MOVEMENT:
                     me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE, SindragosaAirPos);
@@ -633,7 +630,7 @@ public:
                     events.ScheduleEvent(EVENT_TAIL_SMASH, 19s, 23s, EVENT_GROUP_LAND_PHASE);
                     events.ScheduleEvent(EVENT_FROST_BREATH, 7s, 10s, EVENT_GROUP_LAND_PHASE);
                     events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, 12s, 17s, EVENT_GROUP_LAND_PHASE);
-                    events.ScheduleEvent(EVENT_ICY_GRIP, 35s, 40s, EVENT_GROUP_LAND_PHASE);
+                    //events.ScheduleEvent(EVENT_ICY_GRIP, 35s, 40s, EVENT_GROUP_LAND_PHASE);
                     me->GetMotionMaster()->MoveLand(POINT_LAND_GROUND, SindragosaLandPos, 10.0f);
                     break;
                 case EVENT_THIRD_PHASE_CHECK:
@@ -641,13 +638,14 @@ public:
                     {
                         Talk(SAY_PHASE_2);
                         events.ScheduleEvent(EVENT_ICE_TOMB, 7s, 10s);
-                        events.RescheduleEvent(EVENT_ICY_GRIP, 35s, 40s, EVENT_GROUP_LAND_PHASE);
+                        //events.RescheduleEvent(EVENT_ICY_GRIP, 35s, 40s, EVENT_GROUP_LAND_PHASE);
                         me->CastSpell(me, SPELL_MYSTIC_BUFFET, true);
                     }
                     else
                         events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5s);
                     break;
                 case EVENT_ICE_TOMB:
+                    /*
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, LastPhaseIceTombTargetSelector(me)))
                     {
                         Talk(EMOTE_WARN_FROZEN_ORB, target);
@@ -657,6 +655,7 @@ public:
                             if (events.GetTimer() > evTime || evTime - events.GetTimer() < 8000)
                                 events.RescheduleEvent(EVENT_ICY_GRIP, 8s, EVENT_GROUP_LAND_PHASE);
                     }
+                    */
                     events.ScheduleEvent(EVENT_ICE_TOMB, 18s, 22s);
                     break;
                 default:
@@ -2014,18 +2013,18 @@ public:
 void AddSC_boss_sindragosa()
 {
     new boss_sindragosa();
-    new npc_ice_tomb();
+    //new npc_ice_tomb();
     new spell_sindragosa_s_fury();
     new spell_sindragosa_unchained_magic();
     new spell_sindragosa_permeating_chill();
     new spell_sindragosa_instability();
     new spell_sindragosa_icy_grip();
     new spell_sindragosa_icy_grip_jump();
-    new spell_sindragosa_ice_tomb_filter();
-    new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb", SPELL_ICE_TOMB_DUMMY);
-    new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb_dummy", SPELL_FROST_BEACON);
+    //new spell_sindragosa_ice_tomb_filter();
+    //new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb", SPELL_ICE_TOMB_DUMMY);
+    //new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb_dummy", SPELL_FROST_BEACON);
     new spell_sindragosa_frost_beacon();
-    new spell_sindragosa_ice_tomb();
+    //new spell_sindragosa_ice_tomb();
     new spell_sindragosa_mystic_buffet();
     new spell_sindragosa_soul_preservation();
     new achievement_all_you_can_eat();

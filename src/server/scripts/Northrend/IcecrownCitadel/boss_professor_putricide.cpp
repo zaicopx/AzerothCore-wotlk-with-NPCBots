@@ -301,7 +301,7 @@ public:
             bEnteredCombat = true;
             me->CastSpell(me, SPELL_OOZE_TANK_PROTECTION, true);
             events.Reset();
-            events.ScheduleEvent(EVENT_BERSERK, 10min);
+            events.ScheduleEvent(EVENT_BERSERK, 14min);
             events.ScheduleEvent(EVENT_SLIME_PUDDLE, 10s, EVENT_GROUP_ABILITIES);
             events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, 30s, 35s, EVENT_GROUP_ABILITIES);
             if (IsHeroic())
