@@ -4057,13 +4057,21 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
             if (mapEntry->Expansion() == CONTENT_71_80)
                 curhealth *= 1.5;
 
-            //TBC Bosses Nerf
-            if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-                curhealth *= 0.7;
+            //TBC Raid Trash Nerf
+            if (mapEntry->Expansion() == CONTENT_61_70 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+                curhealth *= 0.825;
 
-            //Wotlk Bosses Nerf
+            //Wotlk Raid Trash Nerf
+            if (mapEntry->Expansion() == CONTENT_71_80 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+                curhealth *= 0.75;
+
+            //TBC Raid Bosses Nerf
+            if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+                curhealth *= 0.6;
+
+            //Wotlk Raid Bosses Nerf
             if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
-                curhealth *= 0.5;
+                curhealth *= 0.4;
 
             if (curhealth < 1)
                 curhealth = 1;
