@@ -3634,7 +3634,7 @@ public:
                 events.Reset();
                 events.ScheduleEvent(EVENT_CHECK_FIGHT, 1s);
                 instance->SetData(DATA_PUTRICIDE_TRAP_STATE, IN_PROGRESS);
-                me->CastSpell(me, SPELL_GIANT_INSECT_SWARM, true);
+                //me->CastSpell(me, SPELL_GIANT_INSECT_SWARM, true);
 
                 for (uint8 i = 0; i < 60; ++i)
                     events.ScheduleEvent(EVENT_GAUNTLET_PHASE1, i * 1000);
