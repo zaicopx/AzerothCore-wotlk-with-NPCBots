@@ -1807,7 +1807,6 @@ namespace lfg
                             _dungeonfinderbots.insert(newBot);
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK);
-                            ai->ApplyBotRandomEquip();
                             allBots.erase(bot);
                             botsNeeded--;
                             //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
@@ -1833,7 +1832,6 @@ namespace lfg
                             _dungeonfinderbots.insert(newBot);
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_HEAL);
-                            ai->ApplyBotRandomEquip();
                             allBots.erase(bot);
                             botsNeeded--;
                             //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as heal!", bot->GetName());
@@ -1862,7 +1860,6 @@ namespace lfg
                             _dungeonfinderbots.insert(newBot);
                             //Set bot talents and erase it from list
                             mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_DPS);
-                            ai->ApplyBotRandomEquip();
                             allBots.erase(bot);
                             botsNeeded--;
                             //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as dps!", bot->GetName());

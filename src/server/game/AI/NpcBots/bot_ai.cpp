@@ -12185,7 +12185,7 @@ bool bot_ai::_unequip(uint8 slot, ObjectGuid receiver)
                 item->FSetState(ITEM_CHANGED);
                 item->SaveToDB(trans);
                 //MailDraft(istr.str(), "").AddItem(item).SendMailTo(trans, MailReceiver(master), MailSender(me));
-                master->DestroyItemCount(item->GetEntry(), 1, true);
+                //master->DestroyItemCount(item->GetEntry(), 1, true);
                 CharacterDatabase.CommitTransaction(trans);
 
                 //master->SendEquipError(msg, nullptr, nullptr, itemId);
@@ -12195,7 +12195,7 @@ bool bot_ai::_unequip(uint8 slot, ObjectGuid receiver)
             {
                 //Item* pItem = master->StoreItem(dest, item, true);
                 //master->SendNewItem(pItem, 1, true, false, false);
-                master->DestroyItemCount(item->GetEntry(), 1, true);
+                //master->DestroyItemCount(item->GetEntry(), 1, true);
             }
         }
         else
@@ -17969,6 +17969,7 @@ bool bot_ai::FinishTeleport(bool reset)
         if (InstanceScript* iscr = master->GetInstanceScript())
             iscr->OnNPCBotEnter(me);
 
+        ApplyBotRandomEquip();
         SetIsDuringTeleport(false);
     });
 
