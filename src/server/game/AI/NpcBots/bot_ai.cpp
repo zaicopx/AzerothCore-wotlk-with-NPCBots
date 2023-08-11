@@ -6825,6 +6825,9 @@ void bot_ai::_OnHealthUpdate() const
 
     if (me->GetMap()->IsBattlegroundOrArena() && me->GetLevel() < 80)
         m_totalhp *= 0.75;
+    //Tank Bonus
+    if (HasTankSpec())
+        m_totalhp *= 1.15;
 
     //hp bonuses
     uint8 bonuspct = 0;
@@ -13957,6 +13960,21 @@ uint32 bot_ai::DefaultRolesForClass(uint8 m_class, uint8 spec)
     }
 
     return roleMask;
+}
+
+bool bot_ai::HasTankSpec(Unit const* unit) const
+{
+    if (Creature const* bot = unit->ToCreature())
+    {
+        if (bot_ai const* ai = unit->ToCreature()->GetBotAI())
+        {
+            uint8 botSpec = ai->GetSpec();
+            if ((bot->GetBotAI()->IsTank() || bot->GetBotAI()->IsOffTank()) && (botSpec == BOT_SPEC_WARRIOR_PROTECTION || botSpec == BOT_SPEC_PALADIN_PROTECTION || botSpec == BOT_SPEC_DK_FROST || botSpec == BOT_SPEC_DK_BLOOD || botSpec == BOT_SPEC_DK_UNHOLY || botSpec == BOT_SPEC_DRUID_FERAL))
+                return true;
+        }
+    }
+
+    return false;
 }
 
 bool bot_ai::IsTank(Unit const* unit) const
