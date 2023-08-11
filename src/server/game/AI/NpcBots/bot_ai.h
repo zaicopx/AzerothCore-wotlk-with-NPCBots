@@ -156,7 +156,6 @@ class bot_ai : public CreatureAI
         static uint32 GetRoleString(uint32 role);
         void ToggleRole(uint32 role, bool force);
         static uint32 DefaultRolesForClass(uint8 m_class, uint8 spec);
-        bool HasTankSpec(Unit const* unit = nullptr) const;
         bool IsTank(Unit const* unit = nullptr) const;
         bool IsOffTank(Unit const* unit = nullptr) const;
 
