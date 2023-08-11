@@ -4072,6 +4072,7 @@ public:
         if (cre && cre->IsNPCBot() && !cre->IsFreeBot())
         {
             master = cre->GetBotOwner();
+            cre->GetBotAI()->UnEquipAll(master->GetGUID());
             master->GetBotMgr()->RemoveBot(cre->GetGUID(), BOT_REMOVE_DISMISS);
             if (master->GetBotMgr()->GetBot(cre->GetGUID()) == nullptr)
             {

@@ -148,6 +148,7 @@ class bot_ai : public CreatureAI
         void ApplyBotEffectMods(SpellInfo const* spellInfo, uint8 effIndex, float& value) const;
         void ApplyBotThreatMods(SpellInfo const* spellInfo, float& threat) const;
         void ApplyBotEffectValueMultiplierMods(SpellInfo const* spellInfo, SpellEffIndex effIndex, float& multiplier) const;
+        void ApplyBotRandomEquip();
         virtual uint8 GetBotStance() const;
         uint32 GetBotRoles() const { return _roleMask; }
         bool HasRole(uint32 role) const { return _roleMask & role; }
@@ -589,7 +590,7 @@ class bot_ai : public CreatureAI
         void ApplyRacials();
         void InitRoles();
         void InitSpec();
-        void InitEquips();
+        void InitEquips(bool randEquip);
         void InitOwner();
         void InitFaction();
         void InitRace();

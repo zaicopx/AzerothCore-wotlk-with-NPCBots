@@ -6768,63 +6768,6 @@ void bot_ai::_OnHealthUpdate() const
         m_totalhp *= BotMgr::GetBotHPRaidMod();
     //TC_LOG_ERROR("entities.player", "total base health: %u", m_totalhp);
 
-    //Level multipliers
-    if (!BotMgr::IsWanderingWorldBot(me))
-    {
-        if (me->GetMap()->IsDungeon() || me->GetMap()->IsRaid())
-        {
-            if (mylevel >= 20)
-                m_totalhp *= 1.15;
-
-            if (mylevel >= 30)
-                m_totalhp *= 1.15;
-
-            if (mylevel >= 40)
-                m_totalhp *= 1.15;
-
-            if (mylevel >= 50)
-                m_totalhp *= 1.15;
-
-            if (mylevel >= 60)
-                m_totalhp *= 1.33;
-
-            if (mylevel >= 70)
-                m_totalhp *= 1.33;
-
-            if (mylevel >= 80)
-                m_totalhp *= 1.33;
-        }
-
-        if (!me->GetMap()->IsDungeon() && !me->GetMap()->IsRaid() && !me->GetMap()->IsBattlegroundOrArena())
-        {
-            if (mylevel >= 20)
-                m_totalhp *= 1.05;
-
-            if (mylevel >= 30)
-                m_totalhp *= 1.05;
-
-            if (mylevel >= 40)
-                m_totalhp *= 1.05;
-
-            if (mylevel >= 50)
-                m_totalhp *= 1.05;
-
-            if (mylevel >= 60)
-                m_totalhp *= 1.1;
-
-            if (mylevel >= 70)
-                m_totalhp *= 1.1;
-
-            if (mylevel >= 80)
-                m_totalhp *= 1.1;
-        }
-    }
-
-    if (me->GetMap()->IsBattlegroundOrArena())
-        m_totalhp *= 0.85;
-
-    if (me->GetMap()->IsBattlegroundOrArena() && me->GetLevel() < 80)
-        m_totalhp *= 0.75;
     //Tank Bonus
     if (HasTankSpec())
         m_totalhp *= 1.15;
@@ -6903,64 +6846,6 @@ void bot_ai::_OnManaUpdate() const
 
     //Add Mana Multiplier
     m_basemana *= BotMgr::GetBotManaMod();
-
-    //Level multipliers
-    if (!BotMgr::IsWanderingWorldBot(me))
-    {
-        if (me->GetMap()->IsDungeon() || me->GetMap()->IsRaid())
-        {
-            if (mylevel >= 20)
-                m_basemana *= 1.15;
-
-            if (mylevel >= 30)
-                m_basemana *= 1.15;
-
-            if (mylevel >= 40)
-                m_basemana *= 1.15;
-
-            if (mylevel >= 50)
-                m_basemana *= 1.15;
-
-            if (mylevel >= 60)
-                m_basemana *= 1.2;
-
-            if (mylevel >= 70)
-                m_basemana *= 1.2;
-
-            if (mylevel >= 80)
-                m_basemana *= 1.2;
-        }
-
-        if (!me->GetMap()->IsDungeon() && !me->GetMap()->IsRaid() && !me->GetMap()->IsBattlegroundOrArena())
-        {
-            if (mylevel >= 20)
-                m_basemana *= 1.075;
-
-            if (mylevel >= 30)
-                m_basemana *= 1.075;
-
-            if (mylevel >= 40)
-                m_basemana *= 1.075;
-
-            if (mylevel >= 50)
-                m_basemana *= 1.075;
-
-            if (mylevel >= 60)
-                m_basemana *= 1.2;
-
-            if (mylevel >= 70)
-                m_basemana *= 1.2;
-
-            if (mylevel >= 80)
-                m_basemana *= 1.2;
-        }
-    }
-
-    if (me->GetMap()->IsBattlegroundOrArena())
-        m_basemana *= 0.85;
-
-    if (me->GetMap()->IsBattlegroundOrArena() && me->GetLevel() < 80)
-        m_basemana *= 0.75;
 
     //mana bonuses
     uint8 bonuspct = 0;
@@ -7522,6 +7407,10 @@ void bot_ai::ApplyBotEffectValueMultiplierMods(SpellInfo const* spellInfo, Spell
     //ALL SPELLMOD_VALUE_MULTIPLIER mods
     ApplyClassEffectValueMultiplierMods(spellInfo, effIndex, multiplier);
 }
+void bot_ai::ApplyBotRandomEquip()
+{
+    InitEquips(true);
+}
 //Spell Mod Utilities
 float bot_ai::CalcSpellMaxRange(uint32 spellId, bool enemy) const
 {
@@ -7664,7 +7553,7 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
             menus = true;
 
             //general: equips, roles, distance, abilities, comsumables, group
-            AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_EQUIPMENT), GOSSIP_SENDER_EQUIPMENT, GOSSIP_ACTION_INFO_DEF + 1);
+            //AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_EQUIPMENT), GOSSIP_SENDER_EQUIPMENT, GOSSIP_ACTION_INFO_DEF + 1);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_ROLES), GOSSIP_SENDER_ROLES_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_FORMATION), GOSSIP_SENDER_FORMATION, GOSSIP_ACTION_INFO_DEF + 1);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_ABILITIES), GOSSIP_SENDER_ABILITIES, GOSSIP_ACTION_INFO_DEF + 1);
@@ -9501,7 +9390,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 std::ostringstream istr;
                 _AddItemLink(player, item, istr, false);
                 ChatHandler ch(player->GetSession());
-                ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
+                //ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
 
                 item->SetOwnerGUID(player->GetGUID());
 
@@ -12288,14 +12177,15 @@ bool bot_ai::_unequip(uint8 slot, ObjectGuid receiver)
                 std::ostringstream istr;
                 _AddItemLink(master, item, istr, false);
                 ChatHandler ch(master->GetSession());
-                ch.PSendSysMessage(LocalizedNpcText(master, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
+                //ch.PSendSysMessage(LocalizedNpcText(master, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
 
                 item->SetOwnerGUID(master->GetGUID());
 
                 CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
                 item->FSetState(ITEM_CHANGED);
                 item->SaveToDB(trans);
-                MailDraft(istr.str(), "").AddItem(item).SendMailTo(trans, MailReceiver(master), MailSender(me));
+                //MailDraft(istr.str(), "").AddItem(item).SendMailTo(trans, MailReceiver(master), MailSender(me));
+                master->DestroyItemCount(item->GetEntry(), 1, true);
                 CharacterDatabase.CommitTransaction(trans);
 
                 //master->SendEquipError(msg, nullptr, nullptr, itemId);
@@ -12303,8 +12193,9 @@ bool bot_ai::_unequip(uint8 slot, ObjectGuid receiver)
             }
             else
             {
-                Item* pItem = master->StoreItem(dest, item, true);
-                master->SendNewItem(pItem, 1, true, false, false);
+                //Item* pItem = master->StoreItem(dest, item, true);
+                //master->SendNewItem(pItem, 1, true, false, false);
+                master->DestroyItemCount(item->GetEntry(), 1, true);
             }
         }
         else
@@ -14079,7 +13970,7 @@ void bot_ai::DefaultInit()
         {
             InitFaction();
             InitOwner();
-            InitEquips();
+            InitEquips(false);
         }
 
         firstspawn = false;
@@ -14499,7 +14390,7 @@ bool bot_ai::IsValidSpecForClass(uint8 m_class, uint8 spec)
     return false;
 }
 
-void bot_ai::InitEquips()
+void bot_ai::InitEquips(bool randEquip)
 {
     EquipmentInfo const* einfo = BotDataMgr::GetBotEquipmentInfo(me->GetEntry());
     ASSERT(einfo, "Trying to spawn bot with no equip info!");
@@ -14507,7 +14398,7 @@ void bot_ai::InitEquips()
     NpcBotData const* npcBotData = BotDataMgr::SelectNpcBotData(me->GetEntry());
     ASSERT(npcBotData, "bot_ai::InitEquips(): data not found!");
 
-    if (IsWanderer())
+    if (IsWanderer() || randEquip)
     {
         GenerateRand();
         uint8 lvl = me->GetLevel();

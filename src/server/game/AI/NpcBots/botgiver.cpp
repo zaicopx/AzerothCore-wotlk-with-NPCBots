@@ -249,7 +249,7 @@ public:
                         break;
                     }
 
-                    bot_ai const* ai = bot->GetBotAI();
+                    bot_ai* ai = bot->GetBotAI();
                     if (bot->IsInCombat() || !bot->IsAlive() || bot_ai::CCed(bot) || ai->IsDuringTeleport() ||
                         bot->HasUnitState(UNIT_STATE_CASTING) || ai->GetBotOwnerGuid() || bot->HasAura(BERSERK))
                     {
@@ -265,6 +265,7 @@ public:
 
                     if (player->HaveBot() && player->GetBotMgr()->GetBot(bot->GetGUID()))
                         WhisperTo(player, me, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_HIRESUCCESS).c_str());
+                        ai->ApplyBotRandomEquip();
 
                     break;
                 }
@@ -358,7 +359,7 @@ public:
                             NpcBotRegistry::const_iterator ci = allBots.begin();
                             std::advance(ci, urand(0, allBots.size() - 1));
                             Creature const* bot = *ci;
-                            bot_ai const* ai = bot->GetBotAI();
+                            bot_ai* ai = bot->GetBotAI();
 
                             if (!bot)
                             {
@@ -406,6 +407,7 @@ public:
                                     tankPlayers.push_back(newBot->GetGUID());
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK);
+                                    ai->ApplyBotRandomEquip();
                                     allBots.erase(bot);
                                     botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
@@ -426,6 +428,7 @@ public:
                                     offTankPlayers.push_back(newBot->GetGUID());
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK_OFF);
+                                    ai->ApplyBotRandomEquip();
                                     allBots.erase(bot);
                                     botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
@@ -445,6 +448,7 @@ public:
                                     healPlayers.push_back(newBot->GetGUID());
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_HEAL);
+                                    ai->ApplyBotRandomEquip();
                                     allBots.erase(bot);
                                     botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as heal!", bot->GetName());
@@ -467,6 +471,7 @@ public:
                                     dpsPlayers.push_back(newBot->GetGUID());
                                     //Set bot talents and erase it from list
                                     mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_DPS);
+                                    ai->ApplyBotRandomEquip();
                                     allBots.erase(bot);
                                     botsAmount--;
                                     //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as dps!", bot->GetName());
