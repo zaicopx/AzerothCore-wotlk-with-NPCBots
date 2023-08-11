@@ -17969,7 +17969,11 @@ bool bot_ai::FinishTeleport(bool reset)
         if (InstanceScript* iscr = master->GetInstanceScript())
             iscr->OnNPCBotEnter(me);
 
-        ApplyBotRandomEquip();
+        if (!_equips[BOT_SLOT_CHEST])
+        {
+            UnEquipAll(master->GetGUID());
+            ApplyBotRandomEquip();
+        }
         SetIsDuringTeleport(false);
     });
 
