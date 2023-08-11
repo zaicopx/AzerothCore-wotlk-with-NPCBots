@@ -1431,39 +1431,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
 
-                    if (!BotMgr::IsWanderingWorldBot(ToCreature()))
-                    {
-                        if (!GetMap()->IsBattlegroundOrArena())
-                        {
-                            if (GetLevel() >= 20)
-                                damage *= 1.075;
-
-                            if (GetLevel() >= 30)
-                                damage *= 1.075;
-
-                            if (GetLevel() >= 40)
-                                damage *= 1.15;
-
-                            if (GetLevel() >= 50)
-                                damage *= 1.15;
-
-                            if (GetLevel() >= 60)
-                                damage *= 1.25;
-
-                            if (GetLevel() >= 70)
-                                damage *= 1.25;
-
-                            if (GetLevel() >= 80)
-                                damage *= 1.25;
-                        }
-                    }
-
-                    if (GetMap()->IsBattlegroundOrArena())
-                        damage *= 0.75;
-
-                    if (GetMap()->IsBattlegroundOrArena() && ToCreature()->GetLevel() < 80)
-                        damage *= 0.75;
-
                     //Reduce pet Damage
                     if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
                         damage *= 0.15;
@@ -1551,12 +1518,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                         damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModPhysical());
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
-
-                    if (GetMap()->IsBattlegroundOrArena())
-                        damage *= 0.75;
-
-                    if (GetMap()->IsBattlegroundOrArena() && ToCreature()->GetLevel() < 80)
-                        damage *= 0.75;
 
                     //Reduce pet Damage
                     if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
@@ -1741,39 +1702,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             ToCreature()->ApplyBotDamageMultiplierMelee(damageInfo->damages[i].damage, *damageInfo);
             damage = damageInfo->damages[i].damage;
             damage *= BotMgr::GetBotDamageModPhysical();
-
-            if (!BotMgr::IsWanderingWorldBot(ToCreature()))
-            {
-                if (!GetMap()->IsBattlegroundOrArena())
-                {
-                    if (GetLevel() >= 20)
-                        damage *= 1.075;
-
-                    if (GetLevel() >= 30)
-                        damage *= 1.075;
-
-                    if (GetLevel() >= 40)
-                        damage *= 1.15;
-
-                    if (GetLevel() >= 50)
-                        damage *= 1.15;
-
-                    if (GetLevel() >= 60)
-                        damage *= 1.25;
-
-                    if (GetLevel() >= 70)
-                        damage *= 1.25;
-
-                    if (GetLevel() >= 80)
-                        damage *= 1.25;
-                }
-            }
-
-            if (GetMap()->IsBattlegroundOrArena())
-                damage *= 0.75;
-
-            if (GetMap()->IsBattlegroundOrArena() && ToCreature()->GetLevel() < 80)
-                damage *= 0.75;
 
             //Reduce pet Damage
             if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
