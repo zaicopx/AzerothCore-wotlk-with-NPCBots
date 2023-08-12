@@ -6770,7 +6770,7 @@ void bot_ai::_OnHealthUpdate() const
 
     //Tank Bonus
     if (IsTank() || IsOffTank())
-        m_totalhp *= 1.15;
+        m_totalhp *= 1.1;
 
     //hp bonuses
     uint8 bonuspct = 0;
