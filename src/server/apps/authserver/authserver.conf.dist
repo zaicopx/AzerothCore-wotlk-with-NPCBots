@@ -40,7 +40,7 @@
 #        Example:     "/home/youruser/azerothcore/logs"
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "logs"
 
 #
 #    MaxPingTime
@@ -160,20 +160,20 @@ StrictVersionCheck = 0
 #        Default:     ""
 #
 
-SourceDirectory = ""
+SourceDirectory = "Source/AzerothCore"
 
 #
 #    MySQLExecutable
 #        Description: The path to your MySQL CLI binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MariaDB 10.5/bin/mysql.exe"
-#                     "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe"
+#                     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
 #                     "mysql.exe"
 #                     "/usr/bin/mysql"
 #        Default:     ""
 #
 
-MySQLExecutable = ""
+MySQLExecutable = "mysql/bin/mysql.exe"
 
 #
 #    TempDir
@@ -183,7 +183,7 @@ MySQLExecutable = ""
 #        Example:     "/home/youruser/azerothcore/temp"
 #        Default:     "" - (Temp files will be stored in the current path)
 
-TempDir = ""
+TempDir = "temp"
 
 #
 #    IPLocationFile
