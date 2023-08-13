@@ -110,6 +110,7 @@ class AC_GAME_API BotMgr
         static bool IsFoodInterruptedByMovement();
         static bool FilterRaces();
         static bool IsBotGenerationEnabledBGs();
+        static bool IsBotLevelCappedByConfigBG();
         static bool IsBotGenerationEnabledWorldMapId(uint32 mapId);
         static bool IsBotHKEnabled();
         static bool IsBotHKMessageEnabled();
@@ -187,6 +188,7 @@ class AC_GAME_API BotMgr
         uint32 GetAllNpcBotsClassMask() const;
         static uint8 GetMaxNpcBots();
         static uint8 GetNpcBotXpReduction();
+        static uint8 GetNpcBotXpReductionStartingNumber();
         static int32 GetBotInfoPacketsLimit();
         static bool LimitBots(Map const* map);
         static bool CanBotParryWhileCasting(Creature const* bot);

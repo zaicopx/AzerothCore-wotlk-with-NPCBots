@@ -22,6 +22,7 @@
 #include "SpellMgr.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "World.h"
 #include "WorldDatabase.h"
 /*
 Npc Bot Data Manager by Trickerer (onlysuffering@gmail.com)
@@ -304,16 +305,33 @@ private:
         bot_template.SubName = "";
         bot_template.speed_run = BotMgr::GetBotWandererSpeedMod();
         bot_template.KillCredit[0] = orig_entry;
+
+        uint32 max_level = DEFAULT_MAX_LEVEL;
+        if (bracketEntry && BotMgr::IsBotLevelCappedByConfigBG())
+        {
+            uint32 max_expansion_level;
+            switch (sWorld->getIntConfig(CONFIG_EXPANSION))
+            {
+                case EXPANSION_CLASSIC:                max_expansion_level = 60;                break;
+                case EXPANSION_THE_BURNING_CRUSADE:    max_expansion_level = 70;                break;
+                case EXPANSION_WRATH_OF_THE_LICH_KING: max_expansion_level = 70;                break;
+                default:                               max_expansion_level = DEFAULT_MAX_LEVEL; break;
+            }
+
+            max_level = std::min<uint32>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL), max_level);
+            max_level = std::min<uint32>(max_expansion_level, max_level);
+        }
+
         if (bracketEntry)
         {
             //force level range for bgs
-            bot_template.minlevel = std::min<uint32>(bracketEntry->minLevel, DEFAULT_MAX_LEVEL);
-            bot_template.maxlevel = std::min<uint32>(bracketEntry->maxLevel, DEFAULT_MAX_LEVEL);
+            bot_template.minlevel = std::min<uint32>(bracketEntry->minLevel, max_level);
+            bot_template.maxlevel = std::min<uint32>(bracketEntry->maxLevel, max_level);
         }
         else
         {
-            bot_template.minlevel = std::min<uint32>(std::max<uint32>(desired_bracket * 10, spawnLoc->GetLevels().first), DEFAULT_MAX_LEVEL);
-            bot_template.maxlevel = std::min<uint32>(std::min<uint32>(desired_bracket * 10 + 9, spawnLoc->GetLevels().second), DEFAULT_MAX_LEVEL);
+            bot_template.minlevel = std::min<uint32>(std::max<uint32>(desired_bracket * 10, spawnLoc->GetLevels().first), max_level);
+            bot_template.maxlevel = std::min<uint32>(std::min<uint32>(desired_bracket * 10 + 9, spawnLoc->GetLevels().second), max_level);
             bot_template.flags_extra &= ~(CREATURE_FLAG_EXTRA_NO_XP);
         }
 
