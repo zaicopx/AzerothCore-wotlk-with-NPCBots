@@ -1431,6 +1431,13 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
 
+                    //IndividualProgression
+                    MapEntry const* mapEntry = sMapStore.LookupEntry(ToCreature()->GetMapId());
+                    if (ToCreature()->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
+                        damage *= 0.6;
+                    else if (ToCreature()->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
+                        damage *= 0.75;
+
                     //Reduce pet Damage
                     if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
                         damage *= 0.15;
@@ -1518,6 +1525,13 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                         damage *= (BotMgr::IsWanderingWorldBot(ToCreature()) ? BotMgr::GetBotWandererDamageMod() : BotMgr::GetBotDamageModPhysical());
                     else if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                         damage *= BotMgr::GetBotDamageModSpell();
+
+                    //IndividualProgression
+                    MapEntry const* mapEntry = sMapStore.LookupEntry(ToCreature()->GetMapId());
+                    if (ToCreature()->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
+                        damage *= 0.6;
+                    else if (ToCreature()->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
+                        damage *= 0.75;
 
                     //Reduce pet Damage
                     if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))
@@ -1702,6 +1716,13 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             ToCreature()->ApplyBotDamageMultiplierMelee(damageInfo->damages[i].damage, *damageInfo);
             damage = damageInfo->damages[i].damage;
             damage *= BotMgr::GetBotDamageModPhysical();
+
+            //IndividualProgression
+            MapEntry const* mapEntry = sMapStore.LookupEntry(ToCreature()->GetMapId());
+            if (ToCreature()->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
+                damage *= 0.6;
+            else if (ToCreature()->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
+                damage *= 0.75;
 
             //Reduce pet Damage
             if (ToCreature()->GetBotPetAI() && bot_ai::IsPetMelee(GetEntry()))

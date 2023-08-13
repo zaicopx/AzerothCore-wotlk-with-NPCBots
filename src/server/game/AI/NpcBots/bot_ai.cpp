@@ -6772,6 +6772,13 @@ void bot_ai::_OnHealthUpdate() const
     if (IsTank() || IsOffTank())
         m_totalhp *= 1.1;
 
+    //IndividualProgression
+    MapEntry const* mapEntry = sMapStore.LookupEntry(me->GetMapId());
+    if (me->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
+        m_totalhp *= 0.6;
+    else if (me->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
+        m_totalhp *= 0.75;
+
     //hp bonuses
     uint8 bonuspct = 0;
     //Endurance Training
@@ -7338,8 +7345,18 @@ void bot_ai::ApplyBotDamageMultiplierHeal(Unit const* victim, float& heal, Spell
 {
     //HEALING SPELLS amount bonus
     ApplyClassDamageMultiplierHeal(victim, heal, spellInfo, damagetype, stack);
+
+    //IndividualProgression
+    MapEntry const* mapEntry = sMapStore.LookupEntry(me->GetMapId());
+    if (me->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
+        heal *= 0.6;
+    else if (me->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
+        heal *= 0.75;
+
     if (!me->GetMap()->IsBattlegroundOrArena())
         heal = (heal * (BotMgr::IsWanderingWorldBot(me) ? BotMgr::GetBotWandererHealingMod() : BotMgr::GetBotHealingMod()));
+    else
+        heal = heal;
 }
 void bot_ai::ApplyBotCritMultiplierAll(Unit const* victim, float& crit_chance, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
