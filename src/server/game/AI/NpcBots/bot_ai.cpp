@@ -5893,9 +5893,6 @@ void bot_ai::DrinkPotion(bool mana)
     if (IsCasting())
         return;
 
-    if (urand(1,1000) >= 50)
-        return;
-
     me->CastSpell(me, GetPotion(mana));
 }
 bool bot_ai::IsPotionReady() const
