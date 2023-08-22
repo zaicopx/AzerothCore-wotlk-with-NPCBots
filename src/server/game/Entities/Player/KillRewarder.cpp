@@ -189,18 +189,18 @@ void KillRewarder::_RewardXP(Player* player, float rate)
         if (Creature* victim = _victim->ToCreature())
         {
             if (victim->GetCreatureTemplate()->rank == CREATURE_ELITE_RARE || victim->GetCreatureTemplate()->rank == CREATURE_ELITE_RAREELITE)
-            {
                 xp *= 12.5;
-            }
         }
 
-        //Don't give XP outside of dungeons if in LFG Group now
+        // Give less xp in dungeons
+        if (player->GetMap()->IsDungeon())
+            xp *= 0.5
+
+        // Don't give XP outside of dungeons if in LFG Group now
         if (Group* gr = player->GetGroup())
         {
             if (player->GetGroup()->isLFGGroup() && !player->GetMap()->IsDungeon())
-            {
                 xp = 0;
-            }
         }
 
         // 4.2.3. Give XP to player.
