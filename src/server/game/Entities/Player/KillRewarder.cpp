@@ -194,7 +194,7 @@ void KillRewarder::_RewardXP(Player* player, float rate)
 
         // Give less xp in dungeons
         if (player->GetMap()->IsDungeon())
-            xp *= 0.5
+            xp *= 0.5;
 
         // Don't give XP outside of dungeons if in LFG Group now
         if (Group* gr = player->GetGroup())
