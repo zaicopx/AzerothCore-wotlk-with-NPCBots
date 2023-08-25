@@ -169,7 +169,7 @@ class go_suppression_device : public GameObjectScript
                     return;
                 }
 
-                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 5s);
+                _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 20s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -186,7 +186,7 @@ class go_suppression_device : public GameObjectScript
                                 me->CastSpell(nullptr, SPELL_SUPPRESSION_AURA);
                                 me->SendCustomAnim(0);
                             }
-                            _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 5s);
+                            _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 20s);
                             break;
                         case EVENT_SUPPRESSION_RESET:
                             Activate();
