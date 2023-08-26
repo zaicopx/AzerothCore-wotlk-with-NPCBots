@@ -1202,6 +1202,14 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
     maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
 
+    MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+    //Classic Early Level Nerf
+    if (!IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
+    {
+        minDamage *= (0.2 + (0.02 * GetLevel()));
+        maxDamage *= (0.2 + (0.02 * GetLevel()));
+    }
+
     // pussywizard: crashfix (casting negative to uint => min > max => assertion in urand)
     if (minDamage < 0.0f || minDamage > 1000000000.0f)
         minDamage = 0.0f;
