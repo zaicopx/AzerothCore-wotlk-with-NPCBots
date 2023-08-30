@@ -1610,13 +1610,17 @@ void Creature::SelectLevel(bool changelevel)
             healthmod *= (0.6 + (0.010125 * GetLevel())); //Buff hp from level 40 to 60 gradually
         }
 
-        //Classic Dungeon and Raid Buff
-        if (mapEntry->Expansion() == CONTENT_1_60 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
+        //Classic Dungeon Buff
+        if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsNonRaidDungeon())
             healthmod *= 2;
+
+        //Classic Raid Buff
+        if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsRaid())
+            healthmod *= 1.5;
 
         //TBC Content Buff
         if (mapEntry->Expansion() == CONTENT_61_70)
-            healthmod *= 1.33;
+            healthmod *= 1.44;
 
         //TBC Dungeon and Raid Buff
         if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
@@ -1919,13 +1923,17 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
                     curhealth *= (0.6 + (0.010125 * GetLevel())); //Buff hp from level 40 to 60 gradually
                 }
 
-                //Classic Dungeon and Raid Buff
-                if (mapEntry->Expansion() == CONTENT_1_60 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
+                //Classic Dungeon Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsNonRaidDungeon())
                     curhealth *= 2;
+
+                //Classic Raid Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsRaid())
+                    curhealth *= 1.5;
 
                 //TBC Content Buff
                 if (mapEntry->Expansion() == CONTENT_61_70)
-                    curhealth *= 1.33;
+                    curhealth *= 1.44;
 
                 //TBC Dungeon and Raid Buff
                 if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
@@ -4098,13 +4106,17 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
                     curhealth *= (0.6 + (0.010125 * GetLevel())); //Buff hp from level 40 to 60 gradually
                 }
 
-                //Classic Dungeon and Raid Buff
-                if (mapEntry->Expansion() == CONTENT_1_60 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
+                //Classic Dungeon Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsNonRaidDungeon())
                     curhealth *= 2;
+
+                //Classic Raid Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsRaid())
+                    curhealth *= 1.5;
 
                 //TBC Content Buff
                 if (mapEntry->Expansion() == CONTENT_61_70)
-                    curhealth *= 1.33;
+                    curhealth *= 1.44;
 
                 //TBC Dungeon and Raid Buff
                 if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
