@@ -1,0 +1,27 @@
+[worldserver]
+
+###################################################################################################
+#   STARTER GUILD
+###################################################################################################
+
+# Enable the module? (1: true | 0: false)
+StarterGuild.Enable = 1
+
+# Announce the module when the player logs in?
+StarterGuild.Announce = 0
+
+# The GUID for each faction's starting guild
+# Note: if AllowTwoSide.Interaction.Guild = 1, you can set the same number for both factions
+StarterGuild.Horde = 1
+StarterGuild.Alliance = 2
+
+#
+# StarterGuild.Level
+#
+# Level when the player will be invited to a guild
+#
+# Disable = 0 (Default)
+# Enable = level (ex. 10)
+#
+
+StarterGuild.Level = 0
