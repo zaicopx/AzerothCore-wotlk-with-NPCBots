@@ -401,6 +401,12 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig* config)
             }
             item->SetCount(stackCount);
 
+            if (bidPrice == 0 || buyoutPrice == 0)
+            {
+                bidPrice = 1;
+                buyoutPrice = 2;
+            }
+
             uint32 dep = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
 
             auto* auctionEntry = new AuctionEntry();
