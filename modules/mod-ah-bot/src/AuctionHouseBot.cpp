@@ -719,37 +719,43 @@ uint32 AuctionHouseBot::getPrice(const ItemTemplate* item, bool useBuyPrice)
     return price;
 }
 
-uint32 AuctionHouseBot::getCustomScaling(const ItemTemplate* item)
+double AuctionHouseBot::getCustomScaling(const ItemTemplate* item)
 {
     if (item->Class == ITEM_CLASS_GLYPH)
     {
         return 25000;
     }
 
-    if (item->SubClass == ITEM_SUBCLASS_ENCHANTING)
+    if (item->Class == ITEM_CLASS_TRADE_GOODS)
     {
-        switch (item->Quality)
+        if (item->SubClass == ITEM_SUBCLASS_CLOTH)
         {
+            return 100;
+        }
+
+        if (item->SubClass == ITEM_SUBCLASS_ENCHANTING)
+        {
+            switch (item->Quality)
+            {
             case ITEM_QUALITY_UNCOMMON:
                 return 25;
             case ITEM_QUALITY_RARE:
                 return 80;
+            }
         }
     }
 
-    if (item->SubClass == ITEM_SUBCLASS_JUNK_MOUNT)
+    if (item->Class == ITEM_CLASS_MISC)
     {
-        return 10000;
-    }
+        if (item->SubClass == ITEM_SUBCLASS_JUNK_MOUNT)
+        {
+            return 10000;
+        }
 
-    if (item->SubClass == ITEM_SUBCLASS_JUNK_PET)
-    {
-        return 7500;
-    }
-
-    if (item->SubClass == ITEM_SUBCLASS_CLOTH)
-    {
-        return 1;
+        if (item->SubClass == ITEM_SUBCLASS_JUNK_PET)
+        {
+            return 7500;
+        }
     }
 
     return 100;
