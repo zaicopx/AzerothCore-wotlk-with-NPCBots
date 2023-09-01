@@ -747,6 +747,11 @@ uint32 AuctionHouseBot::getCustomScaling(const ItemTemplate* item)
         return 7500;
     }
 
+    if (item->SubClass == ITEM_SUBCLASS_CLOTH)
+    {
+        return 1;
+    }
+
     return 100;
 }
 
