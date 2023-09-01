@@ -1401,17 +1401,9 @@ void Player::UpdatePvPState()
 {
     UpdateFFAPvPState();
 
-    if (pvpInfo.IsHostile) // in hostile area
-    {
-        if (!IsPvP() || pvpInfo.EndTimer != 0)
-            UpdatePvP(true, true);
-    }
-    else // in friendly area
-    {
-        if (IsPvP() && !HasPlayerFlag(PLAYER_FLAGS_IN_PVP) &&
-            pvpInfo.EndTimer == 0)
-            pvpInfo.EndTimer = GameTime::GetGameTime().count(); // start toggle-off
-    }
+    if (IsPvP() && !HasPlayerFlag(PLAYER_FLAGS_IN_PVP) &&
+        pvpInfo.EndTimer == 0)
+        pvpInfo.EndTimer = GameTime::GetGameTime().count(); // start toggle-off
 }
 
 void Player::UpdateFFAPvPState(bool reset /*= true*/)
