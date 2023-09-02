@@ -20146,6 +20146,9 @@ UPDATE item_template SET Quality = 3, bonding = 1, BuyPrice = 100000, RequiredLe
 /*  Reins of the Striped Nightsaber  */
 UPDATE item_template SET BuyPrice = 100000, SellPrice = 0, RequiredLevel = 30 WHERE entry=8629;
 
+/*  Reins of the Striped Dawnsaber  */
+UPDATE item_template SET BuyPrice = 100000, SellPrice = 0, RequiredLevel = 30 WHERE entry=47100;
+
 /*  Reins of the Bengal Tiger  */
 UPDATE item_template SET Quality = 3, bonding = 1, BuyPrice = 100000, SellPrice = 0, RequiredLevel = 30 WHERE entry=8630;
 
