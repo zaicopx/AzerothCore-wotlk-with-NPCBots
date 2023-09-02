@@ -158,6 +158,7 @@ struct boss_ayamiss : public BossAI
             }
 
             context.Repeat(RAND(2400ms, 3600ms));
+        /*
         }).Schedule(15s, 28s, [this](TaskContext context) {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
             {
@@ -166,6 +167,7 @@ struct boss_ayamiss : public BossAI
                 DoCastAOE(RAND(SPELL_SUMMON_LARVA_A, SPELL_SUMMON_LARVA_B), true);
             }
             context.Repeat();
+        */
         });
     }
 
