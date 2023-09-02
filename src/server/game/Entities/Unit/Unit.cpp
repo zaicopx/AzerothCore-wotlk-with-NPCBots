@@ -12334,6 +12334,16 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (GetTypeId() == TYPEID_UNIT && (!ToCreature()->IsPet() || !ToCreature()->IsGuardian() || !ToCreature()->IsControlledByPlayer()))
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
+    if (GetTypeId() == TYPEID_UNIT && (!ToCreature()->IsPet() || !ToCreature()->IsGuardian() || !ToCreature()->IsControlledByPlayer()))
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+        //Classic Early Level Nerf
+        if (!IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
+        {
+            DoneTotalMod *= (0.2 + (0.02 * GetLevel()));
+        }
+    }
+
     // Some spells don't benefit from pct done mods
     if (!spellProto->HasAttribute(SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS))
     {
