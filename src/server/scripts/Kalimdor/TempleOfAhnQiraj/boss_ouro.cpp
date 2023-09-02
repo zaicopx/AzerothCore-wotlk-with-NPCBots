@@ -233,7 +233,7 @@ struct boss_ouro : public BossAI
                 })
             .Schedule(90s, GROUP_PHASE_TRANSITION, [this](TaskContext /*context*/)
                 {
-                    Submerge();
+                    //Submerge();
                 })
             .Schedule(3s, GROUP_PHASE_TRANSITION, [this](TaskContext context)
                 {

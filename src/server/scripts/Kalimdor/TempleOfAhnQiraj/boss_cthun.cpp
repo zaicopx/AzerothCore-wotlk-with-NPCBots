@@ -227,7 +227,7 @@ struct boss_eye_of_cthun : public BossAI
     void ScheduleTask(bool onEngage = false)
     {
         scheduler.
-            Schedule(3s, [this, onEngage](TaskContext task)
+            Schedule(6s, [this, onEngage](TaskContext task)
             {
                 if (task.GetRepeatCounter() < 3 && onEngage)
                 {
@@ -240,7 +240,7 @@ struct boss_eye_of_cthun : public BossAI
                 }
                 else
                 {
-                    scheduler.Schedule(5s, [this](TaskContext task)
+                    scheduler.Schedule(10s, [this](TaskContext task)
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         {
@@ -249,13 +249,13 @@ struct boss_eye_of_cthun : public BossAI
                         }
 
                         task.SetGroup(GROUP_BEAM_PHASE);
-                        task.Repeat(3s);
+                        task.Repeat(6s);
                     });
                 }
 
                 task.SetGroup(GROUP_BEAM_PHASE);
             })
-            .Schedule(8s, [this](TaskContext task)
+            .Schedule(16s, [this](TaskContext task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 {
@@ -420,16 +420,18 @@ struct boss_cthun : public BossAI
             me->m_Events.AddEventAtOffset([this]()
             {
                 DoCastSelf(SPELL_TRANSFORM);
-                DoCastSelf(SPELL_CARAPACE_CTHUN, true);
+                //DoCastSelf(SPELL_CARAPACE_CTHUN, true);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 DoZoneInCombat();
             }, 500ms);
 
             //Spawn flesh tentacle
+            /*
             for (uint8 i = 0; i < 2; i++)
             {
                 me->SummonCreature(NPC_FLESH_TENTACLE, FleshTentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
             }
+            */
 
             ScheduleTasks();
         }
@@ -439,6 +441,7 @@ struct boss_cthun : public BossAI
     {
         scheduler.Schedule(13800ms, [this](TaskContext context)
         {
+            /*
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NotInStomachSelector()))
             {
                 target->CastSpell(target, SPELL_MOUTH_TENTACLE, true);
@@ -456,6 +459,7 @@ struct boss_cthun : public BossAI
             }
 
             context.Repeat();
+            */
         }).Schedule(30s, [this](TaskContext context)
         {
             if (Creature* eye = instance->GetCreature(DATA_EYE_OF_CTHUN))
@@ -568,12 +572,14 @@ struct boss_cthun : public BossAI
                     ScheduleTasks();
                     //Remove purple coloration
                     me->RemoveAurasDueToSpell(SPELL_PURPLE_COLORATION);
-                    DoCastSelf(SPELL_CARAPACE_CTHUN, true);
+                    //DoCastSelf(SPELL_CARAPACE_CTHUN, true);
                     //Spawn flesh tentacle
+                    /*
                     for (uint8 i = 0; i < 2; i++)
                     {
                         me->SummonCreature(NPC_FLESH_TENTACLE, FleshTentaclePos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                     }
+                    */
                 });
             }
         }
