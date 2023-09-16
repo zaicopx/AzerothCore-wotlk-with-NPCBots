@@ -29,6 +29,7 @@ public:
         sIndividualProgression->CheckAdjustments(player);
     }
 
+    /*
     void OnSetMaxLevel(Player* player, uint32& maxPlayerLevel) override
     {
         if (!sIndividualProgression->enabled)
@@ -50,6 +51,7 @@ public:
             }
         }
     }
+    */
 
     void OnMapChanged(Player* player) override
     {
