@@ -18,11 +18,9 @@
 #include "Pet.h"
 #include "ArenaSpectator.h"
 #include "Common.h"
-#include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Group.h"
-#include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "PetPackets.h"
@@ -1177,6 +1175,14 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                                 HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, aurEff->GetAmount(), true);
                             }
 
+                            break;
+                        }
+                    case NPC_VOIDWALKER:
+                        {
+                            if (AuraEffect* aurEff = owner->GetAuraEffectDummy(SPELL_GLYPH_OF_VOIDWALKER))
+                            {
+                                HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_PCT, aurEff->GetAmount(), true);
+                            }
                             break;
                         }
                     case NPC_WATER_ELEMENTAL_PERM:

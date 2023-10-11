@@ -119,6 +119,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
+    // Has Brewfest Mug
+    ApplySpellFix({ 42533 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(347); // 15 min
+    });
+
     // Elixir of Minor Fortitude
     ApplySpellFix({ 2378 }, [](SpellInfo* spellInfo)
     {
@@ -654,6 +660,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY; // just a marker
     });
 
+    ApplySpellFix({
+        6940, // Hand of Sacrifice
+        64205 // Divine Sacrifice
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx7 |= SPELL_ATTR7_DONT_CAUSE_SPELL_PUSHBACK;
+    });
+
     // Seal of Command trigger
     ApplySpellFix({ 20424 }, [](SpellInfo* spellInfo)
     {
@@ -1074,14 +1088,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         // summoned doomguard duration fix
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(6);
-    });
-
-    // Glyph of Voidwalker
-    ApplySpellFix({ 56247 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-        spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_EFFECT1;
-        spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x8000000, 0, 0);
     });
 
     // Everlasting Affliction
@@ -1578,8 +1584,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->ChannelInterruptFlags |= AURA_INTERRUPT_FLAG_MOVE;
     });
 
-    // Debris
-    ApplySpellFix({ 36449 }, [](SpellInfo* spellInfo)
+    // Debris - Debris Visual
+    ApplySpellFix({ 36449, 30632 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
@@ -1588,12 +1594,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 30531 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
-    });
-
-    // Debris Visual
-    ApplySpellFix({ 30632 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DYNOBJ_ALLY);
     });
 
     // Activate Sunblade Protecto
@@ -3976,12 +3976,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->ExcludeCasterAuraSpell = 42299;
     });
 
-    // Catch the Wild Wolpertinger!
-    ApplySpellFix({ 41621 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
-    });
-
     // Brewfest quests
     ApplySpellFix({ 47134, 51798 }, [](SpellInfo* spellInfo)
     {
@@ -4626,6 +4620,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 30504 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+    });
+
+    // Torment of the Worgen
+    ApplySpellFix({ 30567 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->ProcChance = 3;
+    });
+
+    // Summon Water Elementals
+    ApplySpellFix({ 29962, 37051, 37052, 37053 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
