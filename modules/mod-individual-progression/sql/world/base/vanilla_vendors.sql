@@ -20,6 +20,13 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (227, 
 DELETE FROM `npc_vendor` WHERE `entry` = 228 AND `item` = 28053;
 
 
+/* NPC Karm Ironquill - 372 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 372 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 372 AND `item` = 20824;
+
+
 /* NPC Katie Hunter - 384 */
 /* Add Missing Vanilla item White Stallion Bridle */
 DELETE FROM `npc_vendor` WHERE `entry` = 384 AND `item` = 12353;
@@ -70,6 +77,13 @@ DELETE FROM `npc_vendor` WHERE `entry` = 789 AND `item` = 11285;
 DELETE FROM `npc_vendor` WHERE `entry` = 789 AND `item` = 28053;
 
 
+/* NPC Karen Taylor - 790 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 790 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 790 AND `item` = 20824;
+
+
 /* NPC Lindsay Ashlock - 791 */
 /* Add Missing Vanilla item Flint and Tinder */
 DELETE FROM `npc_vendor` WHERE `entry` = 791 AND `item` = 4471;
@@ -82,7 +96,18 @@ DELETE FROM `npc_vendor` WHERE `entry` = 843 AND `item` = 2692;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (843, 2692, 0, 0);
 
 
+/* NPC Antonio Perelli - 844 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 844 AND `item` = 40411;
+
+
 /* NPC Dawn Brightstar - 958 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 958 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 958 AND `item` = 22148;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 958 AND `item` = 40411;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 958 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (958, 17019, 0, 0);
@@ -98,6 +123,12 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (960, 
 
 
 /* NPC Thultazor - 983 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 983 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 983 AND `item` = 22148;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 983 AND `item` = 40411;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 983 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (983, 17019, 0, 0);
@@ -196,6 +227,12 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1286,
 
 
 /* NPC Keldric Boucher - 1257 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 1257 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 1257 AND `item` = 22148;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 1257 AND `item` = 40411;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 1257 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1257, 17019, 0, 0);
@@ -211,6 +248,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1261,
 
 
 /* NPC Kyra Boucher - 1275 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 1275 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 1275 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 1275 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1275, 17019, 0, 0);
@@ -232,15 +273,28 @@ DELETE FROM `npc_vendor` WHERE `entry` = 1298 AND `item` = 28053;
 
 
 /* NPC Charys Yserian - 1307 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 1307 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 1307 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 1307 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1307, 17019, 0, 0);
 
 
 /* NPC Owen Vaughn - 1308 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 1308 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 1308 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 1308 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1308, 17019, 0, 0);
+
+
+/* NPC Maria Lumere - 1313 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 1313 AND `item` = 40411;
 
 
 /* NPC Jessara Cordell - 1318 */
@@ -327,6 +381,10 @@ DELETE FROM `npc_vendor` WHERE `entry` = 1347 AND `item` = 38426;
 
 
 /* NPC Brother Cassius - 1351 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 1351 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 1351 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 1351 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1351, 17019, 0, 0);
@@ -346,6 +404,11 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1448,
 /* Add Missing Vanilla item Flint and Tinder */
 DELETE FROM `npc_vendor` WHERE `entry` = 1452 AND `item` = 4471;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1452, 4471, 0, 0);
+
+
+/* NPC Dewin Shimmerdawn - 1453 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 1453 AND `item` = 40411;
 
 
 /* NPC Jennabink Powerseam - 1454 */
@@ -443,6 +506,10 @@ DELETE FROM `npc_vendor` WHERE `entry` = 1462 AND `item` = 28053;
 
 
 /* NPC Falkan Armonis - 1463 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 1463 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 1463 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 1463 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1463, 17019, 0, 0);
@@ -465,6 +532,10 @@ DELETE FROM `npc_vendor` WHERE `entry` = 1672 AND `item` = 38426;
 
 
 /* NPC Alyssa Eva - 1673 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 1673 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 1673 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 1673 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (1673, 17019, 0, 0);
@@ -574,6 +645,11 @@ DELETE FROM `npc_vendor` WHERE `entry` = 11189 AND `item` = 3777;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (11189, 3777, 0, 0);
 
 
+/* NPC Nandar Branson - 2380 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 2380 AND `item` = 40411;
+
+
 /* NPC Micha Yance - 2381 */
 /* Remove non-Vanilla item Simple Flour */
 DELETE FROM `npc_vendor` WHERE `entry` = 2381 AND `item` = 30817;
@@ -618,6 +694,16 @@ DELETE FROM `npc_vendor` WHERE `entry` = 2401 AND `item` = 28060;
 /* Add Missing Vanilla item Flint and Tinder */
 DELETE FROM `npc_vendor` WHERE `entry` = 2401 AND `item` = 4471;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (2401, 4471, 0, 0);
+
+
+/* NPC Bro'kin - 2480 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 2480 AND `item` = 40411;
+
+
+/* NPC Bliztik - 2481 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 2481 AND `item` = 40411;
 
 
 /* NPC Zarena Cromwind - 2482 */
@@ -787,6 +873,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (2803,
 
 
 /* NPC Deneb Walker - 2805 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 2805 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 2805 AND `item` = 22148;
 /* Add Missing Vanilla item Expert First Aid - Under Wraps */
 DELETE FROM `npc_vendor` WHERE `entry` = 2805 AND `item` = 16084;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (2805, 16084, 0, 0);
@@ -854,6 +944,11 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (2810,
 /* Add Missing Vanilla item Lethargy Root */
 DELETE FROM `npc_vendor` WHERE `entry` = 2810 AND `item` = 3777;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (2810, 3777, 0, 0);
+
+
+/* NPC Drovnar Strongbrew - 2812 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 2812 AND `item` = 40411;
 
 
 /* NPC Androd Fadran - 2816 */
@@ -965,6 +1060,11 @@ DELETE FROM `npc_vendor` WHERE `entry` = 2839 AND `item` = 28053;
 DELETE FROM `npc_vendor` WHERE `entry` = 2846 AND `item` = 38426;
 
 
+/* NPC Glyx Brewright - 2848 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 2848 AND `item` = 40411;
+
+
 /* NPC Grawl - 2908 */
 /* Remove non-Vanilla item Wicked Arrow */
 DELETE FROM `npc_vendor` WHERE `entry` = 2908 AND `item` = 28053;
@@ -973,6 +1073,13 @@ DELETE FROM `npc_vendor` WHERE `entry` = 2908 AND `item` = 28060;
 /* Add Missing Vanilla item Flint and Tinder */
 DELETE FROM `npc_vendor` WHERE `entry` = 2908 AND `item` = 4471;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (2908, 4471, 0, 0);
+
+
+/* NPC Kurm Stonehoof - 3002 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 3002 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 3002 AND `item` = 20824;
 
 
 /* NPC Fyr Mistrunner - 3003 */
@@ -987,6 +1094,11 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3003 AND `item` = 35950;
 /* NPC Mahu - 3005 */
 /* Remove non-Vanilla item Eternium Thread */
 DELETE FROM `npc_vendor` WHERE `entry` = 3005 AND `item` = 38426;
+
+
+/* NPC Mani Winterhoof - 3010 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 3010 AND `item` = 40411;
 
 
 /* NPC Nata Dawnstrider - 3012 */
@@ -1104,6 +1216,10 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3096 AND `item` = 38426;
 
 
 /* NPC Herble Baubbletump - 3133 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 3133 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 3133 AND `item` = 20824;
 /* Remove non-Vanilla item Hair Trigger */
 DELETE FROM `npc_vendor` WHERE `entry` = 3133 AND `item` = 39684;
 /* Remove non-Vanilla item Walnut Stock */
@@ -1152,6 +1268,13 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3164 AND `item` = 4471;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3164, 4471, 0, 0);
 
 
+/* NPC Wuark - 3167 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 3167 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 3167 AND `item` = 20824;
+
+
 /* NPC Flakk - 3168 */
 /* Remove non-Vanilla item Simple Flour */
 DELETE FROM `npc_vendor` WHERE `entry` = 3168 AND `item` = 30817;
@@ -1193,6 +1316,16 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3322 AND `item` = 28060;
 
 
 /* NPC Horthus - 3323 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3323 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3323 AND `item` = 22148;
+/* Remove non-Vanilla item Wild Spineleaf */
+DELETE FROM `npc_vendor` WHERE `entry` = 3323 AND `item` = 44605;
+/* Remove non-Vanilla item Starleaf Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3323 AND `item` = 44614;
+/* Remove non-Vanilla item Devout Candle */
+DELETE FROM `npc_vendor` WHERE `entry` = 3323 AND `item` = 44615;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 3323 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3323, 17019, 0, 0);
@@ -1244,6 +1377,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3334,
 
 
 /* NPC Hagrus - 3335 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3335 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3335 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 3335 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3335, 17019, 0, 0);
@@ -1264,6 +1401,11 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3346 AND `item` = 6342;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3346, 6342, 1, 7200);
 
 
+/* NPC Kor'geld - 3348 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 3348 AND `item` = 40411;
+
+
 /* NPC Asoran - 3350 */
 /* Remove non-Vanilla item Wicked Arrow */
 DELETE FROM `npc_vendor` WHERE `entry` = 3350 AND `item` = 28053;
@@ -1275,9 +1417,20 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3350,
 
 
 /* NPC Magenius - 3351 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3351 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3351 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 3351 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3351, 17019, 0, 0);
+
+
+/* NPC Gorina - 3358 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 3358 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 3358 AND `item` = 20824;
 
 
 /* NPC Ogunaro Wolfrunner - 3362 */
@@ -1355,6 +1508,8 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3400,
 /* NPC Zeal'aya - 3405 */
 /* Remove non-Vanilla item Imbued Vial */
 DELETE FROM `npc_vendor` WHERE `entry` = 3405 AND `item` = 18256;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 3405 AND `item` = 40411;
 
 
 /* NPC Jin'sora - 3410 */
@@ -1399,6 +1554,10 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3485 AND `item` = 38426;
 
 
 /* NPC Hula'mahi - 3490 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3490 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3490 AND `item` = 22148;
 /* Add Missing Vanilla item Dust of Decay */
 DELETE FROM `npc_vendor` WHERE `entry` = 3490 AND `item` = 2928;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3490, 2928, 0, 0);
@@ -1461,6 +1620,13 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3499 AND `item` = 2928;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3499, 2928, 0, 0);
 
 
+/* NPC Tarhus - 3500 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3500 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3500 AND `item` = 22148;
+
+
 /* NPC Thomas Miller - 3518 */
 /* Remove non-Vanilla item Mag'har Grainbread */
 DELETE FROM `npc_vendor` WHERE `entry` = 3518 AND `item` = 27855;
@@ -1481,6 +1647,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3541,
 
 
 /* NPC Jaysin Lanyda - 3542 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3542 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3542 AND `item` = 22148;
 /* Add Missing Vanilla item Dust of Decay */
 DELETE FROM `npc_vendor` WHERE `entry` = 3542 AND `item` = 2928;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3542, 2928, 0, 0);
@@ -1517,6 +1687,11 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3542,
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 3542 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3542, 17019, 0, 0);
+
+
+/* NPC Selina Weston - 3548 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 3548 AND `item` = 40411;
 
 
 /* NPC Patrice Dwyer - 3551 */
@@ -1601,9 +1776,20 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3561,
 
 
 /* NPC Alaindia - 3562 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3562 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3562 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 3562 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3562, 17019, 0, 0);
+
+
+/* NPC Dalaran Miner - 3578 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 3578 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 3578 AND `item` = 20824;
 
 
 /* NPC Aldia - 3608 */
@@ -1626,6 +1812,13 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3685,
 /* Add Missing Vanilla item Green Kodo */
 DELETE FROM `npc_vendor` WHERE `entry` = 3685 AND `item` = 15292;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3685, 15292, 0, 0);
+
+
+/* NPC Jadenvis Seawatcher - 3700 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3700 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3700 AND `item` = 22148;
 
 
 /* NPC Syurana - 3779 */
@@ -1694,6 +1887,11 @@ DELETE FROM `npc_vendor` WHERE `entry` = 3955 AND `item` = 16072;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3955, 16072, 0, 0);
 
 
+/* NPC Harklan Moongrove - 3956 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 3956 AND `item` = 40411;
+
+
 /* NPC Lardan - 3958 */
 /* Remove non-Vanilla item Eternium Thread */
 DELETE FROM `npc_vendor` WHERE `entry` = 3958 AND `item` = 38426;
@@ -1748,6 +1946,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3969,
 
 
 /* NPC Llana - 3970 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 3970 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 3970 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 3970 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (3970, 17019, 0, 0);
@@ -1760,6 +1962,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4082,
 
 
 /* NPC Jeeda - 4083 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 4083 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 4083 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 4083 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4083, 17019, 0, 0);
@@ -1873,9 +2079,15 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4194,
 /* NPC Chardryn - 4216 */
 /* Remove non-Vanilla item Imbued Vial */
 DELETE FROM `npc_vendor` WHERE `entry` = 4216 AND `item` = 18256;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 4216 AND `item` = 40411;
 
 
 /* NPC Cyroen - 4220 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 4220 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 4220 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 4220 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4220, 17019, 0, 0);
@@ -1938,6 +2150,8 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4229,
 
 
 /* NPC Ulthir - 4226 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 4226 AND `item` = 40411;
 /* Add Missing Vanilla item Recipe: Superior Mana Potion */
 DELETE FROM `npc_vendor` WHERE `entry` = 4226 AND `item` = 13477;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4226, 13477, 1, 7200);
@@ -1976,6 +2190,13 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4241,
 /* Add Missing Vanilla item Flint and Tinder */
 DELETE FROM `npc_vendor` WHERE `entry` = 4241 AND `item` = 4471;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4241, 4471, 0, 0);
+
+
+/* NPC Golnir Bouldertoe - 4256 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 4256 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 4256 AND `item` = 20824;
 
 
 /* NPC Nyoma - 4265 */
@@ -2049,6 +2270,16 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4561,
 
 
 /* NPC Thomas Mordan - 4562 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 4562 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 4562 AND `item` = 22148;
+/* Remove non-Vanilla item Wild Spineleaf */
+DELETE FROM `npc_vendor` WHERE `entry` = 4562 AND `item` = 44605;
+/* Remove non-Vanilla item Starleaf Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 4562 AND `item` = 44614;
+/* Remove non-Vanilla item Devout Candle */
+DELETE FROM `npc_vendor` WHERE `entry` = 4562 AND `item` = 44615;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 4562 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4562, 17019, 0, 0);
@@ -2072,6 +2303,10 @@ DELETE FROM `npc_vendor` WHERE `entry` = 4571 AND `item` = 35954;
 
 
 /* NPC Hannah Akeley - 4575 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 4575 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 4575 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 4575 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4575, 17019, 0, 0);
@@ -2130,12 +2365,21 @@ DELETE FROM `npc_vendor` WHERE `entry` = 4587 AND `item` = 40533;
 DELETE FROM `npc_vendor` WHERE `entry` = 4589 AND `item` = 38426;
 
 
+/* NPC Sarah Killian - 4599 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 4599 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 4599 AND `item` = 20824;
+
+
 /* NPC Abigail Sawyer - 4604 */
 /* Remove non-Vanilla item Wicked Arrow */
 DELETE FROM `npc_vendor` WHERE `entry` = 4604 AND `item` = 28053;
 
 
 /* NPC Algernon - 4610 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 4610 AND `item` = 40411;
 /* Add Missing Vanilla item Recipe: Superior Mana Potion */
 DELETE FROM `npc_vendor` WHERE `entry` = 4610 AND `item` = 13477;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4610, 13477, 1, 2700);
@@ -2144,6 +2388,8 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4610,
 /* NPC Katrina Alliestar - 4615 */
 /* Remove non-Vanilla item Imbued Vial */
 DELETE FROM `npc_vendor` WHERE `entry` = 4615 AND `item` = 18256;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 4615 AND `item` = 40411;
 
 
 /* NPC Thaddeus Webb - 4617 */
@@ -2224,6 +2470,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4877,
 
 
 /* NPC Montarr - 4878 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 4878 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 4878 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 4878 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4878, 17019, 0, 0);
@@ -2317,6 +2567,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (4897,
 
 
 /* NPC Balai Lok'Wein - 13476 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 13476 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 13476 AND `item` = 22148;
 /* Add Missing Vanilla item Manual: Mageweave Bandage */
 DELETE FROM `npc_vendor` WHERE `entry` = 13476 AND `item` = 16113;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (13476, 16113, 0, 0);
@@ -2331,6 +2585,8 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (13476
 /* NPC Uma Bartulm - 4899 */
 /* Remove non-Vanilla item Greater Healing Potion */
 DELETE FROM `npc_vendor` WHERE `entry` = 4899 AND `item` = 1710;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 4899 AND `item` = 40411;
 
 
 /* NPC Namdo Bizzfizzle - 2683 */
@@ -2386,6 +2642,10 @@ DELETE FROM `npc_vendor` WHERE `entry` = 5109 AND `item` = 35950;
 
 
 /* NPC Barim Jurgenstaad - 5110 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 5110 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 5110 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 5110 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (5110, 17019, 0, 0);
@@ -2430,12 +2690,18 @@ DELETE FROM `npc_vendor` WHERE `entry` = 5128 AND `item` = 38426;
 /* NPC Gwina Stonebranch - 5138 */
 /* Remove non-Vanilla item Imbued Vial */
 DELETE FROM `npc_vendor` WHERE `entry` = 5138 AND `item` = 18256;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 5138 AND `item` = 40411;
 /* Add Missing Vanilla item Copper Rod */
 DELETE FROM `npc_vendor` WHERE `entry` = 5138 AND `item` = 6217;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (5138, 6217, 0, 0);
 
 
 /* NPC Ginny Longberry - 5151 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 5151 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 5151 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 5151 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (5151, 17019, 0, 0);
@@ -2548,6 +2814,11 @@ DELETE FROM `npc_vendor` WHERE `entry` = 5175 AND `item` = 16042;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (5175, 16042, 1, 10800);
 
 
+/* NPC Soolie Berryfizz - 5178 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 5178 AND `item` = 40411;
+
+
 /* NPC Erika Tate - 5483 */
 /* Remove non-Vanilla item Simple Flour */
 DELETE FROM `npc_vendor` WHERE `entry` = 5483 AND `item` = 30817;
@@ -2562,6 +2833,15 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (5483,
 /* NPC Eldraeith - 5503 */
 /* Remove non-Vanilla item Imbued Vial */
 DELETE FROM `npc_vendor` WHERE `entry` = 5503 AND `item` = 18256;
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 5503 AND `item` = 40411;
+
+
+/* NPC Brooke Stonebraid - 5514 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 5514 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 5514 AND `item` = 20824;
 
 
 /* NPC Billibub Cogspinner - 5519 */
@@ -2574,6 +2854,11 @@ DELETE FROM `npc_vendor` WHERE `entry` = 5519 AND `item` = 40533;
 /* NPC Jillian Tanner - 5565 */
 /* Remove non-Vanilla item Eternium Thread */
 DELETE FROM `npc_vendor` WHERE `entry` = 5565 AND `item` = 38426;
+
+
+/* NPC Alchemist Pestlezugg - 5594 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 5594 AND `item` = 40411;
 
 
 /* NPC Lilly - 5757 */
@@ -2623,6 +2908,13 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (5817,
 /* NPC Yonada - 5944 */
 /* Remove non-Vanilla item Eternium Thread */
 DELETE FROM `npc_vendor` WHERE `entry` = 5944 AND `item` = 38426;
+
+
+/* NPC Thelgrum Stonehammer - 6298 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 6298 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 6298 AND `item` = 20824;
 
 
 /* NPC Gorbold Steelhand - 6301 */
@@ -3000,9 +3292,34 @@ DELETE FROM `npc_vendor` WHERE `entry` = 15174 AND `item` = 4471;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (15174, 4471, 0, 0);
 
 
+/* NPC Logannas - 8157 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 8157 AND `item` = 40411;
+
+
+/* NPC Bronk - 8158 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 8158 AND `item` = 40411;
+
+
 /* NPC Nioma - 8160 */
 /* Remove non-Vanilla item Eternium Thread */
 DELETE FROM `npc_vendor` WHERE `entry` = 8160 AND `item` = 38426;
+
+
+/* NPC Rartar - 8177 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 8177 AND `item` = 40411;
+
+
+/* NPC Nina Lightbrew - 8178 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 8178 AND `item` = 40411;
+
+
+/* NPC Kixxle - 8305 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 8305 AND `item` = 40411;
 
 
 /* NPC Tarban Hearthgrain - 8307 */
@@ -3017,6 +3334,16 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (8307,
 
 
 /* NPC Chepi - 8361 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 8361 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 8361 AND `item` = 22148;
+/* Remove non-Vanilla item Wild Spineleaf */
+DELETE FROM `npc_vendor` WHERE `entry` = 8361 AND `item` = 44605;
+/* Remove non-Vanilla item Starleaf Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 8361 AND `item` = 44614;
+/* Remove non-Vanilla item Devout Candle */
+DELETE FROM `npc_vendor` WHERE `entry` = 8361 AND `item` = 44615;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 8361 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (8361, 17019, 0, 0);
@@ -3164,7 +3491,16 @@ DELETE FROM `npc_vendor` WHERE `entry` = 11185 AND `item` = 16047;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (11185, 16047, 1, 10800);
 
 
+/* NPC Lunnix Sprocketslip - 11186 */
+/* Remove non-Vanilla item Jeweler's Kit */
+DELETE FROM `npc_vendor` WHERE `entry` = 11186 AND `item` = 20815;
+/* Remove non-Vanilla item Simple Grinder */
+DELETE FROM `npc_vendor` WHERE `entry` = 11186 AND `item` = 20824;
+
+
 /* NPC Evie Whirlbrew - 11188 */
+/* Remove non-Vanilla item Enchanted Vial */
+DELETE FROM `npc_vendor` WHERE `entry` = 11188 AND `item` = 40411;
 /* Add Missing Vanilla item Pattern: Mooncloth */
 DELETE FROM `npc_vendor` WHERE `entry` = 11188 AND `item` = 14526;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (11188, 14526, 0, 0);
@@ -3700,6 +4036,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (14738
 
 
 /* NPC Mystic Yayo'jin - 14739 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 14739 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 14739 AND `item` = 22148;
 /* Add Missing Vanilla item Arcane Dust */
 DELETE FROM `npc_vendor` WHERE `entry` = 14739 AND `item` = 17019;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (14739, 17019, 0, 0);
@@ -3880,6 +4220,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (14847
 
 
 /* NPC Khur Hornstriker - 15175 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 15175 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 15175 AND `item` = 22148;
 /* Add Missing Vanilla item Dust of Decay */
 DELETE FROM `npc_vendor` WHERE `entry` = 15175 AND `item` = 2928;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (15175, 2928, 0, 0);
@@ -3921,12 +4265,23 @@ DELETE FROM `npc_vendor` WHERE `entry` = 15419 AND `item` = 6342;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (15419, 6342, 1, 7200);
 
 
+/* NPC Vi'el - 16015 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 16015 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 16015 AND `item` = 22148;
+
+
 /* NPC Renn'az - 17598 */
 /* Remove non-Vanilla item Wicked Arrow */
 DELETE FROM `npc_vendor` WHERE `entry` = 17598 AND `item` = 28053;
 
 
 /* NPC Kurdrum Barleybeard - 5139 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 5139 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 5139 AND `item` = 22148;
 /* Add Missing Vanilla item Dust of Decay */
 DELETE FROM `npc_vendor` WHERE `entry` = 5139 AND `item` = 2928;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (5139, 2928, 0, 0);
@@ -4321,6 +4676,10 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (10367
 
 
 /* NPC Yaelika Farclaw - 10364 */
+/* Remove non-Vanilla item Flintweed Seed */
+DELETE FROM `npc_vendor` WHERE `entry` = 10364 AND `item` = 22147;
+/* Remove non-Vanilla item Wild Quillvine */
+DELETE FROM `npc_vendor` WHERE `entry` = 10364 AND `item` = 22148;
 /* Add Missing Vanilla item Dust of Decay */
 DELETE FROM `npc_vendor` WHERE `entry` = 10364 AND `item` = 2928;
 INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (10364, 2928, 0, 0);
@@ -4349,3 +4708,299 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`) VALUES (13432
 /* Delete Simple Flour from TBC pre-60 vendors - they should technically have it but it is a catch-up mechanic so wait until TBC areas for it to be available */
 DELETE FROM `npc_vendor` WHERE `entry` IN (17246, 16253, 16262, 16261, 16677, 17490, 16718) AND `item` = 30817;
 
+/* Remove Wicked Arrow and Impact Shot from vendors - these skip all end-game vanilla ammo progression */
+DELETE FROM `npc_vendor` WHERE `item` IN (28060, 28053);
+
+/* PvP Gear Vendor Rep Requirements */
+REPLACE INTO conditions (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `comment`) VALUES
+(23, 13219, 17349, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 17352, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19031, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19307, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19318, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 17348, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 17351, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19301, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19083, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19085, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19095, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19096, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19090, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19089, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19088, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19087, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19316, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19317, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19046, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19099, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19101, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19103, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19320, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19319, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19029, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19312, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19315, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19308, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19311, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19309, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19310, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19323, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19321, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19325, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 21563, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13219, 19324, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 17349, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 17352, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19031, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19307, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19318, 5, 729, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 17348, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 17351, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19301, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19083, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19085, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19095, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19096, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19090, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19089, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19088, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19087, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19316, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19317, 5, 729, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19046, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19099, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19101, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19103, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19320, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19319, 5, 729, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19029, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19312, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19315, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19308, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19311, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19309, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19310, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19323, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19321, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19325, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 21563, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13218, 19324, 5, 729, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 17349, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 17352, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19032, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19307, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19318, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 17348, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 17351, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19301, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19084, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19086, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19097, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19098, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19094, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19093, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19092, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19091, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19316, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19317, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19045, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19100, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19102, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19104, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19320, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19319, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19030, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19312, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19315, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19308, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19311, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19309, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19310, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19323, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19321, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19325, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 21563, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13217, 19324, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 17349, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 17352, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19032, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19307, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19318, 5, 730, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 17348, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 17351, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19301, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19084, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19086, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19097, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19098, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19094, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19093, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19092, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19091, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19316, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19317, 5, 730, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19045, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19100, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19102, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19104, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19320, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19319, 5, 730, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19030, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19312, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19315, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19308, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19311, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19309, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19310, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19323, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19321, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19325, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 21563, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 13216, 19324, 5, 730, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 21565, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 21566, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 21567, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 21568, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19062, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19061, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19060, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19068, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19067, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19066, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 17349, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 17352, 5, 890, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19530, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19531, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19532, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19533, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20428, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19522, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19523, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19524, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19525, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20431, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19538, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19539, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19540, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19541, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20444, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19514, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19515, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19516, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19517, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20439, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 17348, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 17351, 5, 890, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19570, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19571, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19572, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19573, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20434, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19562, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19563, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19564, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19565, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20438, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19554, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19555, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19556, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19557, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20440, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19546, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19547, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19548, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19549, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 20443, 5, 890, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19506, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19578, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19580, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19581, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19595, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19596, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19597, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19587, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19589, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19590, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19582, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19583, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 19584, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 22752, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 22749, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 22750, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 22748, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 22672, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 22753, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14753, 30497, 5, 890, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 21565, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 21566, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 21567, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 21568, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19062, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19061, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19060, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19068, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19067, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19066, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 17349, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 17352, 5, 889, 16 + 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19526, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19527, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19528, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19529, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20427, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19518, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19519, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19520, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19521, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20426, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19534, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19535, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19536, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19537, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20442, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19510, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19511, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19512, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19513, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20429, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 17348, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 17351, 5, 889, 32 + 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19566, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19567, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19568, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19569, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20425, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19558, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19559, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19560, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19561, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20437, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19550, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19551, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19552, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19553, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20430, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19542, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19543, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19544, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19545, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 20441, 5, 889, 64 + 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19505, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19578, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19580, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19581, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19595, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19596, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19597, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19587, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19589, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19590, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19582, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19583, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 19584, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 22747, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 22740, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 22741, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 22673, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 22676, 5, 889, 128, 'Vanilla PvP Gear Conditions'),
+(23, 14754, 22651, 5, 889, 128, 'Vanilla PvP Gear Conditions');

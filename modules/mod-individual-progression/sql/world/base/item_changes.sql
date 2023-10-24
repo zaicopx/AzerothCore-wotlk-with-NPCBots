@@ -6013,6 +6013,9 @@ UPDATE `item_template` SET `BuyPrice` = 5046 WHERE entry=9609;
 /*  Dual Reinforced Leggings  */
 UPDATE `item_template` SET `BuyPrice` = 31721 WHERE entry=9625;
 
+/* Neeru's Herb Pouch */
+UPDATE `item_template` SET `name` = "Neeru's Herb Pouch" WHERE `entry`=9628;
+
 /*  Pratt's Handcrafted Boots  */
 UPDATE `item_template` SET `BuyPrice` = 28903 WHERE entry=9630;
 
@@ -13887,6 +13890,9 @@ UPDATE `item_template` SET `BuyPrice` = 12043, `SellPrice` = 2408 WHERE entry=17
 
 /*  Ornate Buckler  */
 UPDATE `item_template` SET `BuyPrice` = 34609, `SellPrice` = 6921 WHERE entry=17190;
+
+/* Scepter of Celebras - keep WotLK stats but make unsellable */
+UPDATE `item_template` SET `BuyPrice` = 0, `SellPrice` = 0, `DisenchantID` = 0, `RequiredDisenchantSkill` = 0 WHERE entry=17191;
 
 /*  Reinforced Targe  */
 UPDATE `item_template` SET `BuyPrice` = 4399, `SellPrice` = 879 WHERE entry=17192;
