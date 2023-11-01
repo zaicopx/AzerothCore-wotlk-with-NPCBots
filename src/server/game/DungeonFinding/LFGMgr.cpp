@@ -536,12 +536,6 @@ namespace lfg
         uint32 rDungeonId = 0;
         bool isContinue = grp && grp->isLFGGroup() && GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
 
-        if (player->HaveBot())
-        {
-            ChatHandler(player->GetSession()).PSendSysMessage("Du hast einen NPCBot. Angeheuerte NPCBots sollten aus der Gruppe entfernt werden.");
-            joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
-        }
-
         if (grp && (grp->isBGGroup() || grp->isBFGroup()))
             return;
 
@@ -675,16 +669,38 @@ namespace lfg
                                 continue;
                             //add npcbots
                             BotMap const* map = plrg->GetBotMgr()->GetBotMap();
-                            if (plrg->HaveBot())
+                            for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
                             {
-                                if (Player* leader = ObjectAccessor::FindPlayer(grp->GetLeaderGUID()))
+                                if (!grp->IsMember(itr->first))
+                                    continue;
+
+                                //disabled in config
+                                if (!BotMgr::IsNpcBotDungeonFinderEnabled())
                                 {
-                                    ChatHandler(leader->GetSession()).PSendSysMessage("In deiner Gruppe befindet sich ein NPCBot (Besitzer: %s). Angeheuerte NPCBots sollten aus der Gruppe entfernt werden.",
-                                        plrg->GetName().c_str());
+                                    (ChatHandler(plrg->GetSession())).SendSysMessage("Using npcbots in Dungeon Finder is restricted. Contact your administration.");
+
+                                    if (plrg->GetGUID() != grp->GetLeaderGUID())
+                                        if (Player* leader = ObjectAccessor::FindPlayer(grp->GetLeaderGUID()))
+                                            (ChatHandler(leader->GetSession())).PSendSysMessage("There is a npcbot in your group (owner: %s). Using npcbots in Dungeon Finder is restricted. Contact your administration.",
+                                                plrg->GetName().c_str());
+
+                                    joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
+                                    break;
                                 }
 
-                                joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
-                                break;
+                                if (/*Creature* bot = */ObjectAccessor::GetCreature(*plrg, itr->first))
+                                {
+                                    //if (!(bot->GetBotRoles() & ( 1 | 2 | 4 ))) //(BOT_ROLE_TANK | BOT_ROLE_DPS | BOT_ROLE_HEAL)
+                                    //{
+                                    //    //no valid roles - reqs are not met
+                                    //    (ChatHandler(plrg->GetSession())).PSendSysMessage("Your bot %s does not have any viable roles assigned.", bot->GetName().c_str());
+                                    //    joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
+                                    //    continue;
+                                    //}
+
+                                    ++memberCount;
+                                    players.insert(itr->first);
+                                }
                             }
                             //end npcbot
                         }
@@ -1943,8 +1959,6 @@ namespace lfg
                     if (pcount <= 1)
                     {
                         //only one player in group
-                        ChatHandler ch(player->GetSession());
-                        ch.SendSysMessage("Du bist der einzige Spieler in der Gruppe, Pluendern: Jeden gegen Jeden");
                         grp->SetLootMethod(FREE_FOR_ALL);
                     }
                 }
