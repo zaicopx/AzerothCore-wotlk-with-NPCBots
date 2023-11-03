@@ -688,6 +688,13 @@ struct boss_nefarian : public BossAI
                         }
                     }
 
+                    //fix crash
+                    if (classesPresent.empty())
+                    {
+                        events.ScheduleEvent(EVENT_CLASSCALL, 10s, 15s);
+                        break;
+                    }
+
                     uint8 targetClass = Acore::Containers::SelectRandomContainerElement(classesPresent);
 
                     classesPresent.erase(targetClass);
