@@ -189,7 +189,7 @@ class AC_GAME_API BotMgr
         uint8 GetNpcBotSlot(Creature const* bot) const;
         uint8 GetNpcBotSlotByRole(uint32 roles, Creature const* bot) const;
         uint32 GetAllNpcBotsClassMask() const;
-        static uint8 GetMaxNpcBots();
+        static uint8 GetMaxNpcBots(uint8 playerLevel);
         static uint8 GetNpcBotXpReduction();
         static uint8 GetNpcBotXpReductionStartingNumber();
         static int32 GetBotInfoPacketsLimit();

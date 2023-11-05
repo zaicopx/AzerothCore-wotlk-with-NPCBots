@@ -832,9 +832,29 @@ uint8 BotMgr::GetNpcBotXpReductionStartingNumber()
     return _xpReductionStartingNumber;
 }
 
-uint8 BotMgr::GetMaxNpcBots()
+uint8 BotMgr::GetMaxNpcBots(uint8 playerLevel)
 {
-    return _maxNpcBots <= MAXRAIDSIZE - 1 ? _maxNpcBots : MAXRAIDSIZE - 1;
+    /* Exceptions are Battlegrounds
+    Level 1-4: 0 Bot(s)
+    Level 5-9: 1 Bot(s)
+    Level 10-14: 2 Bot(s)
+    Level 15-59: 4 Bot(s)
+    Level 60-80: _maxNpcBots (39) Bot(s)
+    */
+
+    uint8 currMaxNpcBots = 0;
+    if (playerLevel < 5)
+        currMaxNpcBots = 0;
+    else if (playerLevel < 10)
+        currMaxNpcBots = 1;
+    else if (playerLevel < 15)
+        currMaxNpcBots = 2;
+    else if (playerLevel < 59)
+        currMaxNpcBots = 4;
+    else if (playerLevel >= 60)
+        currMaxNpcBots = _maxNpcBots;
+   
+    return currMaxNpcBots <= MAXRAIDSIZE - 1 ? currMaxNpcBots : MAXRAIDSIZE - 1;
 }
 
 int32 BotMgr::GetBotInfoPacketsLimit()
@@ -1619,10 +1639,10 @@ BotAddResult BotMgr::AddBot(Creature* bot, bool costMoney)
         ch.PSendSysMessage(bot_ai::LocalizedNpcText(GetOwner(), BOT_TEXT_BOTADDFAIL_TELEPORTED).c_str(), bot->GetName().c_str());
         return BOT_ADD_BUSY;
     }
-    if (!owned && owned_count >= GetMaxNpcBots())
+    if (!owned && owned_count >= GetMaxNpcBots(_owner->GetLevel()))
     {
         ChatHandler ch(_owner->GetSession());
-        ch.PSendSysMessage(bot_ai::LocalizedNpcText(GetOwner(), BOT_TEXT_HIREFAIL_MAXBOTS).c_str(), GetMaxNpcBots());
+        ch.PSendSysMessage(bot_ai::LocalizedNpcText(GetOwner(), BOT_TEXT_HIREFAIL_MAXBOTS).c_str(), GetMaxNpcBots(_owner->GetLevel()));
         return BOT_ADD_MAX_EXCEED;
     }
     if (!owned && _maxClassNpcBots && class_count >= _maxClassNpcBots)

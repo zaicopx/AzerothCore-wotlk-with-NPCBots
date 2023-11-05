@@ -85,7 +85,7 @@ public:
                 {
                     gossipTextId = GOSSIP_BOTGIVER_HIRE;
 
-                    if (player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots())
+                    if (player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots(player->GetLevel()))
                     {
                         WhisperTo(player, me, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_TOO_MANY_BOTS).c_str());
                         break;
@@ -272,7 +272,7 @@ public:
                 {
                     gossipTextId = GOSSIP_BOTGIVER_HIRE;
 
-                    if (player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots())
+                    if (player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots(player->GetLevel()))
                     {
                         WhisperTo(player, me, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_TOO_MANY_BOTS).c_str());
                         break;
