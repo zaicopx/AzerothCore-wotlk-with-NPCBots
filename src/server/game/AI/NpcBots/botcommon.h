@@ -515,7 +515,7 @@ enum BotAIResetType
     BOTAI_RESET_UNBIND                  = 0x04,
     BOTAI_RESET_LOGOUT                  = 0x08,
     BOTAI_RESET_FORCERECALL             = 0x10,
-    BOTAI_RESET_LFG                     = 0x16,
+    BOTAI_RESET_FORCE                   = 0x16,
 
     BOTAI_RESET_MASK_ABANDON_MASTER     = (BOTAI_RESET_INIT | BOTAI_RESET_DISMISS)
 };

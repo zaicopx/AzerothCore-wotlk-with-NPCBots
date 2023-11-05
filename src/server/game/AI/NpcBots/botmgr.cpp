@@ -942,6 +942,7 @@ void BotMgr::Update(uint32 diff)
 
             if (!ai->GetBotOwnerGuid())
             {
+                //Free bot if no owner
                 sLFGMgr->RemoveDungeonFinderBotFromList(bot);
                 continue;
             }
@@ -965,7 +966,7 @@ void BotMgr::Update(uint32 diff)
                         {
                             uint32 newOwner = 0;
                             BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
-                            bot->GetBotAI()->ResetBotAI(BOTAI_RESET_LFG);
+                            bot->GetBotAI()->ResetBotAI(BOTAI_RESET_FORCE);
                             RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
                         }
                         sLFGMgr->RemoveDungeonFinderBotFromList(bot);
@@ -977,7 +978,7 @@ void BotMgr::Update(uint32 diff)
                     {
                         uint32 newOwner = 0;
                         BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
-                        bot->GetBotAI()->ResetBotAI(BOTAI_RESET_LFG);
+                        bot->GetBotAI()->ResetBotAI(BOTAI_RESET_FORCE);
                         RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
                     }
                     sLFGMgr->RemoveDungeonFinderBotFromList(bot);

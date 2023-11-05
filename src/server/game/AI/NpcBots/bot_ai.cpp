@@ -573,8 +573,9 @@ void bot_ai::ResetBotAI(uint8 resetType)
         if (!IsTempBot())
             CheckOwnerExpiry(false);
     }
-    if (resetType == BOTAI_RESET_LFG)
+    if (resetType == BOTAI_RESET_FORCE)
     {
+        TeleportHomeStart(resetType != BOTAI_RESET_UNBIND);
         homepos.Relocate(me);
         if (!IsTempBot())
             CheckOwnerExpiry(true);
