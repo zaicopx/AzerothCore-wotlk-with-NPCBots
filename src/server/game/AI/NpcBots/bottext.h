@@ -410,6 +410,7 @@ enum BotTexts : uint32
     BOT_TEXT_LOCUSTS                    = 70672, //"Locusts"
     //70673-70799 reserved for custom localization strings
     BOT_TEXT_BOTGIVER_HIRE_RAID         = 70701,
+    BOT_TEXT_TIME_EXPIRED               = 70702,
 };
 
 #endif //BOTTEXT_H

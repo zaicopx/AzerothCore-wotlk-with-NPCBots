@@ -474,19 +474,21 @@ void bot_ai::CheckOwnerExpiry(bool force)
     ObjectGuid ownerGuid = ObjectGuid(HighGuid::Player, 0, npcBotData->owner);
     time_t timeNow = time(0);
     time_t expireTime = time_t(BotMgr::GetOwnershipExpireTime());
-    uint32 accId = sCharacterCache->GetCharacterAccountIdByGuid(ownerGuid);
-    QueryResult result = accId ? LoginDatabase.Query("SELECT UNIX_TIMESTAMP(last_login) FROM account WHERE id = {}", accId) : nullptr;
+    uint32 botEntry = me->GetEntry();
+    QueryResult result = botEntry ? CharacterDatabase.Query("SELECT UNIX_TIMESTAMP(hire_time) FROM characters_npcbot_hire_time WHERE entry = {}", botEntry) : nullptr;
 
     Field* fields = result ? result->Fetch() : nullptr;
-    time_t lastLoginTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
+    time_t botHireTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
 
     //either expired or owner does not exist
-    if ((timeNow >= lastLoginTime + expireTime) || force)
+    if ((timeNow >= botHireTime + expireTime) || force)
     {
         std::string name = "unknown";
         sCharacterCache->GetCharacterNameByGuid(ownerGuid, name);
         LOG_DEBUG("server.loading", ">> {}'s (guid: {}) ownership over bot {} ({}) has expired!",
             name.c_str(), npcBotData->owner, me->GetName().c_str(), me->GetEntry());
+
+        BotDataMgr::UpdateNpcBotHireTimeData(me->GetEntry(), NPCBOT_HIRE_TIME_DEL);
 
         //send all items back
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_NPCBOT_EQUIP_BY_ITEM_INSTANCE);
@@ -17139,6 +17141,22 @@ bool bot_ai::GlobalUpdate(uint32 diff)
     if (_updateTimerEx1 <= diff)
     {
         _updateTimerEx1 = urand(2000, 2500);
+
+        if (BotMgr::GetOwnershipExpireTime())
+        {
+            if (!IsWanderer() && !ObjectAccessor::FindPlayerByLowGUID(_ownerGuid))
+            {
+                time_t timeNow = time(0);
+                time_t expireTime = time_t(BotMgr::GetOwnershipExpireTime());
+                uint32 botEntry = me->GetEntry();
+                QueryResult result = botEntry ? CharacterDatabase.Query("SELECT UNIX_TIMESTAMP(hire_time) FROM characters_npcbot_hire_time WHERE entry = {}", botEntry) : nullptr;
+                Field* fields = result ? result->Fetch() : nullptr;
+                time_t botHireTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
+
+                if (timeNow >= botHireTime + expireTime)
+                    ResetBotAI(BOTAI_RESET_FORCE);
+            }
+        }
 
         //Ex1-timed updates
 

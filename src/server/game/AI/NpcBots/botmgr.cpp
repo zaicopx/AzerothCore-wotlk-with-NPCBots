@@ -903,6 +903,7 @@ bool BotMgr::IsWanderingWorldBot(Creature const* bot)
 
 void BotMgr::Update(uint32 diff)
 {
+
     //remove temp bots from bot map before updating it
     while (!_removeList.empty())
     {
@@ -914,6 +915,7 @@ void BotMgr::Update(uint32 diff)
 
         _removeList.erase(itr);
     }
+
 
     _dpstracker->Update(diff);
 
@@ -930,62 +932,6 @@ void BotMgr::Update(uint32 diff)
     if (partyCombat)
         bot_ai::CalculateAoeSpots(_owner, _aoespots);
 
-    //Despawn all Dungeon bots if conditions met
-    NpcBotRegistry _alldungeonbots = sLFGMgr->GetDungeonFinderBots();
-    if (_alldungeonbots.size() > 0)
-    {
-        for (NpcBotRegistry::const_iterator ci = _alldungeonbots.begin(); ci != _alldungeonbots.end(); ++ci)
-        {
-
-            Creature const* bot = *ci;
-            ai = bot->GetBotAI();
-
-            if (!ai->GetBotOwnerGuid())
-            {
-                //Free bot if no owner
-                sLFGMgr->RemoveDungeonFinderBotFromList(bot);
-                continue;
-            }
-
-            if (ai->IAmFree())
-                continue;
-
-            if (!bot->IsInWorld())
-            {
-                continue;
-            }
-
-            if (_owner == bot->GetBotOwner())
-            {
-                Group* gr = _owner->GetGroup();
-                if (gr)
-                {
-                    if (!gr->IsMember(bot->GetGUID()))
-                    {
-                        if (!ai->IAmFree())
-                        {
-                            uint32 newOwner = 0;
-                            BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
-                            bot->GetBotAI()->ResetBotAI(BOTAI_RESET_FORCE);
-                            RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
-                        }
-                        sLFGMgr->RemoveDungeonFinderBotFromList(bot);
-                    }
-                }
-                else
-                {
-                    if (!ai->IAmFree())
-                    {
-                        uint32 newOwner = 0;
-                        BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
-                        bot->GetBotAI()->ResetBotAI(BOTAI_RESET_FORCE);
-                        RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
-                    }
-                    sLFGMgr->RemoveDungeonFinderBotFromList(bot);
-                }
-            }
-        }
-    }
 
     for (BotMap::const_iterator itr = _bots.begin(); itr != _bots.end(); ++itr)
     {
@@ -1000,6 +946,39 @@ void BotMgr::Update(uint32 diff)
         {
             ai->CommonTimers(diff);
             continue;
+        }
+
+        //Reset bot if time has expired
+        if (BotMgr::GetOwnershipExpireTime())
+        {
+            if (!_owner->IsInCombat() && !_owner->GetMap()->IsRaid() && !_owner->GetMap()->IsDungeon())
+            {
+                time_t timeNow = time(0);
+                time_t expireTime = time_t(BotMgr::GetOwnershipExpireTime());
+                uint32 botEntry = bot->GetEntry();
+                QueryResult result = botEntry ? CharacterDatabase.Query("SELECT UNIX_TIMESTAMP(hire_time) FROM characters_npcbot_hire_time WHERE entry = {}", botEntry) : nullptr;
+                Field* fields = result ? result->Fetch() : nullptr;
+                time_t botHireTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
+
+                if (timeNow >= botHireTime + expireTime)
+                {
+                    if (!ai->IAmFree())
+                    {
+                        if (_owner->IsInWorld())
+                            ai->BotWhisper(bot_ai::LocalizedNpcText(_owner, BOT_TEXT_TIME_EXPIRED), _owner);
+
+                        Group* gr = _owner->GetGroup();
+                        if (gr->isLFGGroup() && gr->GetMembersCount() == 2)
+                            gr->Disband();
+
+                        uint32 newOwner = 0;
+                        BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
+                        bot->GetBotAI()->ResetBotAI(BOTAI_RESET_FORCE);
+                        RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
+                    }
+                    sLFGMgr->RemoveDungeonFinderBotFromList(bot);
+                }
+            }
         }
 
         if (!bot->GetMap()->IsRaid())
@@ -1064,6 +1043,63 @@ void BotMgr::Update(uint32 diff)
             ai->canUpdate = true;
             bot->Update(diff);
             ai->canUpdate = false;
+        }
+    }
+
+    //Despawn all Dungeon bots if conditions met
+    NpcBotRegistry _alldungeonbots = sLFGMgr->GetDungeonFinderBots();
+    if (_alldungeonbots.size() > 0)
+    {
+        for (NpcBotRegistry::const_iterator ci = _alldungeonbots.begin(); ci != _alldungeonbots.end(); ++ci)
+        {
+
+            Creature const* bot = *ci;
+            ai = bot->GetBotAI();
+
+            if (!ai->GetBotOwnerGuid())
+            {
+                //Free bot if no owner
+                sLFGMgr->RemoveDungeonFinderBotFromList(bot);
+                continue;
+            }
+
+            if (ai->IAmFree())
+                continue;
+
+            if (!bot->IsInWorld())
+            {
+                continue;
+            }
+
+            if (_owner == bot->GetBotOwner())
+            {
+                Group* gr = _owner->GetGroup();
+                if (gr)
+                {
+                    if (!gr->IsMember(bot->GetGUID()))
+                    {
+                        if (!ai->IAmFree())
+                        {
+                            uint32 newOwner = 0;
+                            BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
+                            bot->GetBotAI()->ResetBotAI(BOTAI_RESET_FORCE);
+                            RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
+                        }
+                        sLFGMgr->RemoveDungeonFinderBotFromList(bot);
+                    }
+                }
+                else
+                {
+                    if (!ai->IAmFree())
+                    {
+                        uint32 newOwner = 0;
+                        BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
+                        bot->GetBotAI()->ResetBotAI(BOTAI_RESET_FORCE);
+                        RemoveBot(bot->GetGUID(), BOT_REMOVE_DISMISS);
+                    }
+                    sLFGMgr->RemoveDungeonFinderBotFromList(bot);
+                }
+            }
         }
     }
 
@@ -1591,6 +1627,8 @@ void BotMgr::RemoveBot(ObjectGuid guid, uint8 removetype)
         BotDataMgr::ResetNpcBotTransmogData(bot->GetEntry(), false);
         uint32 newOwner = 0;
         BotDataMgr::UpdateNpcBotData(bot->GetEntry(), NPCBOT_UPDATE_OWNER, &newOwner);
+        // Boxhead custom
+        BotDataMgr::UpdateNpcBotHireTimeData(bot->GetEntry(), NPCBOT_HIRE_TIME_DEL);
     }
 }
 
@@ -1679,6 +1717,10 @@ BotAddResult BotMgr::AddBot(Creature* bot, bool costMoney)
 
         _owner->ModifyMoney(-(int32(cost)));
     }
+
+    // Boxhead custom
+    if (!owned)
+        BotDataMgr::UpdateNpcBotHireTimeData(bot->GetEntry(), NPCBOT_HIRE_TIME_INS);
 
     bot->GetBotAI()->canUpdate = false;
 
