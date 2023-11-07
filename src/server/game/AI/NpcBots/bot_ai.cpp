@@ -15115,7 +15115,7 @@ void bot_ai::_AddWeaponSkillLink(Player const* forPlayer, SpellInfo const* spell
 //|cff71d5ff|Hspell:21563|h[Command]|h|r
 void bot_ai::_AddSpellLink(Player const* forPlayer, SpellInfo const* spellInfo, std::ostringstream &str, bool color/* = true*/) const
 {
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     str << "|c";
 
     if (color)
