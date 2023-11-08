@@ -636,6 +636,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // Boxhead Custom
     PrepareStatement(CHAR_INS_NPCBOT_HIRE_TIME, "INSERT INTO characters_npcbot_hire_time (entry, hire_time) VALUES (?, NOW())", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_NPCBOT_HIRE_TIME, "DELETE FROM characters_npcbot_hire_time WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_NPCBOT_HIRE_TIME_INIT, "DELETE FROM characters_npcbot_hire_time", CONNECTION_ASYNC);
     // End NPCBots
 }
 
