@@ -2050,7 +2050,7 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
         Player const* owner = ai->GetBotOwner();
         botstring << (owner != unit ? owner->GetName() : LocalizedNpcText(player, BOT_TEXT_NONE));
     }
-    uint8 locale = player->GetSession()->GetSessionDbcLocale();
+    uint8 locale = player->GetSession()->GetSessionDbLocaleIndex();
     Unit::AuraMap const &vAuras = unit->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = vAuras.begin(); itr != vAuras.end(); ++itr)
     {
@@ -15109,7 +15109,7 @@ void bot_ai::_AddQuestLink(Player const* forPlayer, Quest const* quest, std::ost
 //Unsused
 void bot_ai::_AddWeaponSkillLink(Player const* forPlayer, SpellInfo const* spellInfo, std::ostringstream &str, uint32 skillid) const
 {
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     str << "|cff00ffff|Hspell:" << spellInfo->Id << "|h[" << spellInfo->SpellName[loc] << " : " << master->GetSkillValue(skillid) << " /" << master->GetMaxSkillValue(skillid) << "]|h|r";
 }
 //|cff71d5ff|Hspell:21563|h[Command]|h|r
@@ -15142,7 +15142,7 @@ void bot_ai::_AddProfessionLink(Player const* forPlayer, SpellInfo const* spellI
 {
     ASSERT(master->HasSkill(skillId));
     // |cffffd000|Htrade:4037:1:150:1:6AAAAAAAAAAAAAAAAAAAAAAOAADAAAAAAAAAAAAAAAAIAAAAAAAAA|h[Engineering]|h|r
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(skillId);
     if (skillInfo)
     {
@@ -15268,7 +15268,7 @@ void bot_ai::_LocalizeGameObject(Player const* forPlayer, std::string &gameobjec
 
 void bot_ai::_LocalizeSpell(Player const* forPlayer, std::string &spellName, uint32 entry) const
 {
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     std::wstring wnamepart;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry);
@@ -17154,6 +17154,7 @@ bool bot_ai::GlobalUpdate(uint32 diff)
                 time_t botHireTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
 
                 if (timeNow >= botHireTime + expireTime)
+                {
                     ResetBotAI(BOTAI_RESET_FORCE);
             }
         }

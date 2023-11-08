@@ -1738,7 +1738,7 @@ public:
             }
             if (!canBotUseSpell(bot, base_spell))
             {
-                handler->PSendSysMessage("%s's %s is not ready yet!", bot->GetName().c_str(), sSpellMgr->GetSpellInfo(base_spell)->SpellName[handler->GetSessionDbcLocale()]);
+                handler->PSendSysMessage("%s's %s is not ready yet!", bot->GetName().c_str(), sSpellMgr->GetSpellInfo(base_spell)->SpellName[handler->GetSessionDbLocaleIndex()]);
                 return true;
             }
         }
@@ -1848,13 +1848,13 @@ public:
         {
             if (DEBUG_BOT_ORDERS)
                 handler->PSendSysMessage("Order given: %s: %s on %s", bot->GetName().c_str(),
-                    sSpellMgr->GetSpellInfo(base_spell)->SpellName[handler->GetSessionDbcLocale()], target ? target->GetName().c_str() : "unknown");
+                    sSpellMgr->GetSpellInfo(base_spell)->SpellName[handler->GetSessionDbLocaleIndex()], target ? target->GetName().c_str() : "unknown");
         }
         else
         {
             if (DEBUG_BOT_ORDERS)
                 handler->PSendSysMessage("Order failed: %s: %s on %s", bot->GetName().c_str(),
-                    sSpellMgr->GetSpellInfo(base_spell)->SpellName[handler->GetSessionDbcLocale()], target ? target->GetName().c_str() : "unknown");
+                    sSpellMgr->GetSpellInfo(base_spell)->SpellName[handler->GetSessionDbLocaleIndex()], target ? target->GetName().c_str() : "unknown");
         }
 
         return true;
@@ -3364,7 +3364,7 @@ public:
             if (spellname.size() >= 2 && spellname[0] == '[' && spellname[spellname.size() - 1] == ']')
                 spellname = spellname.substr(1, spellname.size() - 2);
 
-            LocaleConstant locale = handler->GetSession()->GetSessionDbcLocale();
+            LocaleConstant locale = handler->GetSession()->GetSessionDbLocaleIndex();
             for (auto const& kv : player->GetSpellMap())
             {
                 if (kv.second->State != PLAYERSPELL_REMOVED && kv.second->Active)
@@ -3437,7 +3437,7 @@ public:
             if (itemname.size() >= 2 && itemname[0] == '[' && itemname[itemname.size() - 1] == ']')
                 itemname = itemname.substr(1, itemname.size() - 2);
 
-            LocaleConstant locale = handler->GetSession()->GetSessionDbcLocale();
+            LocaleConstant locale = handler->GetSession()->GetSessionDbLocaleIndex();
 
             // find the item
             for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END && !item; ++i)
