@@ -573,7 +573,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
     {
         homepos.Relocate(me);
         if (!IsTempBot())
-            CheckOwnerExpiry(false);
+            CheckOwnerExpiry(true);
     }
     if (resetType == BOTAI_RESET_FORCE)
     {
@@ -17156,6 +17156,7 @@ bool bot_ai::GlobalUpdate(uint32 diff)
                 if (timeNow >= botHireTime + expireTime)
                 {
                     ResetBotAI(BOTAI_RESET_FORCE);
+                }
             }
         }
 
