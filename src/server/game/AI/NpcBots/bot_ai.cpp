@@ -17156,6 +17156,9 @@ bool bot_ai::GlobalUpdate(uint32 diff)
                 if (timeNow >= botHireTime + expireTime)
                 {
                     ResetBotAI(BOTAI_RESET_FORCE);
+                    Group* gr = GetGroup();
+                    if (gr)
+                        gr->Disband();
                 }
             }
         }

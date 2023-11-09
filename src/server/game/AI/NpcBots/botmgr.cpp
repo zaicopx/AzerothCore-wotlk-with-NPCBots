@@ -1086,7 +1086,7 @@ void BotMgr::Update(uint32 diff)
                             ai->BotWhisper(bot_ai::LocalizedNpcText(_owner, BOT_TEXT_TIME_EXPIRED), _owner);
 
                         Group* gr = _owner->GetGroup();
-                        if (gr->isLFGGroup() && gr->GetMembersCount() == 2)
+                        if (gr && gr->isLFGGroup() && gr->GetMembersCount() == 2)
                             gr->Disband();
 
                         uint32 newOwner = 0;
