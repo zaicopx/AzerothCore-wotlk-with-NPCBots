@@ -870,11 +870,11 @@ uint8 BotMgr::GetMaxNpcBots(uint8 playerLevel)
     if (playerLevel < 5)
         currMaxNpcBots = 0;
     else if (playerLevel < 10)
-        _maxNpcBots >= 1 ? currMaxNpcBots = 1 : _maxNpcBots;
+        currMaxNpcBots = 1;
     else if (playerLevel < 15)
-        _maxNpcBots >= 2 ? currMaxNpcBots = 2 : _maxNpcBots;
+        currMaxNpcBots = 2;
     else if (playerLevel < 59)
-        _maxNpcBots >= 4 ? currMaxNpcBots = 4 : _maxNpcBots;
+        currMaxNpcBots = 4;
     else if (playerLevel >= 60)
         currMaxNpcBots = _maxNpcBots;
    
