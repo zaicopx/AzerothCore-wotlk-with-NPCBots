@@ -4909,7 +4909,6 @@ NpcBot.ReviveRaidInstant.Active = 0
 #    Set NPCBots rates for individual progression
 NpcBot.Rate.Classic = 0.6
 NpcBot.Rate.TBC = 0.75
-NpcBot.Rate.WotLK = 1.0
 
 #    If active NPCBots will reset owner at Server restart
 NpcBot.ResetOnRestart.Active = 1
