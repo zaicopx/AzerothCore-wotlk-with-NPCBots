@@ -2910,9 +2910,6 @@ Rate.Creature.Normal.HP            = 1
 Rate.Creature.Elite.Elite.HP       = 1
 Rate.Creature.Elite.RARE.HP        = 1
 Rate.Creature.Elite.RAREELITE.HP   = 1
-Rate.Creature.Elite.BOSS.HP        = 1
-Rate.Creature.Elite.BOSS_HEROIC.HP = 1
-Rate.Creature.Elite.BOSS_RAID.HP   = 1
 Rate.Creature.Elite.WORLDBOSS.HP   = 1
 
 #
@@ -4390,6 +4387,11 @@ NpcBot.Enable = 1
 #        Description: Maximum number of bots allowed for players.
 #        Default:     1
 #        Max:         39
+#        Level 1-4: 0 Bots
+#        Level 5-9: 1 Bots
+#        Level 10-14: 2 Bots
+#        Level 15-59: 4 Bots
+#        Level 60-80: NpcBot.MaxBots
 
 NpcBot.MaxBots = 1
 
@@ -4560,13 +4562,6 @@ NpcBot.Enable.DungeonFinder = 1
 
 NpcBot.Limit.Dungeon = 1
 NpcBot.Limit.Raid    = 1
-
-#
-#    NpcBot.Fill.Dungeon
-#        Description: Enable/Disable if LFG groups are filled by bots.
-#        Default:     1 - (NpcBot.Fill.Dungeon)
-
-NpcBot.Fill.Dungeon = 1
 
 #
 #    NpcBot.Cost
@@ -4883,6 +4878,44 @@ NpcBot.HK.Rate.Honor = 1.0
 
 #
 ###################################################################################################
+
+###################################################################################################
+# BOXHEAD CUSTOM
+
+#
+#    NpcBot.Fill.Dungeon
+#        Description: Enable/Disable if LFG groups are filled by bots.
+#        Default:     1 - (NpcBot.Fill.Dungeon)
+
+NpcBot.Fill.Dungeon = 1
+
+#
+###################################################################################################
+
+#    Additional creature hp rates
+
+Rate.Creature.Elite.BOSS.HP        = 1.0
+Rate.Creature.Elite.BOSS_HEROIC.HP = 1.0
+Rate.Creature.Elite.BOSS_RAID.HP   = 1.0
+
+#    Changed creature balance
+Creature.NewBalance.Active = 1
+
+#    Enable or disable NPCBot mana regen cheat in raids/dungeons
+
+NpcBot.ManaRegenCheat.Active = 1
+
+#    Enable or disable NPCBot revive in raids
+
+NpcBot.ReviveRaidInstant.Active = 0
+
+#    Set NPCBots rates for individual progression
+NpcBot.Rate.Classic = 0.6
+NpcBot.Rate.TBC = 0.75
+NpcBot.Rate.WotLK = 1.0
+
+#    If active NPCBots will reset owner at Server restart
+NpcBot.ResetOnRestart.Active = 1
 
 ###################################################################################################
 #                                                                                                 #

@@ -918,9 +918,12 @@ void BotDataMgr::LoadNpcBots(bool spawn)
     else
         LOG_INFO("server.loading", ">> Loaded 0 npcbots. Table `characters_npcbot` is empty!");
 
-    CharacterDatabasePreparedStatement* bstmt;
-    bstmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NPCBOT_HIRE_TIME_INIT);
-    CharacterDatabase.Execute(bstmt);
+    if (!BotMgr::IsResetOnRestartActive())
+    {
+        CharacterDatabasePreparedStatement* bstmt;
+        bstmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NPCBOT_HIRE_TIME_INIT);
+        CharacterDatabase.Execute(bstmt);
+    }
 
     allBotsLoaded = true;
 }

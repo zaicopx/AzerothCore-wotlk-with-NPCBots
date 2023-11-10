@@ -573,7 +573,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
     {
         homepos.Relocate(me);
         if (!IsTempBot())
-            CheckOwnerExpiry(true);
+            CheckOwnerExpiry(BotMgr::IsResetOnRestartActive());
     }
     if (resetType == BOTAI_RESET_FORCE)
     {
@@ -6864,9 +6864,9 @@ void bot_ai::_OnHealthUpdate() const
     {
         MapEntry const* mapEntry = sMapStore.LookupEntry(me->GetMapId());
         if (me->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
-            m_totalhp *= 0.6;
+            m_totalhp *= BotMgr::GetBotRatesClassic();
         else if (me->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
-            m_totalhp *= 0.75;
+            m_totalhp *= BotMgr::GetBotRatesTBC();
     }
 
     //hp bonuses
@@ -7048,17 +7048,20 @@ void bot_ai::_OnManaRegenUpdate() const
         power_regen_mp5 += 0.024f * _getTotalBotStat(BOT_STAT_MOD_INTELLECT);
 
     //Mana regen Cheat
-    if (me->GetMap()->IsRaid())
-        power_regen_mp5 *= 10;
+    if (BotMgr::IsManaRegenCheatActive())
+    {
+        if (me->GetMap()->IsRaid())
+            power_regen_mp5 *= 10;
 
-    if (me->GetMap()->IsDungeon())
-        power_regen_mp5 *= 5;
+        if (me->GetMap()->IsDungeon())
+            power_regen_mp5 *= 5;
 
-    if (me->GetMap()->IsHeroic())
-        power_regen_mp5 *= 2;
+        if (me->GetMap()->IsHeroic())
+            power_regen_mp5 *= 2;
 
-    if ((me->GetMap()->IsRaid() || me->GetMap()->IsDungeon()) && me->GetBotClass() == BOT_CLASS_PRIEST || me->GetBotClass() == BOT_CLASS_PALADIN)
-        power_regen_mp5 *= 1.5;
+        if ((me->GetMap()->IsRaid() || me->GetMap()->IsDungeon()) && me->GetBotClass() == BOT_CLASS_PRIEST || me->GetBotClass() == BOT_CLASS_PALADIN)
+            power_regen_mp5 *= 1.5;
+    }
 
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(value, modManaRegenInterrupt));
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + value);
@@ -7441,9 +7444,9 @@ void bot_ai::ApplyBotDamageMultiplierHeal(Unit const* victim, float& heal, Spell
     {
         MapEntry const* mapEntry = sMapStore.LookupEntry(me->GetMapId());
         if (me->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
-            heal *= 0.6;
+            heal *= BotMgr::GetBotRatesClassic();
         else if (me->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
-            heal *= 0.75;
+            heal *= BotMgr::GetBotRatesTBC();
     }
 
     if (!me->GetMap()->IsBattlegroundOrArena())

@@ -121,6 +121,9 @@ bool _enableConfigLevelCapBG;
 bool _bothk_enable;
 bool _bothk_message_enable;
 bool _bothk_achievements_enable;
+bool _botManaRegenCheat;
+bool _botRaidRevive;
+bool _botResetOnRestart;
 float _botStatLimits_dodge;
 float _botStatLimits_parry;
 float _botStatLimits_block;
@@ -155,6 +158,8 @@ float _mult_dmg_necromancer;
 float _mult_dmg_seawitch;
 float _mult_dmg_cryptlord;
 float _bothk_rate_honor;
+float _botRatesClassic;
+float _botRatesTBC;
 std::vector<float> _mult_dmg_levels;
 BotBrackets _botwanderer_pct_level_brackets;
 std::vector<uint32> _enabled_wander_node_maps;
@@ -387,6 +392,11 @@ void BotMgr::LoadConfig(bool reload)
     _bothk_message_enable           = sConfigMgr->GetBoolDefault("NpcBot.HK.Message.Enable", false);
     _bothk_achievements_enable      = sConfigMgr->GetBoolDefault("NpcBot.HK.Achievements.Enable", false);
     _bothk_rate_honor               = sConfigMgr->GetFloatDefault("NpcBot.HK.Rate.Honor", 1.0);
+    _botManaRegenCheat              = sConfigMgr->GetBoolDefault("NpcBot.ManaRegenCheat.Active", false);
+    _botRaidRevive                  = sConfigMgr->GetBoolDefault("NpcBot.ReviveRaidInstant.Active", false);
+    _botRatesClassic                = sConfigMgr->GetFloatDefault("NpcBot.Rate.Classic", 1.0f);
+    _botRatesTBC                    = sConfigMgr->GetFloatDefault("NpcBot.Rate.TBC", 1.0f);
+    _botResetOnRestart              = sConfigMgr->GetBoolDefault("NpcBot.ResetOnRestart.Active", false);
 
     _mult_dmg_levels.clear();
     std::string mult_dps_by_levels = sConfigMgr->GetStringDefault("NpcBot.Mult.Damage.Levels", "1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0");
@@ -475,6 +485,8 @@ void BotMgr::LoadConfig(bool reload)
     RoundToInterval(_mult_dmg_seawitch, 0.1f, 10.f);
     RoundToInterval(_mult_dmg_cryptlord, 0.1f, 10.f);
     RoundToInterval(_bothk_rate_honor, 0.1f, 10.f);
+    RoundToInterval(_botRatesClassic, 0.1f, 10.f);
+    RoundToInterval(_botRatesTBC, 0.1f, 10.f);
 }
 
 void BotMgr::ResolveConfigConflicts()
@@ -742,6 +754,18 @@ bool BotMgr::IsBotHKAchievementsEnabled()
 {
     return _bothk_achievements_enable;
 }
+bool BotMgr::IsManaRegenCheatActive()
+{
+    return _botManaRegenCheat;
+}
+bool BotMgr::IsRaidReviveActive()
+{
+    return _botRaidRevive;
+}
+bool BotMgr::IsResetOnRestartActive()
+{
+    return _botResetOnRestart;
+}
 uint8 BotMgr::GetMaxClassBots()
 {
     return _maxClassNpcBots;
@@ -846,11 +870,11 @@ uint8 BotMgr::GetMaxNpcBots(uint8 playerLevel)
     if (playerLevel < 5)
         currMaxNpcBots = 0;
     else if (playerLevel < 10)
-        currMaxNpcBots >= 1 ? currMaxNpcBots = 1 : currMaxNpcBots;
+        _maxNpcBots >= 1 ? currMaxNpcBots = 1 : _maxNpcBots;
     else if (playerLevel < 15)
-        currMaxNpcBots >= 2 ? currMaxNpcBots = 2 : currMaxNpcBots;
+        _maxNpcBots >= 2 ? currMaxNpcBots = 2 : _maxNpcBots;
     else if (playerLevel < 59)
-        currMaxNpcBots >= 4 ? currMaxNpcBots = 4 : currMaxNpcBots;
+        _maxNpcBots >= 4 ? currMaxNpcBots = 4 : _maxNpcBots;
     else if (playerLevel >= 60)
         currMaxNpcBots = _maxNpcBots;
    
@@ -1036,7 +1060,7 @@ void BotMgr::Update(uint32 diff)
             bot->Update(diff);
             ai->canUpdate = false;
         }
-        else
+        else if (BotMgr::IsRaidReviveActive())
         {
             /// Raid revive
             if (_owner->IsAlive())
@@ -2833,6 +2857,14 @@ float BotMgr::GetBotHPRaidMod()
 float BotMgr::GetBotManaMod()
 {
     return _mult_mana;
+}
+float BotMgr::GetBotRatesClassic()
+{
+    return _botRatesClassic;
+}
+float BotMgr::GetBotRatesTBC()
+{
+    return _botRatesTBC;
 }
 //Boxhead: Set bot roles and talents in dungeon
 void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)

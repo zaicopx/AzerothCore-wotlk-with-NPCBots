@@ -1403,9 +1403,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     {
                         MapEntry const* mapEntry = sMapStore.LookupEntry(ToCreature()->GetMapId());
                         if (ToCreature()->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
-                            damage *= 0.6;
+                            damage *= BotMgr::GetBotRatesClassic();
                         else if (ToCreature()->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
-                            damage *= 0.75;
+                            damage *= BotMgr::GetBotRatesTBC();
                     }
 
                     //Reduce pet Damage
@@ -1501,9 +1501,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     {
                         MapEntry const* mapEntry = sMapStore.LookupEntry(ToCreature()->GetMapId());
                         if (ToCreature()->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
-                            damage *= 0.6;
+                            damage *= BotMgr::GetBotRatesClassic();
                         else if (ToCreature()->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
-                            damage *= 0.75;
+                            damage *= BotMgr::GetBotRatesTBC();
                     }
 
                     //Reduce pet Damage
@@ -1695,9 +1695,9 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(ToCreature()->GetMapId());
                 if (ToCreature()->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
-                    damage *= 0.6;
+                    damage *= BotMgr::GetBotRatesClassic();
                 else if (ToCreature()->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
-                    damage *= 0.75;
+                    damage *= BotMgr::GetBotRatesTBC();
             }
 
             //Reduce pet Damage
