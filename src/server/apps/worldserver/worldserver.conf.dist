@@ -4893,7 +4893,6 @@ NpcBot.Fill.Dungeon = 1
 ###################################################################################################
 
 #    Additional creature hp rates
-
 Rate.Creature.Elite.BOSS.HP        = 1.0
 Rate.Creature.Elite.BOSS_HEROIC.HP = 1.0
 Rate.Creature.Elite.BOSS_RAID.HP   = 1.0
@@ -4902,11 +4901,9 @@ Rate.Creature.Elite.BOSS_RAID.HP   = 1.0
 Creature.NewBalance.Active = 1
 
 #    Enable or disable NPCBot mana regen cheat in raids/dungeons
-
 NpcBot.ManaRegenCheat.Active = 1
 
 #    Enable or disable NPCBot revive in raids
-
 NpcBot.ReviveRaidInstant.Active = 0
 
 #    Set NPCBots rates for individual progression
