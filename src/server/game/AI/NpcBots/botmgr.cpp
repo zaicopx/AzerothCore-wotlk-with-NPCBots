@@ -1025,7 +1025,7 @@ void BotMgr::Update(uint32 diff)
             continue;
         }
 
-        if (!bot->GetMap()->IsRaid())
+        if (!bot->GetMap()->IsRaid() || !BotMgr::IsRaidReviveActive())
         {
             /// Normal revive
             if (partyCombat == false || _owner->InBattleground())
