@@ -150,6 +150,16 @@ public:
         {
             return;
         }
+        // Give player more xp if below level 60 and is in tbc phase
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->getLevel() < 60)
+        {
+            amount *= 1.15;
+        }
+        // Give player more xp if below level 70 and is in wotlk phase
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->getLevel() < 70)
+        {
+            amount *= 1.5;
+        }
         // Player is still in Vanilla content - do not give XP past level 60
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->getLevel() >= 60)
         {
