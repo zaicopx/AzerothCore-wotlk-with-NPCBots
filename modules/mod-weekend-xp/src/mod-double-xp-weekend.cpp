@@ -64,11 +64,19 @@ public:
         {
             if (IsEventActive())
             {
-                ChatHandler(player->GetSession()).PSendSysMessage("Es ist Wochenende! Deine Erfahrung wurde auf %g gesetzt.", GetExperienceRate(player));
+                uint32 loc = player->GetSession()->GetSessionDbLocaleIndex();
+                if (loc == 3)
+                    ChatHandler(player->GetSession()).PSendSysMessage("Es ist Wochenende! Deine Erfahrung wurde auf %g gesetzt.", GetExperienceRate(player));
+                else
+                    ChatHandler(player->GetSession()).PSendSysMessage("ItIt's the weekend! Your XP rate has been set to %g.", GetExperienceRate(player));
             }
             else
             {
-                ChatHandler(player->GetSession()).PSendSysMessage("Dieser Server nutzt das |cff4CFF00Double XP Weekend |rModul.");
+                uint32 loc = player->GetSession()->GetSessionDbLocaleIndex();
+                if (loc == 3)
+                    ChatHandler(player->GetSession()).PSendSysMessage("Dieser Server nutzt das |cff4CFF00Double XP Weekend |rModul.");
+                else
+                    ChatHandler(player->GetSession()).PSendSysMessage("This server is running the |cff4CFF00Double XP Weekend |rmodule.");
             }
         }
     }
