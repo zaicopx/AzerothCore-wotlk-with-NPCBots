@@ -68,7 +68,7 @@ public:
                 if (loc == 3)
                     ChatHandler(player->GetSession()).PSendSysMessage("Es ist Wochenende! Deine Erfahrung wurde auf %g gesetzt.", GetExperienceRate(player));
                 else
-                    ChatHandler(player->GetSession()).PSendSysMessage("ItIt's the weekend! Your XP rate has been set to %g.", GetExperienceRate(player));
+                    ChatHandler(player->GetSession()).PSendSysMessage("It's the weekend! Your XP rate has been set to %g.", GetExperienceRate(player));
             }
             else
             {
