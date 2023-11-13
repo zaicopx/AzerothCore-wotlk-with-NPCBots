@@ -18,41 +18,6 @@ enum WeekendXP
     WD_SUNDAY   = 0
 };
 
-class weekendxp_commandscript : public CommandScript
-{
-public:
-    weekendxp_commandscript() : CommandScript("weekendxp_commandscript") { }
-
-    ChatCommandTable GetCommands() const override
-    {
-        static ChatCommandTable commandTable =
-        {
-            { "weekendxp rate", HandleSetXPBonusCommand, SEC_PLAYER, Console::No },
-        };
-
-        return commandTable;
-    }
-
-    static bool HandleSetXPBonusCommand(ChatHandler* handler, float rate)
-    {
-        Player* player = handler->GetPlayer();
-
-        float maxRate = sConfigMgr->GetOption<float>("XPWeekend.MaxAllowedRate", 2);
-
-        if (!rate || rate > maxRate)
-        {
-            handler->PSendSysMessage(LANG_CMD_WEEKEND_XP_ERROR, maxRate);
-            handler->SetSentErrorMessage(true);
-            return true;
-        }
-
-        player->UpdatePlayerSetting("mod-double-xp-weekend", SETTING_WEEKEND_XP_RATE, rate);
-        handler->PSendSysMessage(LANG_CMD_WEEKEND_XP_SET, rate);
-
-        return true;
-    }
-};
-
 class DoubleXpWeekend : public PlayerScript
 {
 public:
@@ -104,15 +69,7 @@ public:
 
     float GetExperienceRate(Player * player) const
     {
-        float rate = sConfigMgr->GetOption<float>("XPWeekend.xpAmount", 2);
-
-        float individualRate = player->GetPlayerSetting("mod-double-xp-weekend", SETTING_WEEKEND_XP_RATE).value;
-
-        // If individualxp setting is enabled... and a rate was set, overwrite it.
-        if (sConfigMgr->GetOption<bool>("XPWeekend.IndividualXPEnabled", false) && individualRate)
-        {
-            rate = individualRate;
-        }
+        float rate = sConfigMgr->GetOption<float>("XPWeekend.xpAmount", 1);
 
         // Prevent returning 0% rate.
         return rate ? rate : 1;
@@ -136,5 +93,4 @@ public:
 void AdddoublexpScripts()
 {
     new DoubleXpWeekend();
-    new weekendxp_commandscript();
 }
