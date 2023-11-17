@@ -80,9 +80,9 @@ public:
             return false;
         }
         // Player is still in Vanilla content - give money at 60 level cap
-        return ((!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->getLevel() == 60) ||
+        return ((!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->GetLevel() == 60) ||
                 // Player is in TBC content - give money at 70 level cap
-                (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->getLevel() == 70));
+                (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() == 70));
     }
 
     void OnAfterUpdateMaxHealth(Player* player, float& value) override
@@ -110,10 +110,7 @@ public:
         // Player is still in Vanilla content - give Vanilla health adjustment
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            float adjustmentAmount = 1.0f - sIndividualProgression->vanillaHealthAdjustment;
-            float applyPercent = ((player->getLevel() - 10.0f) / 50.0f);
-            float computedAdjustment = player->getLevel() > 10 ? 1.0f - applyPercent * adjustmentAmount : 1.0f;
-            value *= computedAdjustment;
+            value *= (sIndividualProgression->vanillaHealthAdjustment - gearAdjustment);
         }
             // Player is in TBC content - give TBC health adjustment
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
@@ -151,17 +148,17 @@ public:
             return;
         }
         // Give player more xp if below level 60 and is in tbc phase
-        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->getLevel() < 60)
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
         {
             amount *= 1.15;
         }
         // Give player more xp if below level 70 and is in wotlk phase
-        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->getLevel() < 70)
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
         {
             amount *= 1.5;
         }
         // Player is still in Vanilla content - do not give XP past level 60
-        if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->getLevel() >= 60)
+        if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->GetLevel() >= 60)
         {
             // Still award XP to pets - they won't be able to pass the player's level
             Pet* pet = player->GetPet();
@@ -170,7 +167,7 @@ public:
             amount = 0;
         }
             // Player is in TBC content - do not give XP past level 70
-        else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->getLevel() >= 70)
+        else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() >= 70)
         {
             // Still award XP to pets - they won't be able to pass the player's level
             Pet* pet = player->GetPet();
@@ -532,10 +529,10 @@ private:
     static void AdjustVanillaStats(Pet* pet)
     {
         float adjustmentValue = -100.0f * (1.0f - sIndividualProgression->vanillaPowerAdjustment);
-        float adjustmentApplyPercent = (pet->getLevel() - 10.0f) / 50.0f;
-        float computedAdjustment = pet->getLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
-        float hpAdjustmentValue = -100.0f * (1.0f - sIndividualProgression->vanillaHealthAdjustment);
-        float hpAdjustment = pet->getLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
+        float adjustmentApplyPercent = 1;
+        float computedAdjustment = pet->GetLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
+        float hpAdjustmentValue = -100.0f * (1.0f - sIndividualProgression->vanillaPowerAdjustment);
+        float hpAdjustment = pet->GetLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
         AdjustStats(pet, computedAdjustment, hpAdjustment);
     }
 
@@ -543,9 +540,9 @@ private:
     {
         float adjustmentValue = -100.0f * (1.0f - sIndividualProgression->tbcPowerAdjustment);
         float adjustmentApplyPercent = 1;
-        float computedAdjustment = pet->getLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
+        float computedAdjustment = pet->GetLevel() > 10 ? (adjustmentValue * adjustmentApplyPercent) : 0;
         float hpAdjustmentValue = -100.0f * (1.0f - sIndividualProgression->tbcHealthAdjustment);
-        float hpAdjustment = pet->getLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
+        float hpAdjustment = pet->GetLevel() > 10 ? (hpAdjustmentValue * adjustmentApplyPercent) : 0;
         AdjustStats(pet, computedAdjustment, hpAdjustment);
     }
 
@@ -626,7 +623,7 @@ public:
         float gearAdjustment = computeTotalGearTuning(player);
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            heal *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaHealingAdjustment) - gearAdjustment);
+            heal *= (sIndividualProgression->ComputeVanillaAdjustment(player->GetLevel(), sIndividualProgression->vanillaHealingAdjustment) - gearAdjustment);
         }
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
         {
@@ -655,7 +652,7 @@ public:
         float gearAdjustment = computeTotalGearTuning(player);
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            damage *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaPowerAdjustment) - gearAdjustment);
+            damage *= (sIndividualProgression->vanillaPowerAdjustment - gearAdjustment);
         }
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
         {
@@ -681,7 +678,7 @@ public:
         float gearAdjustment = computeTotalGearTuning(player);
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            damage *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaPowerAdjustment) - gearAdjustment);
+            damage *= (sIndividualProgression->vanillaPowerAdjustment - gearAdjustment);
         }
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
         {
@@ -716,7 +713,7 @@ public:
         float gearAdjustment = computeTotalGearTuning(player);
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40))
         {
-            damage *= (sIndividualProgression->ComputeVanillaAdjustment(player->getLevel(), sIndividualProgression->vanillaPowerAdjustment) - gearAdjustment);
+            damage *= (sIndividualProgression->vanillaPowerAdjustment - gearAdjustment);
         }
         else if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5))
         {
