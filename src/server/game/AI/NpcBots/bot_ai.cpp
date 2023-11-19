@@ -462,6 +462,13 @@ void bot_ai::CheckOwnerExpiry(bool force)
     if (!BotMgr::GetOwnershipExpireTime() && !force)
         return; //disabled
 
+    if (force)
+    {
+        Group* gr = GetGroup();
+        if (gr)
+            gr->Disband();
+    }
+
     NpcBotData const* npcBotData = BotDataMgr::SelectNpcBotData(me->GetEntry());
     ASSERT(npcBotData, "bot_ai::CheckOwnerExpiry(): data not found!");
 
