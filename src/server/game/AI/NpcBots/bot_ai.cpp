@@ -1012,9 +1012,9 @@ void bot_ai::_calculatePos(Unit const* followUnit, Position& pos, float* speed/*
         angle = (angle / tanks) * (slot - (slot % 2)); //bias
         if (slot % 2) angle *= -1.f; //bias interchange
         if (master->GetMap()->IsDungeon() || master->GetMap() ->IsRaid())
-            mydist = 12.5f;
+            mydist = 10.0f;
         else
-            mydist = 3.5f;
+            mydist = 3.0f;
     }
     else if (HasRole(BOT_ROLE_RANGED))
     {
