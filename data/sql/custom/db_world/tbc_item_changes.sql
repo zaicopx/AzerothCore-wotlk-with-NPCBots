@@ -5274,6 +5274,30 @@ UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=25528;
 /*  Swift Purple Gryphon  */
 UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=25529;
 
+/*  Tawny Wind Rider  */
+UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 60 WHERE entry=25474;
+
+/*  Blue Wind Rider  */
+UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 60 WHERE entry=25475;
+
+/*  Green Wind Rider  */
+UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 60 WHERE entry=25476;
+
+/*  Swift Red Wind Rider  */
+UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=25477;
+
+/*  Swift Green Wind Rider  */
+UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=25531;
+
+/*  Swift Yellow Wind Rider  */
+UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=25532;
+
+/*  Swift Purple Wind Rider  */
+UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=25533;
+
+/*  Loaned Wind Rider Reins  */
+UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=44229;
+
 /*  Crystal Infused Leather  */
 UPDATE item_template SET BuyPrice = 5000 WHERE entry=25699;
 
