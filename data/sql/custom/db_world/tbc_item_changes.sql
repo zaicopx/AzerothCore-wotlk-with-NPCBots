@@ -5254,13 +5254,13 @@ UPDATE item_template SET RequiredReputationRank = 0 WHERE entry=24316;
 UPDATE item_template SET RequiredReputationRank = 0 WHERE entry=24539;
 
 /*  Golden Gryphon  */
-UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 70 WHERE entry=25470;
+UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 60 WHERE entry=25470;
 
 /*  Ebon Gryphon  */
-UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 70 WHERE entry=25471;
+UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 60 WHERE entry=25471;
 
 /*  Snowy Gryphon  */
-UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 70 WHERE entry=25472;
+UPDATE item_template SET BuyPrice = 1000000, SellPrice = 0, RequiredLevel = 60 WHERE entry=25472;
 
 /*  Swift Blue Gryphon  */
 UPDATE item_template SET BuyPrice = 2000000, SellPrice = 0 WHERE entry=25473;
