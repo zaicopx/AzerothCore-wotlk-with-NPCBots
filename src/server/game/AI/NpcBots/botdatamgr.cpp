@@ -918,6 +918,13 @@ void BotDataMgr::LoadNpcBots(bool spawn)
     else
         LOG_INFO("server.loading", ">> Loaded 0 npcbots. Table `characters_npcbot` is empty!");
 
+    if (!BotMgr::IsResetOnRestartActive())
+    {
+        CharacterDatabasePreparedStatement* bstmt;
+        bstmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NPCBOT_HIRE_TIME_INIT);
+        CharacterDatabase.Execute(bstmt);
+    }
+
     allBotsLoaded = true;
 }
 
@@ -2481,6 +2488,27 @@ void BotDataMgr::UpdateNpcBotDataAll(uint32 playerGuid, NpcBotDataUpdateType upd
         default:
             LOG_ERROR("sql.sql", "BotDataMgr:UpdateNpcBotDataAll: unhandled updateType {}", uint32(updateType));
             break;
+    }
+}
+void BotDataMgr::UpdateNpcBotHireTimeData(uint32 entry, NpcBotHireTimeType hireTimeType)
+{
+    CharacterDatabasePreparedStatement* bstmt;
+    switch (hireTimeType)
+    {
+        case NPCBOT_HIRE_TIME_INS:
+        {
+            bstmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_NPCBOT_HIRE_TIME);
+            bstmt->SetData(0, entry);
+            CharacterDatabase.Execute(bstmt);
+            break;
+        }
+        case NPCBOT_HIRE_TIME_DEL:
+        {
+            bstmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NPCBOT_HIRE_TIME);
+            bstmt->SetData(0, entry);
+            CharacterDatabase.Execute(bstmt);
+            break;
+        }
     }
 }
 

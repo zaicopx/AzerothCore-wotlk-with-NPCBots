@@ -1900,6 +1900,11 @@ void Player::Regenerate(Powers power)
                     addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * 0.001f * m_regenTimer;
                 else
                     addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * 0.001f * m_regenTimer;
+
+                if (IsInCombat())
+                    addvalue += GetMaxPower(POWER_MANA) / 100 * 0.005;
+                else
+                    addvalue += GetMaxPower(POWER_MANA) / 100 * 0.03;
             }
             break;
         case POWER_RAGE:                                    // Regenerate rage
@@ -2053,6 +2058,11 @@ void Player::RegenerateHealth()
 
     if (addvalue < 0)
         addvalue = 0;
+
+    if (IsInCombat())
+        addvalue += GetMaxHealth() * 0.00166;
+    else
+        addvalue += GetMaxHealth() * 0.01;
 
     ModifyHealth(int32(addvalue));
 }
@@ -2389,7 +2399,7 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
         else if (guid.IsPlayer())
         {
             std::vector<ObjectGuid> botguids;
-            botguids.reserve(BotMgr::GetMaxNpcBots() / 2 + 1);
+            botguids.reserve(BotMgr::GetMaxNpcBots(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)) / 2 + 1);
             BotDataMgr::GetNPCBotGuidsByOwner(botguids, guid);
             for (std::vector<ObjectGuid>::const_iterator ci = botguids.begin(); ci != botguids.end(); ++ci)
             {
@@ -10274,7 +10284,7 @@ void Player::SetRestBonus(float rest_bonus_new)
     if (rest_bonus_new < 0)
         rest_bonus_new = 0;
 
-    float rest_bonus_max = (float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) * 1.5f / 2;
+    float rest_bonus_max = (float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) * 1.5f / 4;
 
     if (rest_bonus_new > rest_bonus_max)
         _restBonus = rest_bonus_max;

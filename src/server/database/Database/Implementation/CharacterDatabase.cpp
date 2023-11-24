@@ -633,6 +633,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_NPCBOT_GROUP_MEMBER, "DELETE FROM characters_npcbot_group_member WHERE entry = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_NPCBOT_GROUP_MEMBER_ALL, "DELETE FROM characters_npcbot_group_member WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_NPCBOT_GROUP_MEMBER_FLAG, "UPDATE characters_npcbot_group_member SET memberFlags = ? WHERE entry = ?", CONNECTION_ASYNC);
+    // Boxhead Custom
+    PrepareStatement(CHAR_INS_NPCBOT_HIRE_TIME, "INSERT INTO characters_npcbot_hire_time (entry, hire_time) VALUES (?, NOW())", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_NPCBOT_HIRE_TIME, "DELETE FROM characters_npcbot_hire_time WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_NPCBOT_HIRE_TIME_INIT, "DELETE FROM characters_npcbot_hire_time", CONNECTION_ASYNC);
     // End NPCBots
 }
 

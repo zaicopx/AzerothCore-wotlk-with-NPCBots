@@ -119,7 +119,7 @@ public:
             events.ScheduleEvent(EVENT_DECIMATE, RAID_MODE(110000, 90000));
             events.ScheduleEvent(EVENT_BERSERK, 6min);
             events.ScheduleEvent(EVENT_SUMMON_ZOMBIE, 10s);
-            events.ScheduleEvent(EVENT_CAN_EAT_ZOMBIE, 1s);
+            //events.ScheduleEvent(EVENT_CAN_EAT_ZOMBIE, 1s);
         }
 
         void JustSummoned(Creature* summon) override
@@ -218,11 +218,11 @@ public:
                             }
                             (rand == 2 ? rand = 0 : rand++);
                         }
-                        events.Repeat(10s);
+                        events.Repeat(7s);
                         break;
                     }
                 case EVENT_CAN_EAT_ZOMBIE:
-                    events.RepeatEvent(1000);
+                    //events.RepeatEvent(1000);
                     if (me->GetVictim()->GetEntry() == NPC_ZOMBIE_CHOW && me->IsWithinMeleeRange(me->GetVictim()))
                     {
                         me->CastCustomSpell(SPELL_CHOW_SEARCHER, SPELLVALUE_RADIUS_MOD, 20000, me, true);

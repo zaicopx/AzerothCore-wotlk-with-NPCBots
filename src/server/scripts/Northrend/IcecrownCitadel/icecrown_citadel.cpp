@@ -600,7 +600,7 @@ public:
         void Reset() override
         {
             _events.Reset();
-            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
+            //_events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
             _events.ScheduleEvent(EVENT_STOMP, 5s, 8s);
             _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 10s, 15s);
         }
@@ -1040,7 +1040,7 @@ public:
                 crok->AI()->AttackStart(me);
             }
             events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9s);
-            events.ScheduleEvent(EVENT_IMPALING_SPEAR, 15s, 20s);
+            //events.ScheduleEvent(EVENT_IMPALING_SPEAR, 15s, 20s);
         }
 
         void KilledUnit(Unit* victim) override
@@ -2966,7 +2966,7 @@ public:
             switch (a)
             {
                 case CLASS_PALADIN:
-                    me->CastSpell(me, 71953, true);
+                    //me->CastSpell(me, 71953, true);
                     break;
                 case CLASS_DRUID:
                     //me->CastSpell(me, 57655, true);
@@ -3634,7 +3634,7 @@ public:
                 events.Reset();
                 events.ScheduleEvent(EVENT_CHECK_FIGHT, 1s);
                 instance->SetData(DATA_PUTRICIDE_TRAP_STATE, IN_PROGRESS);
-                me->CastSpell(me, SPELL_GIANT_INSECT_SWARM, true);
+                //me->CastSpell(me, SPELL_GIANT_INSECT_SWARM, true);
 
                 for (uint8 i = 0; i < 60; ++i)
                     events.ScheduleEvent(EVENT_GAUNTLET_PHASE1, i * 1000);

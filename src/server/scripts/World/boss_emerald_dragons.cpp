@@ -106,7 +106,7 @@ struct emerald_dragonAI : public WorldBossAI
         DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
         events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
-        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
+        //events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
         events.ScheduleEvent(EVENT_SUMMON_PLAYER, 1s);
     }
 
@@ -137,7 +137,7 @@ struct emerald_dragonAI : public WorldBossAI
             case EVENT_TAIL_SWEEP:
                 // Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
                 DoCast(me, SPELL_TAIL_SWEEP);
-                events.ScheduleEvent(EVENT_TAIL_SWEEP, 2000);
+                events.ScheduleEvent(EVENT_TAIL_SWEEP, 15000);
                 break;
             case EVENT_SUMMON_PLAYER:
                 if (Unit* target = me->GetVictim())

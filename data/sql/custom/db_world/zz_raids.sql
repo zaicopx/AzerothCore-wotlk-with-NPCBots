@@ -1,0 +1,1 @@
+UPDATE item_template SET spellid_3=0,spelltrigger_3=0,spellcharges_3=0,spellppmRate_3=0,spellcooldown_3=0,spellcategory_3=0,spellcategorycooldown_3=0 WHERE entry=31088

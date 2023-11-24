@@ -140,6 +140,9 @@ struct boss_netherspite : public BossAI
                     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                     {
                         Player* p = i->GetSource();
+                        p->RemoveAura(38637);
+                        p->RemoveAura(38638);
+                        p->RemoveAura(38639);
                         if (p && p->IsAlive() // alive
                             && (!target || target->GetDistance2d(portal) > p->GetDistance2d(portal)) // closer than current best
                             && !p->HasAura(PlayerDebuff[j]) // not exhausted

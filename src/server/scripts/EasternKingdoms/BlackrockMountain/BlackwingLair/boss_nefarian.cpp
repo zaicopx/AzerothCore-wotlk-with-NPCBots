@@ -466,7 +466,7 @@ public:
                             break;
                         case EVENT_MIND_CONTROL:
                             DoCastRandomTarget(SPELL_SHADOW_COMMAND, 0, 40.0f);
-                            events.ScheduleEvent(EVENT_MIND_CONTROL, 24s, 30s);
+                            events.ScheduleEvent(EVENT_MIND_CONTROL, 72s, 80s);
                             break;
                         case EVENT_SHADOWBLINK:
                             DoCastSelf(SPELL_SHADOWBLINK);
@@ -688,6 +688,13 @@ struct boss_nefarian : public BossAI
                         }
                     }
 
+                    //fix crash
+                    if (classesPresent.empty())
+                    {
+                        events.ScheduleEvent(EVENT_CLASSCALL, 10s, 15s);
+                        break;
+                    }
+
                     uint8 targetClass = Acore::Containers::SelectRandomContainerElement(classesPresent);
 
                     classesPresent.erase(targetClass);
@@ -746,7 +753,7 @@ struct boss_nefarian : public BossAI
                                 break;
                         }
                     }
-                    events.ScheduleEvent(EVENT_CLASSCALL, 30s, 35s);
+                    events.ScheduleEvent(EVENT_CLASSCALL, 70s, 90s);
                     break;
             }
 

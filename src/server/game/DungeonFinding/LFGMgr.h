@@ -27,6 +27,7 @@
 #include "LFGPlayerData.h"
 #include "LFGQueue.h"
 #include "Map.h"
+#include "botdatamgr.h"
 
 class Group;
 class Player;
@@ -440,6 +441,10 @@ namespace lfg
     public:
         static LFGMgr* instance();
 
+        //NPCBOT
+        NpcBotRegistry GetDungeonFinderBots() const { return _dungeonfinderbots; };
+        void RemoveDungeonFinderBotFromList(const Creature* bot) { _dungeonfinderbots.erase(bot); };
+
         // Functions used outside lfg namespace
         void Update(uint32 diff, uint8 task);
 
@@ -631,6 +636,8 @@ namespace lfg
         LfgPlayerDataContainer PlayersStore;               ///< Player data
         LfgGroupDataContainer GroupsStore;                 ///< Group data
         bool m_Testing;
+        //NPCBOT
+        NpcBotRegistry _dungeonfinderbots;
     };
 
 } // namespace lfg

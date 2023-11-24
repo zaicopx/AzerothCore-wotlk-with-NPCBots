@@ -85,7 +85,7 @@ public:
         {
             events.Reset();
             events.RescheduleEvent(EVENT_BOULDER, 8s);
-            events.RescheduleEvent(EVENT_STOMP, 5s);
+            //events.RescheduleEvent(EVENT_STOMP, 5s);
             events.RescheduleEvent(EVENT_GROUND_SLAM, 15s);
             if (me->GetMap()->IsHeroic())
                 events.RescheduleEvent(EVENT_GROUND_SPIKE, 10s);
@@ -137,20 +137,21 @@ public:
                 case EVENT_STOMP:
                     {
                         me->CastSpell(me, DUNGEON_MODE(STOMP, STOMP_H), false);
-                        events.Repeat(13s, 18s);
+                        //events.Repeat(13s, 18s);
                         break;
                     }
                 case EVENT_GROUND_SLAM:
                     {
-                        events.Repeat(10s, 13s);
-                        me->CastSpell(me->GetVictim(), GROUND_SLAM, true);
+                        events.Repeat(20s, 23s);
+                        //me->CastSpell(me->GetVictim(), GROUND_SLAM, true);
+                        Talk(SAY_SHATTER);
                         events.DelayEvents(10s);
-                        events.RescheduleEvent(EVENT_SHATTER, 8s);
+                        //events.RescheduleEvent(EVENT_SHATTER, 8s);
                         break;
                     }
                 case EVENT_SHATTER:
                     {
-                        me->CastSpell((Unit*)nullptr, DUNGEON_MODE(SHATTER, SHATTER_H), false);
+                        me->CastSpell((Unit*)nullptr, SHATTER, false);
                         Talk(SAY_SHATTER);
                         events.RescheduleEvent(EVENT_REMOVE_STONED, 1500ms);
                         break;

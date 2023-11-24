@@ -200,9 +200,19 @@ class boss_anub_arak : public CreatureScript
                             events.ScheduleEvent(EVENT_EMERGE, 45s);
                             events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 2s);
                             events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, 4s);
+                            events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 6s);
+                            events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 10s);
+                            events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, 12s);
                             events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 15s);
                             events.ScheduleEvent(EVENT_SUMMON_VENOMANCER, 20s);
+                            events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 24s);
+                            events.ScheduleEvent(EVENT_SUMMON_DARTER, 24s);
+                            events.ScheduleEvent(EVENT_SUMMON_VENOMANCER, 25s);
+                            events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 26s);
+                            events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 28s);
+                            events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 30s);
                             events.ScheduleEvent(EVENT_SUMMON_DARTER, 30s);
+                            events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 34s);
                             events.ScheduleEvent(EVENT_SUMMON_ASSASSINS, 35s);
                             break;
                         }

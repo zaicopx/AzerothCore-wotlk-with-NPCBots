@@ -104,7 +104,7 @@ class bot_ai : public CreatureAI
         ObjectGuid::LowType GetBotOwnerGuid() const { return _ownerGuid; }
         Player* GetBotOwner() const { return master; }
         bool SetBotOwner(Player* newowner);
-        void CheckOwnerExpiry();
+        void CheckOwnerExpiry(bool force);
         uint8 GetBotClass() const { return _botclass; }
         uint32 GetLastDiff() const { return lastdiff; }
         virtual void UpdateDeadAI(uint32 diff);
@@ -148,6 +148,7 @@ class bot_ai : public CreatureAI
         void ApplyBotEffectMods(SpellInfo const* spellInfo, uint8 effIndex, float& value) const;
         void ApplyBotThreatMods(SpellInfo const* spellInfo, float& threat) const;
         void ApplyBotEffectValueMultiplierMods(SpellInfo const* spellInfo, SpellEffIndex effIndex, float& multiplier) const;
+        void ApplyBotRandomEquip();
         virtual uint8 GetBotStance() const;
         uint32 GetBotRoles() const { return _roleMask; }
         bool HasRole(uint32 role) const { return _roleMask & role; }
@@ -345,6 +346,10 @@ class bot_ai : public CreatureAI
 
         static bool IsFlagCarrier(Unit const* unit, BattlegroundTypeId bgTypeId = BATTLEGROUND_TYPE_NONE);
 
+        //Moved from protected to public
+        void BotWhisper(const std::string &text, Player const* target = nullptr) const;
+        void BotWhisper(std::string&& text, Player const* target = nullptr) const;
+
     protected:
         explicit bot_ai(Creature* creature);
 
@@ -504,10 +509,8 @@ class bot_ai : public CreatureAI
         void DismountBot();
 
         void BotSay(const std::string &text, Player const* target = nullptr) const;
-        void BotWhisper(const std::string &text, Player const* target = nullptr) const;
         void BotYell(const std::string &text, Player const* target = nullptr) const;
         void BotSay(std::string&& text, Player const* target = nullptr) const;
-        void BotWhisper(std::string&& text, Player const* target = nullptr) const;
         void BotYell(std::string&& text, Player const* target = nullptr) const;
 
         void ReportSpellCast(uint32 spellId, const std::string& followedByString, Player const* target) const;
@@ -588,7 +591,7 @@ class bot_ai : public CreatureAI
         void ApplyRacials();
         void InitRoles();
         void InitSpec();
-        void InitEquips();
+        void InitEquips(bool randEquip);
         void InitOwner();
         void InitFaction();
         void InitRace();

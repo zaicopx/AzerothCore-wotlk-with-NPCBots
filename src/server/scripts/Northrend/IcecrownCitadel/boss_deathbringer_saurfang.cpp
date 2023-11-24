@@ -295,10 +295,10 @@ public:
 
             events.Reset();
             events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30s);
-            events.ScheduleEvent(EVENT_BERSERK, (IsHeroic() ? 6min : 8min));
+            events.ScheduleEvent(EVENT_BERSERK, (IsHeroic() ? 9min : 12min));
             events.ScheduleEvent(EVENT_BOILING_BLOOD, 15s + 500ms, 0);
             events.ScheduleEvent(EVENT_BLOOD_NOVA, 17s, 0);
-            events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20s, 0);
+            //events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20s, 0);
 
             _fallenChampionCastCount = 0;
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -426,7 +426,7 @@ public:
                             for (uint32 i25 = 0; i25 < 3; ++i25)
                                 DoCast(me, SPELL_SUMMON_BLOOD_BEAST_25_MAN + i25);
                         Talk(SAY_BLOOD_BEASTS);
-                        events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40s);
+                        events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 60s);
                         if (IsHeroic())
                             events.ScheduleEvent(EVENT_BLOOD_BEAST_SCENT_OF_BLOOD, 10s);
                         break;

@@ -267,8 +267,8 @@ struct boss_twinemperorsAI : public BossAI
             {
                 if (Creature* twin = GetTwin())
                 {
-                    if (me->IsWithinDist(twin, 60.f))
-                        DoCast(twin, SPELL_HEAL_BROTHER, true);
+                    //if (me->IsWithinDist(twin, 60.f))
+                    //    DoCast(twin, SPELL_HEAL_BROTHER, true);
                 }
 
                 context.Repeat();

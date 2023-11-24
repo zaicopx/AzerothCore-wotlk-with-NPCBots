@@ -109,12 +109,16 @@ class AC_GAME_API BotMgr
         static bool IsPvPEnabled();
         static bool IsFoodInterruptedByMovement();
         static bool FilterRaces();
+        static bool FillNpcBotsDungeons();
         static bool IsBotGenerationEnabledBGs();
         static bool IsBotLevelCappedByConfigBG();
         static bool IsBotGenerationEnabledWorldMapId(uint32 mapId);
         static bool IsBotHKEnabled();
         static bool IsBotHKMessageEnabled();
         static bool IsBotHKAchievementsEnabled();
+        static bool IsManaRegenCheatActive();
+        static bool IsRaidReviveActive();
+        static bool IsResetOnRestartActive();
         static uint8 GetMaxClassBots();
         static uint8 GetHealTargetIconFlags();
         static uint8 GetTankTargetIconFlags();
@@ -135,6 +139,10 @@ class AC_GAME_API BotMgr
         static float GetBotDamageModSpell();
         static float GetBotHealingMod();
         static float GetBotHPMod();
+        static float GetBotHPRaidMod();
+        static float GetBotManaMod();
+        static float GetBotRatesClassic();
+        static float GetBotRatesTBC();
         static float GetBotWandererDamageMod();
         static float GetBotWandererHealingMod();
         static float GetBotWandererHPMod();
@@ -186,7 +194,7 @@ class AC_GAME_API BotMgr
         uint8 GetNpcBotSlot(Creature const* bot) const;
         uint8 GetNpcBotSlotByRole(uint32 roles, Creature const* bot) const;
         uint32 GetAllNpcBotsClassMask() const;
-        static uint8 GetMaxNpcBots();
+        static uint8 GetMaxNpcBots(uint8 playerLevel);
         static uint8 GetNpcBotXpReduction();
         static uint8 GetNpcBotXpReductionStartingNumber();
         static int32 GetBotInfoPacketsLimit();
@@ -229,7 +237,7 @@ class AC_GAME_API BotMgr
         void RemoveBot(ObjectGuid guid, uint8 removetype = BOT_REMOVE_LOGOUT);
         void UnbindBot(ObjectGuid guid);
         [[nodiscard]] BotAddResult RebindBot(Creature* bot);
-        [[nodiscard]] BotAddResult AddBot(Creature* bot);
+        [[nodiscard]] BotAddResult AddBot(Creature* bot, bool costMoney);
         bool AddBotToGroup(Creature* bot);
         void RemoveBotFromBGQueue(Creature const* bot);
         bool RemoveBotFromGroup(Creature* bot);
@@ -281,6 +289,10 @@ class AC_GAME_API BotMgr
         //TELEPORT BETWEEN MAPS
         //CONFIRMEND UNSAFE (charmer,owner)
         static void TeleportBot(Creature* bot, Map* newMap, Position const* pos, bool quick = false, bool reset = false);
+
+        static void SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole);
+
+        static uint32 GetBotTeam(Creature const* bot);
 
         AoeSpotsVec const& GetAoeSpots() const { return _aoespots; }
         AoeSpotsVec& GetAoeSpots() { return _aoespots; }

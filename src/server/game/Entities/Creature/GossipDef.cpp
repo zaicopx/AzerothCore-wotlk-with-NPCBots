@@ -24,6 +24,9 @@
 #include "QuestDef.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Config.h"
+//Todo: eww
+#include "../../../../modules/mod-Individual-Progression/src/IndividualProgression.h"
 
 GossipMenu::GossipMenu()
 {
@@ -453,7 +456,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
         uint32 moneyRew = 0;
         Player* player = _session->GetPlayer();
         uint8 playerLevel = player ? player->GetLevel() : 0;
-        if (player && (player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(player)))
+        if (player && (player->GetLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(player)))
         {
             moneyRew = quest->GetRewMoneyMaxLevel();
         }
@@ -468,6 +471,22 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
         {
             questXp = 0;
         }
+
+        /*
+        //TODO: Enable when quest log is fixed
+        //Show correct xp
+        time_t t = time(nullptr);
+        tm* now = localtime(&t);
+        if (now->tm_wday == 5 || now->tm_wday == 6 || now->tm_wday == 0)
+            questXp *= GetExperienceRate(player);
+
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
+            questXp *= 1.15;
+
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
+            questXp *= 1.5;
+        */
+
         sScriptMgr->OnQuestComputeXP(player, quest, questXp);
         data << questXp;
     }
@@ -546,6 +565,8 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     data << uint32(quest->GetNextQuestInChain());           // client will request this quest from NPC, if not 0
     data << uint32(quest->GetXPId());                       // used for calculating rewarded experience
+
+    // Boxhead TODO: FIX QUEST LOG XP HERE
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
         data << uint32(0);                                  // Hide money rewarded
@@ -721,6 +742,19 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     {
         questXp = 0;
     }
+
+    //Show correct xp
+    time_t t = time(nullptr);
+    tm* now = localtime(&t);
+    if (now->tm_wday == 5 || now->tm_wday == 6 || now->tm_wday == 0)
+        questXp *= GetExperienceRate(player);
+
+    if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
+        questXp *= 1.15;
+
+    if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
+        questXp *= 1.5;
+
     sScriptMgr->OnQuestComputeXP(player, quest, questXp);
     data << questXp;
 
@@ -837,4 +871,12 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
     _session->SendPacket(&data);
     LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS {}, questid={}", npcGUID.ToString(), quest->GetQuestId());
+}
+
+float PlayerMenu::GetExperienceRate(Player* player) const
+{
+    float rate = sConfigMgr->GetOption<float>("XPWeekend.xpAmount", 1);
+
+    // Prevent returning 0% rate.
+    return rate ? rate : 1;
 }

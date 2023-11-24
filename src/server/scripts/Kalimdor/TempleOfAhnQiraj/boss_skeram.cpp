@@ -147,7 +147,7 @@ struct boss_skeram : public BossAI
         events.Reset();
 
         events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6s, 12s);
-        events.ScheduleEvent(EVENT_FULLFILMENT, 15s);
+        //events.ScheduleEvent(EVENT_FULLFILMENT, 15s);
         events.ScheduleEvent(EVENT_BLINK, 30s, 45s);
         events.ScheduleEvent(EVENT_EARTH_SHOCK, 1200ms);
 

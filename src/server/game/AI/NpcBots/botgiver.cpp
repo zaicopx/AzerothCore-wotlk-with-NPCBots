@@ -10,6 +10,8 @@
 #include "Player.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
+#include <botdatamgr.cpp>
+using namespace lfg;
 /*
 NPCbot giver NPC by Trickerer (<https://github.com/trickerer/> <onlysuffering@gmail.com>)
 Complete - 100%
@@ -18,6 +20,10 @@ Complete - 100%
 #define HIRE GOSSIP_SENDER_BOTGIVER_HIRE
 #define HIRE_CLASS GOSSIP_SENDER_BOTGIVER_HIRE_CLASS
 #define HIRE_ENTRY GOSSIP_SENDER_BOTGIVER_HIRE_ENTRY
+#define HIRE_RAID_GROUP GOSSIP_SENDER_BOTGIVER_HIRE_RAID_GROUP
+#define HIRE_RAID_GROUP_10 GOSSIP_SENDER_BOTGIVER_HIRE_RAID_GROUP_10
+#define HIRE_RAID_GROUP_25 GOSSIP_SENDER_BOTGIVER_HIRE_RAID_GROUP_25
+#define HIRE_RAID_GROUP_40 GOSSIP_SENDER_BOTGIVER_HIRE_RAID_GROUP_40
 
 class script_bot_giver : public CreatureScript
 {
@@ -42,6 +48,9 @@ public:
                 me->BotStopMovement();
 
             AddGossipItemFor(player, GOSSIP_ICON_TALK, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_SERVICE), HIRE, GOSSIP_ACTION_INFO_DEF + 1);
+
+            if (!player->HaveBot() && player->GetLevel() >= 60)
+                AddGossipItemFor(player, GOSSIP_ICON_TALK, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_HIRE_RAID), HIRE_RAID_GROUP, GOSSIP_ACTION_INFO_DEF + 1);
 
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, bot_ai::LocalizedNpcText(player, BOT_TEXT_NEVERMIND), 0, GOSSIP_ACTION_INFO_DEF + 2);
 
@@ -76,7 +85,7 @@ public:
                 {
                     gossipTextId = GOSSIP_BOTGIVER_HIRE;
 
-                    if (player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots())
+                    if (player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots(player->GetLevel()))
                     {
                         WhisperTo(player, me, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_TOO_MANY_BOTS).c_str());
                         break;
@@ -240,7 +249,7 @@ public:
                         break;
                     }
 
-                    bot_ai const* ai = bot->GetBotAI();
+                    bot_ai* ai = bot->GetBotAI();
                     if (bot->IsInCombat() || !bot->IsAlive() || bot_ai::CCed(bot) || ai->IsDuringTeleport() ||
                         bot->HasUnitState(UNIT_STATE_CASTING) || ai->GetBotOwnerGuid() || bot->HasAura(BERSERK))
                     {
@@ -258,6 +267,216 @@ public:
                         WhisperTo(player, me, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_HIRESUCCESS).c_str());
 
                     break;
+                }
+                case HIRE_RAID_GROUP:
+                {
+                    gossipTextId = GOSSIP_BOTGIVER_HIRE;
+
+                    if (player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots(player->GetLevel()))
+                    {
+                        WhisperTo(player, me, bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_TOO_MANY_BOTS).c_str());
+                        break;
+                    }
+
+                    subMenu = true;
+
+                    std::ostringstream message1;
+                    message1 << bot_ai::LocalizedNpcText(player, BOT_TEXT_BOTGIVER_WISH_TO_HIRE_) << '?';
+
+                    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TALK, "Hire 10 bots",
+                        HIRE_RAID_GROUP_10, GOSSIP_ACTION_INFO_DEF, message1.str(), BotMgr::GetNpcBotCost(player->GetLevel(), BOT_CLASS_NONE)*9, false);
+
+                    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TALK, "Hire 25 bots",
+                        HIRE_RAID_GROUP_25, GOSSIP_ACTION_INFO_DEF, message1.str(), BotMgr::GetNpcBotCost(player->GetLevel(), BOT_CLASS_NONE)*24, false);
+
+                    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TALK, "Hire 40 bots",
+                        HIRE_RAID_GROUP_40, GOSSIP_ACTION_INFO_DEF, message1.str(), BotMgr::GetNpcBotCost(player->GetLevel(), BOT_CLASS_NONE)*39, false);
+
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, bot_ai::LocalizedNpcText(player, BOT_TEXT_BACK), HIRE, GOSSIP_ACTION_INFO_DEF + 1);
+                }
+                case HIRE_RAID_GROUP_10:
+                case HIRE_RAID_GROUP_25:
+                case HIRE_RAID_GROUP_40:
+                {
+                    uint8 botsAmount;
+                    uint8 tanksAmount;
+                    uint8 offTanksAmount;
+                    uint8 healersAmount;
+                    uint8 dpsAmount;
+                    if (sender == HIRE_RAID_GROUP_10)
+                    {
+                        botsAmount = 9;
+                        tanksAmount = 1;
+                        offTanksAmount = 1;
+                        healersAmount = 2;
+                        dpsAmount = 5;
+                    }
+                    else if (sender == HIRE_RAID_GROUP_25)
+                    {
+                        botsAmount = 24;
+                        tanksAmount = 1;
+                        offTanksAmount = 2;
+                        healersAmount = 4;
+                        dpsAmount = 17;
+                    }
+                    else if (sender == HIRE_RAID_GROUP_40)
+                    {
+                        botsAmount = 39;
+                        tanksAmount = 1;
+                        offTanksAmount = 2;
+                        healersAmount = 9;
+                        dpsAmount = 27;
+                    }
+                    else
+                        break;
+
+                    uint32 botCost = BotMgr::GetNpcBotCost(player->GetLevel(), BOT_CLASS_NONE)* botsAmount;
+
+                    if (!player->HasEnoughMoney(botCost))
+                    {
+                        WhisperTo(player, me, bot_ai::LocalizedNpcText(player, BOT_TEXT_HIREFAIL_COST).c_str());
+                        break;
+                    }
+
+                    LfgGuidList tankPlayers, offTankPlayers, healPlayers, dpsPlayers;
+
+                    if (botsAmount > 0)
+                    {
+                        NpcBotRegistry allBots = _existingBots;
+                        while (botsAmount > 0)
+                        {
+                            //Group is full or not enough bots
+                            if (botsAmount == 0 || allBots.size() == 0)
+                            {
+                                if (allBots.size() == 0)
+                                    LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: Not enough NPC-Bots spawned for dungeon finder!");
+
+                                break;
+                            }
+
+                            //Better way for this?
+                            NpcBotRegistry::const_iterator ci = allBots.begin();
+                            std::advance(ci, urand(0, allBots.size() - 1));
+                            Creature const* bot = *ci;
+                            bot_ai* ai = bot->GetBotAI();
+
+                            if (!bot)
+                            {
+                                //possible but still
+                                allBots.erase(bot);
+                                LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %u not found!", bot->GetEntry());
+                                continue;
+                            }
+
+                            //Bot is busy, don't Add it
+                            if (bot->IsInCombat() || !bot->IsAlive() || bot_ai::CCed(bot) || ai->IsDuringTeleport() ||
+                                bot->HasUnitState(UNIT_STATE_CASTING) || ai->GetBotOwnerGuid() || bot->HasAura(BERSERK) || ai->IsWanderer())
+                            {
+                                allBots.erase(bot);
+                                continue;
+                            }
+
+                            //Bot faction is not the same as player
+                            if (BotMgr::FilterRaces())
+                            {
+                                if (BotMgr::FilterRaces() && bot->GetBotClass() < BOT_CLASS_EX_START && (bot->GetRaceMask() & RACEMASK_ALL_PLAYABLE) &&
+                                    !(bot->GetRaceMask() & ((player->GetRaceMask() & RACEMASK_ALLIANCE) ? RACEMASK_ALLIANCE : RACEMASK_HORDE)))
+                                {
+                                    allBots.erase(bot);
+                                    continue;
+                                }
+                            }
+
+                            BotMgr* mgr = player->GetBotMgr();
+                            if (!mgr)
+                                mgr = new BotMgr(player);
+
+                            uint8 botclass = bot->GetBotClass();
+                            //Add Tank
+                            if (tankPlayers.size() < tanksAmount)
+                            {
+                                if (botclass == BOT_CLASS_WARRIOR || botclass == BOT_CLASS_PALADIN ||
+                                    (botclass == BOT_CLASS_DEATH_KNIGHT && player->GetLevel() >= 55) ||
+                                    botclass == BOT_CLASS_DRUID)
+                                {
+                                    Unit* cre = ObjectAccessor::GetUnit(*bot, bot->GetGUID());
+                                    Creature* newBot = cre->ToCreature();
+                                    mgr->AddBot(newBot, false);
+                                    //Fill players variables
+                                    tankPlayers.push_back(newBot->GetGUID());
+                                    //Set bot talents and erase it from list
+                                    mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK);
+                                    allBots.erase(bot);
+                                    botsAmount--;
+                                    //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
+                                    continue;
+                                }
+                            }
+                            //Add Off-Tank
+                            if (offTankPlayers.size() < offTanksAmount)
+                            {
+                                if (botclass == BOT_CLASS_WARRIOR || botclass == BOT_CLASS_PALADIN ||
+                                    (botclass == BOT_CLASS_DEATH_KNIGHT && player->GetLevel() >= 55) ||
+                                    botclass == BOT_CLASS_DRUID)
+                                {
+                                    Unit* cre = ObjectAccessor::GetUnit(*bot, bot->GetGUID());
+                                    Creature* newBot = cre->ToCreature();
+                                    mgr->AddBot(newBot, false);
+                                    //Fill players variables
+                                    offTankPlayers.push_back(newBot->GetGUID());
+                                    //Set bot talents and erase it from list
+                                    mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_TANK_OFF);
+                                    allBots.erase(bot);
+                                    botsAmount--;
+                                    //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as tank!", bot->GetName().c_str());
+                                    continue;
+                                }
+                            }
+                            //Add Heal
+                            else if (healPlayers.size() < healersAmount)
+                            {
+                                if (botclass == BOT_CLASS_PALADIN || botclass == BOT_CLASS_PRIEST ||
+                                    botclass == BOT_CLASS_SHAMAN || botclass == BOT_CLASS_DRUID)
+                                {
+                                    Unit* cre = ObjectAccessor::GetUnit(*bot, bot->GetGUID());
+                                    Creature* newBot = cre->ToCreature();
+                                    mgr->AddBot(newBot, false);
+                                    //Fill players variables
+                                    healPlayers.push_back(newBot->GetGUID());
+                                    //Set bot talents and erase it from list
+                                    mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_HEAL);
+                                    allBots.erase(bot);
+                                    botsAmount--;
+                                    //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as heal!", bot->GetName());
+                                    continue;
+                                }
+                            }
+                            else if (dpsPlayers.size() < dpsAmount)
+                            {
+                                if (botclass == BOT_CLASS_WARRIOR || botclass == BOT_CLASS_PALADIN ||
+                                    botclass == BOT_CLASS_HUNTER || botclass == BOT_CLASS_ROGUE ||
+                                    botclass == BOT_CLASS_PRIEST || botclass == BOT_CLASS_SHAMAN ||
+                                    (botclass == BOT_CLASS_DEATH_KNIGHT && player->GetLevel() >= 55) ||
+                                    botclass == BOT_CLASS_MAGE || botclass == BOT_CLASS_WARLOCK ||
+                                    botclass == BOT_CLASS_DRUID)
+                                {
+                                    Unit* cre = ObjectAccessor::GetUnit(*bot, bot->GetGUID());
+                                    Creature* newBot = cre->ToCreature();
+                                    //Fill players variables
+                                    mgr->AddBot(newBot, false);
+                                    dpsPlayers.push_back(newBot->GetGUID());
+                                    //Set bot talents and erase it from list
+                                    mgr->SetRandomBotTalentsForGroup(bot, BOT_ROLE_DPS);
+                                    allBots.erase(bot);
+                                    botsAmount--;
+                                    //LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %s hired as dps!", bot->GetName());
+                                    continue;
+                                }
+                            }
+                            allBots.erase(bot);
+                        }
+                    }
+                    player->ModifyMoney(-botCost);
                 }
             }
 

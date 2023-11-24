@@ -190,13 +190,13 @@ public:
 
             bEnteredCombat = true;
             me->CastSpell(me, SPELL_SHROUD_OF_SORROW, true);
-            me->CastSpell(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
+            //me->CastSpell(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
             events.Reset();
-            events.ScheduleEvent(EVENT_BERSERK, 330s);
+            events.ScheduleEvent(EVENT_BERSERK, 520s);
             events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15s);
-            events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms);
+            //events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms);
             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 10s, 12s);
-            events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 20s);
+            //events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 20s);
             events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30s);
             events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, 15s, 25s);
             events.ScheduleEvent(EVENT_AIR_PHASE, Is25ManRaid() ? 127s : 124s);

@@ -1586,7 +1586,66 @@ void Creature::SelectLevel(bool changelevel)
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
 
     // health
-    float healthmod = _GetHealthMod(rank);
+    float healthmod = 1;
+
+    if (IsDungeonBoss() && !GetMap()->IsHeroic() && GetMap()->IsNonRaidDungeon())
+        healthmod = sWorld->getRate(RATE_CREATURE_ELITE_BOSS);
+    else if (IsDungeonBoss() && GetMap()->IsHeroic() && GetMap()->IsNonRaidDungeon())
+        healthmod = sWorld->getRate(RATE_CREATURE_ELITE_BOSS_HEROIC);
+    else if ((IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+        healthmod = sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
+    else
+        healthmod = _GetHealthMod(rank);
+
+    if (sWorld->getBoolConfig(CONFIG_NEW_BALANCE_FOR_CREATURES) && !IsNPCBotOrPet())
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+        //Classic Early Level Nerf
+        if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
+            healthmod *= (0.33 + (0.02 * GetLevel())); //Nerf hp from level 40 to 1 gradually
+
+        //Classic Content Buff
+        if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() >= 40)
+        {
+            healthmod *= (0.6 + (0.010125 * GetLevel())); //Buff hp from level 40 to 60 gradually
+        }
+
+        //Classic Dungeon Buff
+        if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsNonRaidDungeon())
+            healthmod *= 2;
+
+        //Classic Raid Buff
+        if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsRaid())
+            healthmod *= 1.5;
+
+        //TBC Content Buff
+        if (mapEntry->Expansion() == CONTENT_61_70)
+            healthmod *= 1.44;
+
+        //TBC Dungeon and Raid Buff
+        if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
+            healthmod *= 1.5;
+
+        //TBC Raid Trash Nerf
+        if (mapEntry->Expansion() == CONTENT_61_70 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+            healthmod *= 0.825;
+
+        //TBC Raid Bosses Nerf
+        if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+            healthmod *= 0.7;
+
+        //WOTLK Content Buff
+        if (mapEntry->Expansion() == CONTENT_71_80)
+            healthmod *= 1.5;
+
+        //Wotlk Raid Trash Nerf
+        if (mapEntry->Expansion() == CONTENT_71_80 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+            healthmod *= 0.75;
+
+        //Wotlk Raid Bosses Nerf
+        if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+            healthmod *= 0.4;
+    }
 
     uint32 basehp = std::max<uint32>(1, stats->GenerateHealth(cInfo));
     uint32 health = uint32(basehp * healthmod);
@@ -1842,7 +1901,65 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
         curhealth = data->curhealth;
         if (curhealth)
         {
-            curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
+            if (IsDungeonBoss() && !map->IsHeroic() && map->IsNonRaidDungeon())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS);
+            else if (IsDungeonBoss() && map->IsHeroic() && map->IsNonRaidDungeon())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_HEROIC);
+            else if ((IsDungeonBoss() || isWorldBoss()) && map->IsRaid())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
+            else
+                curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
+
+            if (sWorld->getBoolConfig(CONFIG_NEW_BALANCE_FOR_CREATURES) && !IsNPCBotOrPet())
+            {
+                MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+                //Classic Early Level Nerf
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
+                    curhealth *= (0.33 + (0.02 * GetLevel())); //Nerf hp from level 40 to 1 gradually
+
+                //Classic Content Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() >= 40)
+                {
+                    curhealth *= (0.6 + (0.010125 * GetLevel())); //Buff hp from level 40 to 60 gradually
+                }
+
+                //Classic Dungeon Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsNonRaidDungeon())
+                    curhealth *= 2;
+
+                //Classic Raid Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsRaid())
+                    curhealth *= 1.5;
+
+                //TBC Content Buff
+                if (mapEntry->Expansion() == CONTENT_61_70)
+                    curhealth *= 1.44;
+
+                //TBC Dungeon and Raid Buff
+                if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
+                    curhealth *= 1.5;
+
+                //TBC Raid Trash Nerf
+                if (mapEntry->Expansion() == CONTENT_61_70 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+                    curhealth *= 0.825;
+
+                //TBC Raid Bosses Nerf
+                if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+                    curhealth *= 0.7;
+
+                //WOTLK Content Buff
+                if (mapEntry->Expansion() == CONTENT_71_80)
+                    curhealth *= 1.5;
+
+                //Wotlk Raid Trash Nerf
+                if (mapEntry->Expansion() == CONTENT_71_80 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+                    curhealth *= 0.75;
+
+                //Wotlk Raid Bosses Nerf
+                if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+                    curhealth *= 0.4;
+            }
+
             if (curhealth < 1)
                 curhealth = 1;
         }
@@ -3991,9 +4108,67 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
         curhealth = data->curhealth;
         if (curhealth)
         {
-            curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
-            if (curhealth < 1)
-                curhealth = 1;
+            if (IsDungeonBoss() && !map->IsHeroic() && map->IsNonRaidDungeon())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS);
+            else if (IsDungeonBoss() && map->IsHeroic() && map->IsNonRaidDungeon())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_HEROIC);
+            else if ((IsDungeonBoss() || isWorldBoss()) && map->IsRaid())
+                curhealth *= sWorld->getRate(RATE_CREATURE_ELITE_BOSS_RAID);
+            else
+                curhealth = uint32(curhealth * _GetHealthMod(GetCreatureTemplate()->rank));
+
+            if (sWorld->getBoolConfig(CONFIG_NEW_BALANCE_FOR_CREATURES) && !IsNPCBotOrPet())
+            {
+                MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+                //Classic Early Level Nerf
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
+                    curhealth *= (0.33 + (0.02 * GetLevel())); //Nerf hp from level 40 to 1 gradually
+
+                //Classic Content Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetLevel() >= 40)
+                {
+                    curhealth *= (0.6 + (0.010125 * GetLevel())); //Buff hp from level 40 to 60 gradually
+                }
+
+                //Classic Dungeon Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsNonRaidDungeon())
+                    curhealth *= 2;
+
+                //Classic Raid Buff
+                if (mapEntry->Expansion() == CONTENT_1_60 && GetMap()->IsRaid())
+                    curhealth *= 1.5;
+
+                //TBC Content Buff
+                if (mapEntry->Expansion() == CONTENT_61_70)
+                    curhealth *= 1.44;
+
+                //TBC Dungeon and Raid Buff
+                if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
+                    curhealth *= 1.5;
+
+                //TBC Raid Trash Nerf
+                if (mapEntry->Expansion() == CONTENT_61_70 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+                    curhealth *= 0.825;
+
+                //TBC Raid Bosses Nerf
+                if (mapEntry->Expansion() == CONTENT_61_70 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+                    curhealth *= 0.7;
+
+                //WOTLK Content Buff
+                if (mapEntry->Expansion() == CONTENT_71_80)
+                    curhealth *= 1.5;
+
+                //Wotlk Raid Trash Nerf
+                if (mapEntry->Expansion() == CONTENT_71_80 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
+                    curhealth *= 0.75;
+
+                //Wotlk Raid Bosses Nerf
+                if (mapEntry->Expansion() == CONTENT_71_80 && (IsDungeonBoss() || isWorldBoss()) && GetMap()->IsRaid())
+                    curhealth *= 0.4;
+
+                if (curhealth < 1)
+                    curhealth = 1;
+            }
         }
         SetPower(POWER_MANA, data->curmana);
     }

@@ -73,6 +73,8 @@ const Position hadronoxSteps[4] =
     {534.87f, 554.0f, 733.0f, 0.0f}
 };
 
+bool lazyFix = false;
+
 class boss_hadronox : public CreatureScript
 {
 public:
@@ -86,9 +88,11 @@ public:
 
         void Reset() override
         {
-            summons.DoAction(ACTION_DESPAWN_ADDS);
-            BossAI::Reset();
-            me->SummonCreature(NPC_ANUB_AR_CRUSHER, 542.9f, 519.5f, 741.24f, 2.14f);
+            if (lazyFix == false) {
+                summons.DoAction(ACTION_DESPAWN_ADDS);
+                BossAI::Reset();
+                me->SummonCreature(NPC_ANUB_AR_CRUSHER, 542.9f, 519.5f, 741.24f, 2.14f);
+            }
         }
 
         void DoAction(int32 param) override
@@ -179,6 +183,9 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
+            if (CheckEvadeIfOutOfCombatArea() && lazyFix == true)
+                lazyFix = false;
+
             switch (uint32 eventId = events.ExecuteEvent())
             {
                 case EVENT_HADRONOX_PIERCE:
@@ -238,16 +245,19 @@ public:
 
         void Reset() override
         {
-            summons.DespawnAll();
-            events.Reset();
+            if (lazyFix == false)
+            {
+                summons.DespawnAll();
+                events.Reset();
 
-            if (me->ToTempSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
-                    if (summoner->GetEntry() == me->GetEntry())
-                    {
-                        me->CastSpell(me, RAND(SPELL_SUMMON_ANUBAR_CHAMPION, SPELL_SUMMON_ANUBAR_CRYPT_FIEND, SPELL_SUMMON_ANUBAR_NECROMANCER), true);
-                        me->CastSpell(me, RAND(SPELL_SUMMON_ANUBAR_CHAMPION, SPELL_SUMMON_ANUBAR_CRYPT_FIEND, SPELL_SUMMON_ANUBAR_NECROMANCER), true);
-                    }
+                if (me->ToTempSummon())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
+                        if (summoner->GetEntry() == me->GetEntry())
+                        {
+                            me->CastSpell(me, RAND(SPELL_SUMMON_ANUBAR_CHAMPION, SPELL_SUMMON_ANUBAR_CRYPT_FIEND, SPELL_SUMMON_ANUBAR_NECROMANCER), true);
+                            me->CastSpell(me, RAND(SPELL_SUMMON_ANUBAR_CHAMPION, SPELL_SUMMON_ANUBAR_CRYPT_FIEND, SPELL_SUMMON_ANUBAR_NECROMANCER), true);
+                        }
+            }
         }
 
         void JustSummoned(Creature* summon) override
@@ -279,6 +289,7 @@ public:
                         me->SummonCreature(NPC_ANUB_AR_CRUSHER, 519.58f, 573.73f, 734.30f, 4.50f);
                         me->SummonCreature(NPC_ANUB_AR_CRUSHER, 539.38f, 573.25f, 732.20f, 4.738f);
                         Talk(SAY_CRUSHER_AGGRO);
+                        lazyFix = true;
                     }
 
             events.ScheduleEvent(EVENT_CRUSHER_SMASH, 8s, 0, 0);

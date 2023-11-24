@@ -516,7 +516,7 @@ public:
                     continue;
 
                 if (!IAmFree())
-                    ASSERT(master->GetBotMgr()->AddBot(illusion));
+                    ASSERT(master->GetBotMgr()->AddBot(illusion,true));
 
                 illusion->SetCreator(master); //TempSummon* Map::SummonCreature()
                 illusion->SetOwnerGUID(me->GetGUID());

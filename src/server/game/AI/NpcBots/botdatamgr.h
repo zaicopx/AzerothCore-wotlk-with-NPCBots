@@ -44,6 +44,13 @@ enum NpcBotDataUpdateType
     NPCBOT_UPDATE_END
 };
 
+enum NpcBotHireTimeType
+{
+    NPCBOT_HIRE_TIME_INS                 = 1,
+    NPCBOT_HIRE_TIME_DEL,
+    NPCBOT_HIRE_TIME_END
+};
+
 struct NpcBotData
 {
     typedef std::set<uint32> DisabledSpellsContainer;
@@ -168,6 +175,7 @@ class BotDataMgr
         static NpcBotData const* SelectNpcBotData(uint32 entry);
         static void UpdateNpcBotData(uint32 entry, NpcBotDataUpdateType updateType, void* data = nullptr);
         static void UpdateNpcBotDataAll(uint32 playerGuid, NpcBotDataUpdateType updateType, void* data = nullptr);
+        static void UpdateNpcBotHireTimeData(uint32 entry, NpcBotHireTimeType hireTimeType);
         static void SaveNpcBotStats(NpcBotStats const* stats);
 
         static NpcBotAppearanceData const* SelectNpcBotAppearance(uint32 entry);

@@ -291,5 +291,7 @@ private:
     GossipMenu _gossipMenu;
     QuestMenu  _questMenu;
     WorldSession* _session;
+
+    float GetExperienceRate(Player* player) const;
 };
 #endif

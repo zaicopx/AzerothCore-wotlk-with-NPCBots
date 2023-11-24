@@ -627,7 +627,7 @@ public:
                     events.ScheduleEvent(EVENT_ENRAGE, 0);
                     events.ScheduleEvent(EVENT_ENRAGE_ROOT, 0);
                     events.ScheduleEvent(EVENT_SUMMON_WISPS, 1000);
-                    events.ScheduleEvent(EVENT_SPELL_HAND_OF_DEATH, 1500);
+                    //events.ScheduleEvent(EVENT_SPELL_HAND_OF_DEATH, 1500);
                     events.ScheduleEvent(EVENT_SPELL_FINGER_OF_DEATH, 2500);
                     break;
                 case EVENT_SUMMON_WISPS:

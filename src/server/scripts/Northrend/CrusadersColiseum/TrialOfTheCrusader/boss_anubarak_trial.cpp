@@ -256,7 +256,7 @@ public:
                 events.CancelEvent(EVENT_EMERGE_2);
                 if( !IsHeroic() )
                     events.CancelEvent(EVENT_SUMMON_NERUBIAN);
-                me->CastSpell((Unit*)nullptr, SPELL_LEECHING_SWARM, false);
+                //me->CastSpell((Unit*)nullptr, SPELL_LEECHING_SWARM, false);
                 Talk(EMOTE_LEECHING_SWARM);
                 Talk(SAY_LEECHING_SWARM);
                 return;

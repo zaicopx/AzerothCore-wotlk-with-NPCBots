@@ -361,7 +361,7 @@ public:
                 return;
             }
 
-            if (!bLockHealthCheck && me->HealthBelowPctDamaged(50, damage))
+            if (!bLockHealthCheck && me->HealthBelowPctDamaged(15, damage))
             {
                 bLockHealthCheck = true;
                 events.RescheduleEvent(EVENT_START_PHASE_2, 0ms, 1);
@@ -747,8 +747,8 @@ public:
                         AttackStart(target);
                     events.RescheduleEvent(EVENT_SPELL_ARCANE_PULSE, 0ms, 1);
                     events.RescheduleEvent(EVENT_SPELL_STATIC_FIELD, 1s, 4s, 1);
-                    events.RescheduleEvent(EVENT_SPELL_PH3_SURGE_OF_POWER, 4s, 7s, 1);
                     events.RescheduleEvent(EVENT_SPELL_ARCANE_STORM, 12s, 15s, 1);
+                    events.RescheduleEvent(EVENT_SPELL_PH3_SURGE_OF_POWER, 19s, 26s, 1);
                     break;
                 case EVENT_SPELL_ARCANE_PULSE:
                     me->CastSpell(me, SPELL_ARCANE_PULSE, true);
@@ -760,11 +760,11 @@ public:
                         me->SetFacingToObject(target);
                         me->CastSpell(target, SPELL_STATIC_FIELD_MAIN, true);
                     }
-                    events.Repeat(12s);
+                    events.Repeat(17s);
                     break;
                 case EVENT_SPELL_PH3_SURGE_OF_POWER:
                     me->CastSpell((Unit*)nullptr, SPELL_PH3_SURGE_OF_POWER, false);
-                    events.Repeat(7s);
+                    events.Repeat(25s);
                     break;
             }
 
@@ -806,7 +806,7 @@ public:
                     summon->DespawnOrUnsummon(45000);
                     break;
                 case NPC_STATIC_FIELD:
-                    summon->DespawnOrUnsummon(20000);
+                    summon->DespawnOrUnsummon(5000);
                     break;
             }
         }

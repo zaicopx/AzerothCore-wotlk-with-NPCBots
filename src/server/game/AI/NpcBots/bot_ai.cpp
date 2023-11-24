@@ -434,7 +434,7 @@ bool bot_ai::SetBotOwner(Player* newowner)
         return false;
     }
 
-    if (newowner->GetBotMgr()->AddBot(me) & BOT_ADD_FATAL)
+    if (newowner->GetBotMgr()->AddBot(me, true) & BOT_ADD_FATAL)
     {
         checkMasterTimer += 30000;
         return false;
@@ -457,10 +457,17 @@ bool bot_ai::SetBotOwner(Player* newowner)
     return true;
 }
 //Check if should totally unlink from owner
-void bot_ai::CheckOwnerExpiry()
+void bot_ai::CheckOwnerExpiry(bool force)
 {
-    if (!BotMgr::GetOwnershipExpireTime())
+    if (!BotMgr::GetOwnershipExpireTime() && !force)
         return; //disabled
+
+    if (force)
+    {
+        Group* gr = GetGroup();
+        if (gr)
+            gr->Disband();
+    }
 
     NpcBotData const* npcBotData = BotDataMgr::SelectNpcBotData(me->GetEntry());
     ASSERT(npcBotData, "bot_ai::CheckOwnerExpiry(): data not found!");
@@ -474,19 +481,21 @@ void bot_ai::CheckOwnerExpiry()
     ObjectGuid ownerGuid = ObjectGuid(HighGuid::Player, 0, npcBotData->owner);
     time_t timeNow = time(0);
     time_t expireTime = time_t(BotMgr::GetOwnershipExpireTime());
-    uint32 accId = sCharacterCache->GetCharacterAccountIdByGuid(ownerGuid);
-    QueryResult result = accId ? LoginDatabase.Query("SELECT UNIX_TIMESTAMP(last_login) FROM account WHERE id = {}", accId) : nullptr;
+    uint32 botEntry = me->GetEntry();
+    QueryResult result = botEntry ? CharacterDatabase.Query("SELECT UNIX_TIMESTAMP(hire_time) FROM characters_npcbot_hire_time WHERE entry = {}", botEntry) : nullptr;
 
     Field* fields = result ? result->Fetch() : nullptr;
-    time_t lastLoginTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
+    time_t botHireTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
 
     //either expired or owner does not exist
-    if (timeNow >= lastLoginTime + expireTime)
+    if ((timeNow >= botHireTime + expireTime) || force)
     {
         std::string name = "unknown";
         sCharacterCache->GetCharacterNameByGuid(ownerGuid, name);
         LOG_DEBUG("server.loading", ">> {}'s (guid: {}) ownership over bot {} ({}) has expired!",
             name.c_str(), npcBotData->owner, me->GetName().c_str(), me->GetEntry());
+
+        BotDataMgr::UpdateNpcBotHireTimeData(me->GetEntry(), NPCBOT_HIRE_TIME_DEL);
 
         //send all items back
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_NPCBOT_EQUIP_BY_ITEM_INSTANCE);
@@ -571,7 +580,14 @@ void bot_ai::ResetBotAI(uint8 resetType)
     {
         homepos.Relocate(me);
         if (!IsTempBot())
-            CheckOwnerExpiry();
+            CheckOwnerExpiry(BotMgr::IsResetOnRestartActive());
+    }
+    if (resetType == BOTAI_RESET_FORCE)
+    {
+        TeleportHomeStart(resetType != BOTAI_RESET_UNBIND);
+        homepos.Relocate(me);
+        if (!IsTempBot())
+            CheckOwnerExpiry(true);
     }
     if (resetType == BOTAI_RESET_LOGOUT)
         _saveStats();
@@ -988,14 +1004,17 @@ void bot_ai::_calculatePos(Unit const* followUnit, Position& pos, float* speed/*
     uint8 followdist = !player ? BotMgr::GetBotFollowDistDefault() / 2 : player->GetBotMgr()->GetBotFollowDist();
     float mydist, angle;
 
-    if (HasRole(BOT_ROLE_TANK) && !IsTank(followUnit))
+    if (HasRole(BOT_ROLE_TANK))
     {
         uint8 tanks = player != master ? 10 : std::max<uint8>(1, player->GetBotMgr()->GetNpcBotsCountByRole(BOT_ROLE_TANK));
         uint8 slot = player != master ? urand(0, 9) : player->GetBotMgr()->GetNpcBotSlotByRole(BOT_ROLE_TANK, me);
         angle = float(M_PI) / 6.0f; //max bias (left of right) //total arc is angle * 2
         angle = (angle / tanks) * (slot - (slot % 2)); //bias
         if (slot % 2) angle *= -1.f; //bias interchange
-        mydist = 3.5f;
+        if (master->GetMap()->IsDungeon() || master->GetMap() ->IsRaid())
+            mydist = 10.0f;
+        else
+            mydist = 3.0f;
     }
     else if (HasRole(BOT_ROLE_RANGED))
     {
@@ -2038,7 +2057,7 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
         Player const* owner = ai->GetBotOwner();
         botstring << (owner != unit ? owner->GetName() : LocalizedNpcText(player, BOT_TEXT_NONE));
     }
-    uint8 locale = player->GetSession()->GetSessionDbcLocale();
+    uint8 locale = player->GetSession()->GetSessionDbLocaleIndex();
     Unit::AuraMap const &vAuras = unit->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = vAuras.begin(); itr != vAuras.end(); ++itr)
     {
@@ -2303,7 +2322,7 @@ void bot_ai::SetStats(bool force)
         }
         else if (me->GetMap()->GetEntry()->IsContinent())
         {
-            uint8 mapmaxlevel = BotDataMgr::GetMaxLevelForMapId(me->GetMap()->GetEntry()->MapID);
+            uint8 mapmaxlevel = std::min<uint8>(mylevel, BotDataMgr::GetMaxLevelForMapId(me->GetMap()->GetEntry()->MapID));
             mapmaxlevel += BotDataMgr::GetLevelBonusForBotRank(me->GetCreatureTemplate()->rank);
             //TODO: experience system for levelups
             mylevel = std::max<uint8>(mylevel, std::min<uint8>(_baseLevel + uint8(_killsCount / (mylevel * 20)), mapmaxlevel));
@@ -5595,7 +5614,7 @@ uint32 bot_ai::_selectMountSpell() const
         using MountArray = std::array<uint32, NUM_MOUNTS_PER_SPEED>;
 
         bool can_fly = !IAmFree() ? master->CanFly() : false; //(!instt && me->GetMap()->GetEntry()->addon > 0);
-        bool useSlowMount = can_fly ? (me->GetLevel() < 70 || maxMountSpeed < 220) : (me->GetLevel() < 40 || maxMountSpeed < 80);
+        bool useSlowMount = can_fly ? (me->GetLevel() < 70 || maxMountSpeed < 220) : (me->GetLevel() < 60 || maxMountSpeed < 80);
 
         if (!can_fly)
         {
@@ -5720,7 +5739,7 @@ void bot_ai::_updateMountedState()
 
     if (IAmFree())
     {
-        if (!IsWanderer() || me->GetLevel() < 20 || me->HasAuraType(SPELL_AURA_PERIODIC_DAMAGE) ||
+        if (!IsWanderer() || me->GetLevel() < 30 || me->HasAuraType(SPELL_AURA_PERIODIC_DAMAGE) ||
             Feasting() || GetHealthPCT(me) < 80 || (CanDrink() && me->GetMaxPower(POWER_MANA) > 1 && GetManaPCT(me) < 70))
             return;
     }
@@ -5820,14 +5839,14 @@ void bot_ai::_updateRations()
 
     //drink
     if (!feast_mana && me->GetMaxPower(POWER_MANA) > 1 && !me->HasAuraType(SPELL_AURA_MOUNTED) && !me->isMoving() && CanDrink() &&
-        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetManaPCT(me) < 75 && urand(0, 100) < 20)
+        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetManaPCT(me) < 95 && urand(0, 100) < 20)
     {
         me->CastSpell(me, GetRation(true), true);
     }
 
     //eat
     if (!feast_health && !me->HasAuraType(SPELL_AURA_MOUNTED) && !me->isMoving() && CanEat() &&
-        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetHealthPCT(me) < 80 && urand(0, 100) < 20)
+        !me->IsInCombat() && !me->GetVehicle() && !IsCasting() && GetHealthPCT(me) < 95 && urand(0, 100) < 20)
     {
         me->CastSpell(me, GetRation(false), true);
     }
@@ -6838,7 +6857,24 @@ void bot_ai::_OnHealthUpdate() const
     hp_add += _getTotalBotStat(BOT_STAT_MOD_HEALTH);
     //TC_LOG_ERROR("entities.player", "health to add after stam mod: %i", hp_add);
     uint32 m_totalhp = m_basehp + int32(hp_add * (BotMgr::IsWanderingWorldBot(me) ? BotMgr::GetBotWandererHPMod() : BotMgr::GetBotHPMod()));
+
+    if (me->GetMap()->IsRaid())
+        m_totalhp *= BotMgr::GetBotHPRaidMod();
     //TC_LOG_ERROR("entities.player", "total base health: %u", m_totalhp);
+
+    //Tank Bonus
+    if (IsTank() || IsOffTank())
+        m_totalhp *= 1.1;
+
+    //IndividualProgression
+    if (!me->GetMap()->IsBattlegroundOrArena())
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(me->GetMapId());
+        if (me->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
+            m_totalhp *= BotMgr::GetBotRatesClassic();
+        else if (me->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
+            m_totalhp *= BotMgr::GetBotRatesTBC();
+    }
 
     //hp bonuses
     uint8 bonuspct = 0;
@@ -6911,6 +6947,9 @@ void bot_ai::_OnManaUpdate() const
     m_basemana = intValue * intMult + 20.f; //20.f is not a mistake
     //m_basemana += IAmFree() ? mylevel * 50.f : 0; //+4000/+0 mana at 80
     m_basemana += _getTotalBotStat(BOT_STAT_MOD_MANA);
+
+    //Add Mana Multiplier
+    m_basemana *= BotMgr::GetBotManaMod();
 
     //mana bonuses
     uint8 bonuspct = 0;
@@ -7014,6 +7053,22 @@ void bot_ai::_OnManaRegenUpdate() const
     if ((_botclass == BOT_CLASS_SHAMAN && GetSpec() == BOT_SPEC_SHAMAN_ELEMENTAL) ||
         (_botclass == BOT_CLASS_DRUID && GetSpec() == BOT_SPEC_DRUID_BALANCE))
         power_regen_mp5 += 0.024f * _getTotalBotStat(BOT_STAT_MOD_INTELLECT);
+
+    //Mana regen Cheat
+    if (BotMgr::IsManaRegenCheatActive())
+    {
+        if (me->GetMap()->IsRaid())
+            power_regen_mp5 *= 10;
+
+        if (me->GetMap()->IsDungeon())
+            power_regen_mp5 *= 5;
+
+        if (me->GetMap()->IsHeroic())
+            power_regen_mp5 *= 2;
+
+        if ((me->GetMap()->IsRaid() || me->GetMap()->IsDungeon()) && me->GetBotClass() == BOT_CLASS_PRIEST || me->GetBotClass() == BOT_CLASS_PALADIN)
+            power_regen_mp5 *= 1.5;
+    }
 
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(value, modManaRegenInterrupt));
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + value);
@@ -7353,7 +7408,14 @@ bool bot_ai::Wait()
     else
         waitTimer = __rand;
 
-    waitTimer += BotMgr::GetBaseUpdateDelay();
+    if (me->GetMap()->IsBattleground())
+        waitTimer += BotMgr::GetBaseUpdateDelay() / 5;
+    else if (me->GetMap()->IsBattleArena())
+        waitTimer = __rand;
+    else if (!me->GetMap()->IsRaid() && !me->GetMap()->IsDungeon())
+        waitTimer += BotMgr::GetBaseUpdateDelay();
+
+
 
     return false;
 }
@@ -7383,7 +7445,21 @@ void bot_ai::ApplyBotDamageMultiplierHeal(Unit const* victim, float& heal, Spell
 {
     //HEALING SPELLS amount bonus
     ApplyClassDamageMultiplierHeal(victim, heal, spellInfo, damagetype, stack);
-    heal = (heal * (BotMgr::IsWanderingWorldBot(me) ? BotMgr::GetBotWandererHealingMod() : BotMgr::GetBotHealingMod()));
+
+    //IndividualProgression
+    if (!me->GetMap()->IsBattlegroundOrArena())
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(me->GetMapId());
+        if (me->GetLevel() < 61 && mapEntry->Expansion() == CONTENT_1_60)
+            heal *= BotMgr::GetBotRatesClassic();
+        else if (me->GetLevel() < 71 && mapEntry->Expansion() == CONTENT_61_70)
+            heal *= BotMgr::GetBotRatesTBC();
+    }
+
+    if (!me->GetMap()->IsBattlegroundOrArena())
+        heal = (heal * (BotMgr::IsWanderingWorldBot(me) ? BotMgr::GetBotWandererHealingMod() : BotMgr::GetBotHealingMod()));
+    else
+        heal = heal;
 }
 void bot_ai::ApplyBotCritMultiplierAll(Unit const* victim, float& crit_chance, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
@@ -7450,6 +7526,10 @@ void bot_ai::ApplyBotEffectValueMultiplierMods(SpellInfo const* spellInfo, Spell
 {
     //ALL SPELLMOD_VALUE_MULTIPLIER mods
     ApplyClassEffectValueMultiplierMods(spellInfo, effIndex, multiplier);
+}
+void bot_ai::ApplyBotRandomEquip()
+{
+    InitEquips(true);
 }
 //Spell Mod Utilities
 float bot_ai::CalcSpellMaxRange(uint32 spellId, bool enemy) const
@@ -7537,7 +7617,7 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
                 reason = -1;
             if (!reason && _ownerGuid)
                 reason = 1;
-            if (!reason && BotDataMgr::GetOwnedBotsCount(player->GetGUID()) >= BotMgr::GetMaxNpcBots())
+            if (!reason && BotDataMgr::GetOwnedBotsCount(player->GetGUID()) >= BotMgr::GetMaxNpcBots(player->GetLevel()))
                 reason = 2;
             if (!reason && !player->HasEnoughMoney(cost))
                 reason = 3;
@@ -7593,7 +7673,7 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
             menus = true;
 
             //general: equips, roles, distance, abilities, comsumables, group
-            AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_EQUIPMENT), GOSSIP_SENDER_EQUIPMENT, GOSSIP_ACTION_INFO_DEF + 1);
+            //AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_EQUIPMENT), GOSSIP_SENDER_EQUIPMENT, GOSSIP_ACTION_INFO_DEF + 1);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_ROLES), GOSSIP_SENDER_ROLES_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_FORMATION), GOSSIP_SENDER_FORMATION, GOSSIP_ACTION_INFO_DEF + 1);
             AddGossipItemFor(player, GOSSIP_ICON_TALK, LocalizedNpcText(player, BOT_TEXT_MANAGE_ABILITIES), GOSSIP_SENDER_ABILITIES, GOSSIP_ACTION_INFO_DEF + 1);
@@ -9430,7 +9510,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 std::ostringstream istr;
                 _AddItemLink(player, item, istr, false);
                 ChatHandler ch(player->GetSession());
-                ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
+                //ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
 
                 item->SetOwnerGUID(player->GetGUID());
 
@@ -10026,7 +10106,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         break;
                     }
                     case 2: //max npcbots exceed
-                        ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_HIREFAIL_MAXBOTS).c_str(), BotMgr::GetMaxNpcBots());
+                        ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_HIREFAIL_MAXBOTS).c_str(), BotMgr::GetMaxNpcBots(player->GetLevel()));
                         BotSay("...", player);
                         break;
                     case 3: //not enough money
@@ -12217,14 +12297,15 @@ bool bot_ai::_unequip(uint8 slot, ObjectGuid receiver)
                 std::ostringstream istr;
                 _AddItemLink(master, item, istr, false);
                 ChatHandler ch(master->GetSession());
-                ch.PSendSysMessage(LocalizedNpcText(master, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
+                //ch.PSendSysMessage(LocalizedNpcText(master, BOT_TEXT_CANT_UNEQUIP_MAILING).c_str(), istr.str().c_str());
 
                 item->SetOwnerGUID(master->GetGUID());
 
                 CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
                 item->FSetState(ITEM_CHANGED);
                 item->SaveToDB(trans);
-                MailDraft(istr.str(), "").AddItem(item).SendMailTo(trans, MailReceiver(master), MailSender(me));
+                //MailDraft(istr.str(), "").AddItem(item).SendMailTo(trans, MailReceiver(master), MailSender(me));
+                //master->DestroyItemCount(item->GetEntry(), 1, true);
                 CharacterDatabase.CommitTransaction(trans);
 
                 //master->SendEquipError(msg, nullptr, nullptr, itemId);
@@ -12232,8 +12313,9 @@ bool bot_ai::_unequip(uint8 slot, ObjectGuid receiver)
             }
             else
             {
-                Item* pItem = master->StoreItem(dest, item, true);
-                master->SendNewItem(pItem, 1, true, false, false);
+                //Item* pItem = master->StoreItem(dest, item, true);
+                //master->SendNewItem(pItem, 1, true, false, false);
+                //master->DestroyItemCount(item->GetEntry(), 1, true);
             }
         }
         else
@@ -13995,7 +14077,7 @@ void bot_ai::DefaultInit()
         {
             InitFaction();
             InitOwner();
-            InitEquips();
+            InitEquips(false);
         }
 
         firstspawn = false;
@@ -14415,7 +14497,7 @@ bool bot_ai::IsValidSpecForClass(uint8 m_class, uint8 spec)
     return false;
 }
 
-void bot_ai::InitEquips()
+void bot_ai::InitEquips(bool randEquip)
 {
     EquipmentInfo const* einfo = BotDataMgr::GetBotEquipmentInfo(me->GetEntry());
     ASSERT(einfo, "Trying to spawn bot with no equip info!");
@@ -14423,7 +14505,7 @@ void bot_ai::InitEquips()
     NpcBotData const* npcBotData = BotDataMgr::SelectNpcBotData(me->GetEntry());
     ASSERT(npcBotData, "bot_ai::InitEquips(): data not found!");
 
-    if (IsWanderer())
+    if (IsWanderer() || randEquip)
     {
         GenerateRand();
         uint8 lvl = me->GetLevel();
@@ -15037,13 +15119,13 @@ void bot_ai::_AddQuestLink(Player const* forPlayer, Quest const* quest, std::ost
 //Unsused
 void bot_ai::_AddWeaponSkillLink(Player const* forPlayer, SpellInfo const* spellInfo, std::ostringstream &str, uint32 skillid) const
 {
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     str << "|cff00ffff|Hspell:" << spellInfo->Id << "|h[" << spellInfo->SpellName[loc] << " : " << master->GetSkillValue(skillid) << " /" << master->GetMaxSkillValue(skillid) << "]|h|r";
 }
 //|cff71d5ff|Hspell:21563|h[Command]|h|r
 void bot_ai::_AddSpellLink(Player const* forPlayer, SpellInfo const* spellInfo, std::ostringstream &str, bool color/* = true*/) const
 {
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     str << "|c";
 
     if (color)
@@ -15070,7 +15152,7 @@ void bot_ai::_AddProfessionLink(Player const* forPlayer, SpellInfo const* spellI
 {
     ASSERT(master->HasSkill(skillId));
     // |cffffd000|Htrade:4037:1:150:1:6AAAAAAAAAAAAAAAAAAAAAAOAADAAAAAAAAAAAAAAAAIAAAAAAAAA|h[Engineering]|h|r
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(skillId);
     if (skillInfo)
     {
@@ -15196,7 +15278,7 @@ void bot_ai::_LocalizeGameObject(Player const* forPlayer, std::string &gameobjec
 
 void bot_ai::_LocalizeSpell(Player const* forPlayer, std::string &spellName, uint32 entry) const
 {
-    uint32 loc = forPlayer->GetSession()->GetSessionDbcLocale();
+    uint32 loc = forPlayer->GetSession()->GetSessionDbLocaleIndex();
     std::wstring wnamepart;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry);
@@ -16928,14 +17010,6 @@ bool bot_ai::GlobalUpdate(uint32 diff)
     if (!me->IsAlive())
         return false;
 
-    if (!me->IsInWorld())
-    {
-        if (IAmFree())
-            LOG_ERROR("scripts", "bot_ai::GlobalUpdate is called for free bot not in world: {} ({}) class {} level {}",
-                me->GetName().c_str(), me->GetEntry(), uint32(_botclass), uint32(me->GetLevel()));
-        return false;
-    }
-
     if (doHealth)
     {
         doHealth = false;
@@ -17077,6 +17151,27 @@ bool bot_ai::GlobalUpdate(uint32 diff)
     if (_updateTimerEx1 <= diff)
     {
         _updateTimerEx1 = urand(2000, 2500);
+
+        if (BotMgr::GetOwnershipExpireTime())
+        {
+            if (!IsWanderer() && !ObjectAccessor::FindPlayerByLowGUID(_ownerGuid))
+            {
+                time_t timeNow = time(0);
+                time_t expireTime = time_t(BotMgr::GetOwnershipExpireTime());
+                uint32 botEntry = me->GetEntry();
+                QueryResult result = botEntry ? CharacterDatabase.Query("SELECT UNIX_TIMESTAMP(hire_time) FROM characters_npcbot_hire_time WHERE entry = {}", botEntry) : nullptr;
+                Field* fields = result ? result->Fetch() : nullptr;
+                time_t botHireTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
+
+                if (timeNow >= botHireTime + expireTime)
+                {
+                    ResetBotAI(BOTAI_RESET_FORCE);
+                    Group* gr = GetGroup();
+                    if (gr)
+                        gr->Disband();
+                }
+            }
+        }
 
         //Ex1-timed updates
 
@@ -18003,6 +18098,11 @@ bool bot_ai::FinishTeleport(bool reset)
         if (InstanceScript* iscr = master->GetInstanceScript())
             iscr->OnNPCBotEnter(me);
 
+        if (master && !IAmFree() && !_equips[BOT_SLOT_CHEST])
+        {
+            UnEquipAll(master->GetGUID());
+            ApplyBotRandomEquip();
+        }
         SetIsDuringTeleport(false);
     });
 

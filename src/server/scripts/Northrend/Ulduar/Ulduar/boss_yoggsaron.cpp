@@ -682,7 +682,7 @@ public:
             uint32 timer = events.GetNextEventTime(EVENT_SARA_P2_OPEN_PORTALS);
             uint32 portalTime = (timer > events.GetTimer() ? timer - events.GetTimer() : 0);
             events.DelayEvents(param + 100);
-            events.RescheduleEvent(EVENT_SARA_P2_OPEN_PORTALS, portalTime, 0, EVENT_PHASE_TWO);
+            //events.RescheduleEvent(EVENT_SARA_P2_OPEN_PORTALS, portalTime, 0, EVENT_PHASE_TWO);
             events.ScheduleEvent(EVENT_SARA_P2_REMOVE_STUN, param, 0, EVENT_PHASE_TWO);
             me->CastSpell(me, SPELL_SHATTERED_ILLUSION, true);
         }
@@ -840,14 +840,20 @@ public:
                 case EVENT_SARA_P2_SUMMON_T1: // CRUSHER
                     SpawnTentacle(NPC_CRUSHER_TENTACLE);
                     events.RepeatEvent((50000 + urand(0, 10000)) * _summonSpeed);
+                    if (Creature* yogg = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(TYPE_YOGGSARON)))
+                        yogg->SetHealth(yogg->GetHealth() - yogg->GetMaxHealth() * 0.08f);
                     break;
                 case EVENT_SARA_P2_SUMMON_T2: // CONSTRICTOR
                     SpawnTentacle(NPC_CONSTRICTOR_TENTACLE);
                     events.RepeatEvent((15000 + urand(0, 5000)) * _summonSpeed);
+                    if (Creature* yogg = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(TYPE_YOGGSARON)))
+                        yogg->SetHealth(yogg->GetHealth() - yogg->GetMaxHealth() * 0.04f);
                     break;
                 case EVENT_SARA_P2_SUMMON_T3: // CORRUPTOR
                     SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
                     events.RepeatEvent((30000 + urand(0, 10000)) * _summonSpeed);
+                    if (Creature* yogg = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(TYPE_YOGGSARON)))
+                        yogg->SetHealth(yogg->GetHealth() - yogg->GetMaxHealth() * 0.02f);
                     break;
                 case EVENT_SARA_P2_BRAIN_LINK:
                     me->CastCustomSpell(SPELL_BRAIN_LINK, SPELLVALUE_MAX_TARGETS, 1, me, false);
@@ -886,7 +892,7 @@ public:
                     events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T2, 15s, 20s, 0, EVENT_PHASE_TWO);
                     events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T3, 30000 + urand(0, 10000), 0, EVENT_PHASE_TWO);
                     events.ScheduleEvent(EVENT_SARA_P2_BRAIN_LINK, 0, 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_OPEN_PORTALS, 60000, 0, EVENT_PHASE_TWO);
+                    //events.ScheduleEvent(EVENT_SARA_P2_OPEN_PORTALS, 60000, 0, EVENT_PHASE_TWO);
                     break;
                 case EVENT_SARA_P1_BERSERK:
                     if (me->GetInstanceScript())
@@ -1061,6 +1067,7 @@ public:
             m_pInstance = me->GetInstanceScript();
             _thirdPhase = false;
             _usedInsane = false;
+            _brainDamaged = false;
             summons.DespawnAll();
             events.Reset();
 
@@ -1080,6 +1087,7 @@ public:
         InstanceScript* m_pInstance;
         EventMap events;
         SummonList summons;
+        bool _brainDamaged;
         bool _thirdPhase;
         bool _usedInsane;
 
@@ -1190,6 +1198,26 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            if (!_brainDamaged)
+            {
+                // START PHASE 3
+                if (me->GetHealth() < me->GetMaxHealth() * 0.3)
+                {
+                    me->SetRegeneratingHealth(false);
+                    _EnterEvadeMode();
+
+                    me->CastSpell(me, SPELL_BRAIN_HURT_VISUAL, true);
+                    if (me->GetInstanceScript())
+                    {
+                        if (Creature* sara = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(NPC_SARA)))
+                        {
+                            sara->AI()->DoAction(ACTION_BRAIN_DAMAGED);
+                            _brainDamaged = true;
+                        }
+                    }
+                }
+            }
+
             if (!_thirdPhase)
                 return;
 
@@ -1242,11 +1270,9 @@ public:
             _tentacleCount = 0;
             _activeIllusion = 0;
             _induceTimer = 0;
-            _brainDamaged = false;
             me->SetRegeneratingHealth(false);
         }
 
-        bool _brainDamaged;
         uint8 _tentacleCount;
         uint8 _activeIllusion;
         uint32 _induceTimer;
@@ -1396,6 +1422,7 @@ public:
                     if (GameObject* go = me->FindNearestGameObject(GO_CHAMBER_ILLUSION_DOORS + _activeIllusion, 150.0f))
                         go->SetGoState(GO_STATE_ACTIVE);
                 }
+
                 return;
             }
             else if (param == ACTION_REMOVE_STUN)
@@ -1442,22 +1469,6 @@ public:
                 if (who)
                     Unit::Kill(who, who);
                 return;
-            }
-
-            if (!_brainDamaged)
-            {
-                // START PHASE 3
-                if (me->HealthBelowPctDamaged(30, damage))
-                {
-                    me->SetRegeneratingHealth(false);
-                    _EnterEvadeMode();
-                    _brainDamaged = true;
-
-                    me->CastSpell(me, SPELL_BRAIN_HURT_VISUAL, true);
-                    if (me->GetInstanceScript())
-                        if(Creature* sara = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(NPC_SARA)))
-                            sara->AI()->DoAction(ACTION_BRAIN_DAMAGED);
-                }
             }
         }
 
@@ -2799,7 +2810,8 @@ public:
             {
                 if ((aur->GetStackAmount() - _reduceAmount) <= 20)
                     target->CastSpell(target, 63752 /*SANITY_SCREEN_EFFECT*/, true);
-                aur->ModStackAmount(-_reduceAmount);
+                //aur->ModStackAmount(-_reduceAmount);
+                aur->ModStackAmount(100);
             }
         }
 

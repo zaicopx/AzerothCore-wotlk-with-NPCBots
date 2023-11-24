@@ -94,6 +94,9 @@ namespace lfg
     {
         Map const* map = player->GetMap();
 
+        //Workaround fix for individual progression
+        player->UpdateMaxHealth();
+
         if (sLFGMgr->inLfgDungeonMap(player->GetGUID(), map->GetId(), map->GetDifficulty()))
         {
             Group* group = player->GetGroup();

@@ -330,7 +330,7 @@ public:
             _events.ScheduleEvent(EVENT_INTRO_TALK, 15s);
             _events.ScheduleEvent(EVENT_DREAM_PORTAL, 45s, 48s);
             if (IsHeroic())
-                _events.ScheduleEvent(EVENT_BERSERK, 7min);
+                _events.ScheduleEvent(EVENT_BERSERK, 10min);
         }
 
         void HealReceived(Unit* healer, uint32& heal) override
@@ -724,7 +724,7 @@ public:
         {
             _events.Reset();
             _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 5s, 15s);
-            _events.ScheduleEvent(EVENT_MANA_VOID, 15s, 25s);
+            //_events.ScheduleEvent(EVENT_MANA_VOID, 15s, 25s);
             _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, 10s, 20s);
         }
 

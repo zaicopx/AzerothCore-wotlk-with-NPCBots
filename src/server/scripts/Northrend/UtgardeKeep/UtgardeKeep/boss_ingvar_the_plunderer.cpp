@@ -121,6 +121,7 @@ public:
         SummonList summons;
         ObjectGuid ValkyrGUID;
         ObjectGuid ThrowGUID;
+        bool resurrectionStarted = false;
 
         void Reset() override
         {
@@ -134,6 +135,7 @@ public:
             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetControlled(false, UNIT_STATE_ROOT);
             me->DisableRotate(false);
+            resurrectionStarted = false;
 
             if (pInstance)
                 pInstance->SetData(DATA_INGVAR, NOT_STARTED);
@@ -141,8 +143,9 @@ public:
 
         void DamageTaken(Unit*, uint32& damage, DamageEffectType, SpellSchoolMask) override
         {
-            if (me->GetDisplayId() == DISPLAYID_DEFAULT && damage >= me->GetHealth())
+            if (!resurrectionStarted && me->GetDisplayId() == DISPLAYID_DEFAULT && damage >= me->GetHealth())
             {
+                resurrectionStarted = true;
                 damage = 0;
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAllAuras();
