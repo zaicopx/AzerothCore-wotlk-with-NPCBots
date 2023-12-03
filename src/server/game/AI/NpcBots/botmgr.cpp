@@ -958,10 +958,10 @@ void BotMgr::Update(uint32 diff)
     NpcBotRegistry _alldungeonbots = sLFGMgr->GetDungeonFinderBots();
     if (_alldungeonbots.size() > 0)
     {
-        for (NpcBotRegistry::const_iterator ci = _alldungeonbots.begin(); ci != _alldungeonbots.end(); ++ci)
+        for (NpcBotRegistry::const_iterator itr = _alldungeonbots.begin(); itr != _alldungeonbots.end(); ++itr)
         {
 
-            Creature const* bot = *ci;
+            Creature const* bot = *itr;
             ai = bot->GetBotAI();
 
             if (!ai->GetBotOwnerGuid())
@@ -1090,9 +1090,28 @@ void BotMgr::Update(uint32 diff)
         }
     }
 
+    if (BotMgr::GetOwnershipExpireTime())
+    {
         //Reset bot if time has expired
-        if (BotMgr::GetOwnershipExpireTime())
+        for (BotMap::const_iterator itr = _bots.begin(); itr != _bots.end(); ++itr)
         {
+            bot = itr->second;
+            ai = bot->GetBotAI();
+
+            if (!ai->GetBotOwnerGuid())
+            {
+                sLFGMgr->RemoveDungeonFinderBotFromList(bot);
+                continue;
+            }
+
+            if (ai->IAmFree())
+                continue;
+
+            if (!bot->IsInWorld())
+            {
+                continue;
+            }
+
             if (!_owner->IsInCombat() && !_owner->GetMap()->IsRaid() && !_owner->GetMap()->IsDungeon())
             {
                 time_t timeNow = time(0);
@@ -1122,6 +1141,7 @@ void BotMgr::Update(uint32 diff)
                 }
             }
         }
+    }
 
     if (_quickrecall)
     {
