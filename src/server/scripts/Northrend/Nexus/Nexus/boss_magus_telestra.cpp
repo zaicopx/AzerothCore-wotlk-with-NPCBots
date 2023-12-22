@@ -59,7 +59,7 @@ enum Misc
 
     ACHIEVEMENT_SPLIT_PERSONALITY   = 2150,
 
-    GAME_EVENT_WINTER_VEIL = 2,
+    GAME_EVENT_WINTER_VEIL          = 2,
 };
 
 enum Events
