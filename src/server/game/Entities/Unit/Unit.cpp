@@ -12345,7 +12345,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     {
         MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
         //Classic Early Level Nerf
-        if (!IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
+        if (sWorld->getBoolConfig(CONFIG_NEW_BALANCE_FOR_CREATURES) && !IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
         {
             DoneTotalMod *= (0.2 + (0.02 * GetLevel()));
         }

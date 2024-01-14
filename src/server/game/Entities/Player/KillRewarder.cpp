@@ -23,6 +23,8 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "LFGGroupData.h"
+//Todo: eww
+#include "../../../../modules/mod-Individual-Progression/src/IndividualProgression.h"
 
 //npcbot
 #include "botmgr.h"
@@ -196,6 +198,12 @@ void KillRewarder::_RewardXP(Player* player, float rate)
         // Give less xp in dungeons
         if (player->GetMap()->IsDungeon())
             xp *= 0.5;
+
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
+            xp *= 1.5;
+
+        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
+            xp *= 2.0;
 
         // Don't give XP outside of dungeons if in LFG Group now
         if (Group* gr = player->GetGroup())

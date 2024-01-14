@@ -9,3 +9,6 @@ INSERT INTO `item_template_locale` (`ID`, `locale`, `Name`, `Description`, `Veri
 
 DELETE FROM `npc_vendor` WHERE `entry`=31238 AND `item`=90000 AND `ExtendedCost`=0;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `VerifiedBuild`) VALUES (31238, 1, 90000, 0, 0, 0, 0);
+
+DELETE FROM `item_dbc` WHERE `ID`=90000;
+INSERT INTO `item_dbc` (`ID`, `ClassID`, `SubclassID`, `Sound_Override_Subclassid`, `Material`, `DisplayInfoID`, `InventoryType`, `SheatheType`) VALUES (90000, 9, 0, -1, 8, 61330, 0, 0);

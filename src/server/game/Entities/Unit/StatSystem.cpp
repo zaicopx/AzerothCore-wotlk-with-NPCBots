@@ -1204,7 +1204,7 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
     //Classic Early Level Nerf
-    if (!IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
+    if (sWorld->getBoolConfig(CONFIG_NEW_BALANCE_FOR_CREATURES) && !IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
     {
         minDamage *= (0.2 + (0.02 * GetLevel()));
         maxDamage *= (0.2 + (0.02 * GetLevel()));
