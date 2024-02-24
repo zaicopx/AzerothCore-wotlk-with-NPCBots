@@ -195,10 +195,6 @@ void KillRewarder::_RewardXP(Player* player, float rate)
                 xp *= 12.5;
         }
 
-        // Give less xp in dungeons
-        if (player->GetMap()->IsDungeon())
-            xp *= 0.5;
-
         if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
             xp *= 1.5;
 
