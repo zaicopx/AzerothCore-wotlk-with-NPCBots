@@ -9,3 +9,4 @@ UPDATE npc_trainer SET MoneyCost=100000000 WHERE SpellID=34091;
 DELETE FROM npc_trainer WHERE SpellID=23214;
 DELETE FROM npc_trainer WHERE SpellID=34767;
 DELETE FROM npc_trainer WHERE SpellID=23161;
+ 
