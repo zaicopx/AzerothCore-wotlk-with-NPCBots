@@ -4776,13 +4776,21 @@ NpcBot.InfoPacketsLimit = -1
 
 #
 #    NpcBot.OwnershipExpireTime
-#        Description: Maxmum time since last account login (in seconds) before bot ownership
-#                     is automatically cancelled (at server loading).
-#        Note:        All items will be refund and mailed back to player.
+#        Description: Time (in seconds) before bot ownership is automatically cancelled.
+#        Note:        NPCBot ownership may only expire after player goes offline.
+#        Note2:       All items will be mailed back to player as usual.
 #        Default:     0 - (Disabled)
 #                     604800 - (7 Days)
 
 NpcBot.OwnershipExpireTime = 0
+
+#
+#    NpcBot.OwnershipExpireMode
+#        Description: Ownership expiration mode. Determines when the timer starts.
+#        Default:     0 - (Player goes offline, timer resets if player logs back in)
+#                     1 - (Player hires the bot, timer never resets)
+
+NpcBot.OwnershipExpireMode = 0
 
 #
 #    NpcBot.EnrageOnDismiss
@@ -4822,6 +4830,16 @@ NpcBot.WanderingBots.Continents.Levels = 25,15,15,10,5,10,20,0,0
 NpcBot.WanderingBots.Continents.Maps = 0,1,530,571
 
 #
+#    NpcBot.WanderingBots.Continents.XPGain
+#        Description: XP gained by wandering bots mutiplier. Directly affects bot leveling rate.
+#        Default:     1.0 - (100% XP gained)
+#                     0.1 - (10% XP gained)
+#        Minimum:     0.0
+#        Maximum:   100.0
+
+NpcBot.WanderingBots.Continents.XPGain = 1.0
+
+#
 #    NpcBot.WanderingBots.BG.Enable
 #        Description: Allow wandering bots generation for Battlegrounds.
 #        Note:        Bots are temporarily borrowed from non-spawned bots pool.
@@ -4838,6 +4856,14 @@ NpcBot.WanderingBots.BG.Enable = 0
 #                     1 - (Enable)
 
 NpcBot.WanderingBots.BG.CapLevel = 0
+
+#
+#    NpcBot.WanderingBots.BG.CapLevelByFirstPlayer
+#        Description: Prevent setting BG bot level higher than player triggering its generation
+#        Default:     0 - (Disabled)
+#                     1 - (Enable)
+
+NpcBot.WanderingBots.BG.CapLevelByFirstPlayer = 0
 
 #
 #    NpcBot.WanderingBots.BG.TargetTeamPlayersCount.<BGTYPE>

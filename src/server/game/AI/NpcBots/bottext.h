@@ -5,34 +5,34 @@
 
 enum BotTexts : uint32
 {
-    GOSSIP_NORMAL_SERVE_MASTER          = 70001,//"I live only to serve the master."
-    GOSSIP_GREET_NEED_SMTH              = 70002,//"You need something?"
-    GOSSIP_GREET_MURDER                 = 70003,//"Mortals... usually I kill wretches like you at sight"
-    GOSSIP_GREET_CUSTOM_SPHYNX          = 70004,
-    GOSSIP_NORMAL_CUSTOM_SPHYNX         = 70005,
-    GOSSIP_GREET_CUSTOM_DREADLORD       = 70006,
-    GOSSIP_NORMAL_CUSTOM_DREADLORD      = 70007,
-    GOSSIP_GREET_CUSTOM_DARKRANGER      = 70008,
-    GOSSIP_NORMAL_CUSTOM_DARKRANGER     = 70009,
-    GOSSIP_GREET_CUSTOM_SEAWITCH        = 70010,
-    GOSSIP_NORMAL_CUSTOM_SEAWITCH       = 70011,
-    GOSSIP_GREET_CUSTOM_CRYPTLORD       = 70012,
-    GOSSIP_NORMAL_CUSTOM_CRYPTLORD      = 70013,
+    GOSSIP_NORMAL_SERVE_MASTER              = 70001,//"I live only to serve the master."
+    GOSSIP_GREET_NEED_SMTH                  = 70002,//"You need something?"
+    GOSSIP_GREET_MURDER                     = 70003,//"Mortals... usually I kill wretches like you at sight"
+    GOSSIP_GREET_CUSTOM_SPHYNX              = 70004,
+    GOSSIP_NORMAL_CUSTOM_SPHYNX             = 70005,
+    GOSSIP_GREET_CUSTOM_DREADLORD           = 70006,
+    GOSSIP_NORMAL_CUSTOM_DREADLORD          = 70007,
+    GOSSIP_GREET_CUSTOM_DARKRANGER          = 70008,
+    GOSSIP_NORMAL_CUSTOM_DARKRANGER         = 70009,
+    GOSSIP_GREET_CUSTOM_SEAWITCH            = 70010,
+    GOSSIP_NORMAL_CUSTOM_SEAWITCH           = 70011,
+    GOSSIP_GREET_CUSTOM_CRYPTLORD           = 70012,
+    GOSSIP_NORMAL_CUSTOM_CRYPTLORD          = 70013,
     //70012-70100 reserved for bot gossip texts (not selectable)
-    GOSSIP_CLASSDESC_BM                 = 70101,
-    GOSSIP_CLASSDESC_SPHYNX             = 70102,
-    GOSSIP_CLASSDESC_ARCHMAGE           = 70103,
-    GOSSIP_CLASSDESC_DREADLORD          = 70104,
-    GOSSIP_CLASSDESC_SPELLBREAKER       = 70105,
-    GOSSIP_CLASSDESC_DARKRANGER         = 70106,
-    GOSSIP_CLASSDESC_NECROMANCER        = 70107,
-    GOSSIP_CLASSDESC_SEAWITCH           = 70108,
-    GOSSIP_CLASSDESC_CRYPTLORD          = 70109,
+    GOSSIP_CLASSDESC_BM                     = 70101,
+    GOSSIP_CLASSDESC_SPHYNX                 = 70102,
+    GOSSIP_CLASSDESC_ARCHMAGE               = 70103,
+    GOSSIP_CLASSDESC_DREADLORD              = 70104,
+    GOSSIP_CLASSDESC_SPELLBREAKER           = 70105,
+    GOSSIP_CLASSDESC_DARKRANGER             = 70106,
+    GOSSIP_CLASSDESC_NECROMANCER            = 70107,
+    GOSSIP_CLASSDESC_SEAWITCH               = 70108,
+    GOSSIP_CLASSDESC_CRYPTLORD              = 70109,
     //70109-70200 reserved for bot class descriptions gossip texts (not selectable)
-    GOSSIP_BOTGIVER_GREET               = 70201,
-    GOSSIP_BOTGIVER_HIRE                = 70202,
-    GOSSIP_BOTGIVER_HIRE_CLASS          = 70203,
-    GOSSIP_BOTGIVER_HIRE_EMPTY          = 70204,
+    GOSSIP_BOTGIVER_GREET                   = 70201,
+    GOSSIP_BOTGIVER_HIRE                    = 70202,
+    GOSSIP_BOTGIVER_HIRE_CLASS              = 70203,
+    GOSSIP_BOTGIVER_HIRE_EMPTY              = 70204,
     //70205-70299 reserved for botgiver gossip texts (not selectable)
     BOT_TEXT_DIE                        = 70300, //"Die!"
     BOT_TEXT_REZZING_YOU                = 70301, //"Rezzing You"
@@ -408,9 +408,9 @@ enum BotTexts : uint32
     BOT_TEXT_CLASS_CRYPT_LORD           = 70670, //"Crypt Lord"
     BOT_TEXT_REFLECT                    = 70671, //"Reflect"
     BOT_TEXT_LOCUSTS                    = 70672, //"Locusts"
+    BOT_TEXT_HEAL_TARGET_HEALTH_THRESHOLD   = 70673, //"Heal target health threshold"
     //70673-70799 reserved for custom localization strings
     BOT_TEXT_BOTGIVER_HIRE_RAID         = 70701,
-    BOT_TEXT_TIME_EXPIRED               = 70702,
 };
 
 #endif //BOTTEXT_H
