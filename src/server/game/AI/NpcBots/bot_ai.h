@@ -351,10 +351,6 @@ class bot_ai : public CreatureAI
 
         static bool IsFlagCarrier(Unit const* unit, BattlegroundTypeId bgTypeId = BATTLEGROUND_TYPE_NONE);
 
-        //Moved from protected to public
-        void BotWhisper(const std::string &text, Player const* target = nullptr) const;
-        void BotWhisper(std::string&& text, Player const* target = nullptr) const;
-
     protected:
         explicit bot_ai(Creature* creature);
 
@@ -514,8 +510,10 @@ class bot_ai : public CreatureAI
         void DismountBot();
 
         void BotSay(const std::string &text, Player const* target = nullptr) const;
+        void BotWhisper(const std::string &text, Player const* target = nullptr) const;
         void BotYell(const std::string &text, Player const* target = nullptr) const;
         void BotSay(std::string&& text, Player const* target = nullptr) const;
+        void BotWhisper(std::string&& text, Player const* target = nullptr) const;
         void BotYell(std::string&& text, Player const* target = nullptr) const;
 
         void ReportSpellCast(uint32 spellId, const std::string& followedByString, Player const* target) const;

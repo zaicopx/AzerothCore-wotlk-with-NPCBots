@@ -512,8 +512,6 @@ void bot_ai::CheckOwnerExpiry(bool force)
         LOG_DEBUG("npcbots", ">> {}'s (guid: {}) ownership over bot {} ({}) has expired!",
             name.c_str(), npcBotData->owner, me->GetName().c_str(), me->GetEntry());
 
-        BotDataMgr::UpdateNpcBotHireTimeData(me->GetEntry(), NPCBOT_HIRE_TIME_DEL);
-
         //send all items back
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_NPCBOT_EQUIP_BY_ITEM_INSTANCE);
         //        0            1                2      3         4        5      6             7                 8           9           10    11    12         13
@@ -17069,7 +17067,7 @@ bool bot_ai::GlobalUpdate(uint32 diff)
                 NpcBotData const* npcBotData = BotDataMgr::SelectNpcBotData(me->GetEntry());
                 if (npcBotData->owner != 0)
                 {
-                    CheckOwnerExpiry();
+                    CheckOwnerExpiry(false);
                     if (npcBotData->owner == 0)
                     {
                         _checkOwershipTimer = 0;
@@ -17283,27 +17281,6 @@ bool bot_ai::GlobalUpdate(uint32 diff)
     if (_updateTimerEx1 <= diff)
     {
         _updateTimerEx1 = urand(2000, 2500);
-
-        if (BotMgr::GetOwnershipExpireTime())
-        {
-            if (!IsWanderer() && !ObjectAccessor::FindPlayerByLowGUID(_ownerGuid))
-            {
-                time_t timeNow = time(0);
-                time_t expireTime = time_t(BotMgr::GetOwnershipExpireTime());
-                uint32 botEntry = me->GetEntry();
-                QueryResult result = botEntry ? CharacterDatabase.Query("SELECT UNIX_TIMESTAMP(hire_time) FROM characters_npcbot_hire_time WHERE entry = {}", botEntry) : nullptr;
-                Field* fields = result ? result->Fetch() : nullptr;
-                time_t botHireTime = fields ? time_t(fields[0].Get<uint32>()) : timeNow;
-
-                if (timeNow >= botHireTime + expireTime)
-                {
-                    ResetBotAI(BOTAI_RESET_FORCE);
-                    Group* gr = GetGroup();
-                    if (gr)
-                        gr->Disband();
-                }
-            }
-        }
 
         //Ex1-timed updates
 
