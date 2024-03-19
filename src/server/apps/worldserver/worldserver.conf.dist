@@ -4398,8 +4398,10 @@ NpcBot.Enable = 1
 
 #
 #    NpcBot.MaxBots
-#        Description: Maximum number of bots allowed for players.
-#        Default:     1
+#        Description: Maximum number of bots allowed for players per level bracket:
+#                     0-9, 10-19, 20,29, ... , 70-79, 80+.
+#        Default:     1,1,1,1,1,1,1,1,1 - (1 for all levels)
+#                     0,1,2,3,4,5,6,7,8 - (1 per 10 levels)
 #        Max:         39
 #        Level 1-4: 0 Bots
 #        Level 5-9: 1 Bots
@@ -4407,7 +4409,7 @@ NpcBot.Enable = 1
 #        Level 15-59: 4 Bots
 #        Level 60-80: NpcBot.MaxBots
 
-NpcBot.MaxBots = 1
+NpcBot.MaxBots = 39,39,39,39,39,39,39,39,39
 
 #
 #    NpcBot.MaxBotsPerClass
@@ -4444,6 +4446,16 @@ NpcBot.BaseFollowDistance = 30
 
 NpcBot.XpReduction.Amount         = 0
 NpcBot.XpReduction.StartingNumber = 2
+
+#
+#    NpcBot.MountLevel.60
+#    NpcBot.MountLevel.100
+#        Description: Minimum level for bots to be able to use ground mounts
+#        Default:     20 - (NpcBot.MountLevel.60)
+#                     40 - (NpcBot.MountLevel.100)
+
+NpcBot.MountLevel.60  = 20
+NpcBot.MountLevel.100 = 40
 
 #
 #    NpcBot.HealTargetIconMask
@@ -4566,6 +4578,15 @@ NpcBot.Enable.Raid          = 0
 NpcBot.Enable.BG            = 0
 NpcBot.Enable.Arena         = 0
 NpcBot.Enable.DungeonFinder = 1
+
+#
+#    NpcBot.DisableInstances
+#        Description: When NpcBot.Enable.Dungeon or/and NpcBot.Enable.Raid options are set to 1
+#                     excludes certain instance map ids, preventing bots from entering those maps
+#        Default:     "" - (None)
+#                     "509,531" - (Disable AQ20 and AQ40)
+
+NpcBot.DisableInstances = ""
 
 #
 #    NpcBot.Limit.Dungeon
