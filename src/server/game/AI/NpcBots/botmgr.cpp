@@ -126,7 +126,6 @@ bool _bothk_message_enable;
 bool _bothk_achievements_enable;
 bool _botManaRegenCheat;
 bool _botRaidRevive;
-bool _botResetOnRestart;
 float _botStatLimits_dodge;
 float _botStatLimits_parry;
 float _botStatLimits_block;
@@ -406,7 +405,6 @@ void BotMgr::LoadConfig(bool reload)
     _botRaidRevive                  = sConfigMgr->GetBoolDefault("NpcBot.ReviveRaidInstant.Active", false);
     _botRatesClassic                = sConfigMgr->GetFloatDefault("NpcBot.Rate.Classic", 1.0f);
     _botRatesTBC                    = sConfigMgr->GetFloatDefault("NpcBot.Rate.TBC", 1.0f);
-    _botResetOnRestart              = sConfigMgr->GetBoolDefault("NpcBot.ResetOnRestart.Active", false);
 
     _max_npcbots = {};
     std::string max_npcbots_by_levels = sConfigMgr->GetStringDefault("NpcBot.MaxBots", "1,1,1,1,1,1,1,1,1");
@@ -825,10 +823,6 @@ bool BotMgr::IsManaRegenCheatActive()
 bool BotMgr::IsRaidReviveActive()
 {
     return _botRaidRevive;
-}
-bool BotMgr::IsResetOnRestartActive()
-{
-    return _botResetOnRestart;
 }
 uint8 BotMgr::GetMaxClassBots()
 {

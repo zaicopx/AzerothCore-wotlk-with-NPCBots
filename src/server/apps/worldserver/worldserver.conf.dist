@@ -4971,9 +4971,6 @@ NpcBot.ReviveRaidInstant.Active = 0
 NpcBot.Rate.Classic = 0.6
 NpcBot.Rate.TBC = 0.75
 
-#    If active NPCBots will reset owner at Server restart
-NpcBot.ResetOnRestart.Active = 1
-
 ###################################################################################################
 #                                                                                                 #
 # GAME SETTINGS END                                                                               #
