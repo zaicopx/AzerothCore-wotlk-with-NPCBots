@@ -73,3 +73,7 @@ WHERE entry = 38585;
 UPDATE creature_template
 SET HealthModifier = 1800
 WHERE entry = 38586;
+
+UPDATE creature_template
+SET HealthModifier = 0.75
+WHERE entry = 17954;
