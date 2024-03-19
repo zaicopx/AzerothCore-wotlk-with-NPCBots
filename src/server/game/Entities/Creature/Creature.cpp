@@ -1589,11 +1589,11 @@ void Creature::SelectLevel(bool changelevel)
 
         //TBC Content Buff
         if (mapEntry->Expansion() == CONTENT_61_70)
-            healthmod *= 1.44;
+            healthmod *= 1.25;
 
         //TBC Dungeon and Raid Buff
         if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
-            healthmod *= 1.5;
+            healthmod *= 1.33;
 
         //TBC Raid Trash Nerf
         if (mapEntry->Expansion() == CONTENT_61_70 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
@@ -1892,11 +1892,11 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
 
                 //TBC Content Buff
                 if (mapEntry->Expansion() == CONTENT_61_70)
-                    curhealth *= 1.44;
+                    curhealth *= 1.25;
 
                 //TBC Dungeon and Raid Buff
                 if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
-                    curhealth *= 1.5;
+                    curhealth *= 1.33;
 
                 //TBC Raid Trash Nerf
                 if (mapEntry->Expansion() == CONTENT_61_70 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
@@ -4160,11 +4160,11 @@ bool Creature::LoadBotCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool
 
                 //TBC Content Buff
                 if (mapEntry->Expansion() == CONTENT_61_70)
-                    curhealth *= 1.44;
+                    curhealth *= 1.25;
 
                 //TBC Dungeon and Raid Buff
                 if (mapEntry->Expansion() == CONTENT_61_70 && (GetMap()->IsNonRaidDungeon() || GetMap()->IsRaid()))
-                    curhealth *= 1.5;
+                    curhealth *= 1.33;
 
                 //TBC Raid Trash Nerf
                 if (mapEntry->Expansion() == CONTENT_61_70 && !IsDungeonBoss() && !isWorldBoss() && GetMap()->IsRaid())
