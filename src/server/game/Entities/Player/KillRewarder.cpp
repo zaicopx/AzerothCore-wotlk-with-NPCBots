@@ -206,10 +206,10 @@ void KillRewarder::_RewardXP(Player* player, float rate)
         }
 
         if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
-            xp *= 1.5;
+            xp *= 2.0;
 
         if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
-            xp *= 2.0;
+            xp *= 4.0;
 
         // Don't give XP outside of dungeons if in LFG Group now
         if (Group* gr = player->GetGroup())

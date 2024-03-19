@@ -480,10 +480,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
             questXp *= GetExperienceRate(player);
 
         if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
-            questXp *= 1.5;
+            questXp *= 2.0;
 
         if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
-            questXp *= 2.0;
+            questXp *= 4.0;
         */
 
         sScriptMgr->OnQuestComputeXP(player, quest, questXp);
@@ -749,10 +749,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
         questXp *= GetExperienceRate(player);
 
     if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
-        questXp *= 1.5;
+        questXp *= 2.0;
 
     if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
-        questXp *= 2.0;
+        questXp *= 4.0;
 
     sScriptMgr->OnQuestComputeXP(player, quest, questXp);
     data << questXp;
