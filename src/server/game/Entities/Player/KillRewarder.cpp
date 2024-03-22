@@ -205,11 +205,18 @@ void KillRewarder::_RewardXP(Player* player, float rate)
                 xp *= 12.5;
         }
 
-        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
-            xp *= 2.0;
+        // Boxhead Custom | Give more xp depending on individual progression
+        // > Vanilla xp boost
+        if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
+            xp *= 1.5;
 
-        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
-            xp *= 4.0;
+        // > TBC xp boost
+        if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
+            xp *= 2.25;
+
+        // > WotLK xp boost
+        if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 80)
+            xp *= 3.0;
 
         // Don't give XP outside of dungeons if in LFG Group now
         if (Group* gr = player->GetGroup())
