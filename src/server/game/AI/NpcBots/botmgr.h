@@ -153,6 +153,7 @@ class AC_GAME_API BotMgr
         static float GetBotManaMod();
         static float GetBotRatesClassic();
         static float GetBotRatesTBC();
+        static float GetBotRatesTankThreat();
         static float GetBotWandererDamageMod();
         static float GetBotWandererHealingMod();
         static float GetBotWandererHPMod();

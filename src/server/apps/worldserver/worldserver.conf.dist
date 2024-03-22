@@ -4971,6 +4971,9 @@ NpcBot.ReviveRaidInstant.Active = 0
 NpcBot.Rate.Classic = 0.6
 NpcBot.Rate.TBC = 0.75
 
+#    Set NPCBot-Tanks threat multiplier
+NpcBot.Rate.ThreatTank = 1.0
+
 ###################################################################################################
 #                                                                                                 #
 # GAME SETTINGS END                                                                               #

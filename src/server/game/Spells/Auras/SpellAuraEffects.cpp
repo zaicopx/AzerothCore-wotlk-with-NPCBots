@@ -37,6 +37,8 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
+#include "bot_ai.h"
+#include "botmgr.h"
 
 /// @todo: this import is not necessary for compilation and marked as unused by the IDE
 //  however, for some reasons removing it would cause a damn linking issue
@@ -3471,7 +3473,10 @@ void AuraEffect::HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool
     Unit* target = aurApp->GetTarget();
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (GetMiscValue() & (1 << i))
-            ApplyPercentModFloatVar(target->m_threatModifier[i], float(GetAmount()), apply);
+            if (target->IsNPCBotOrPet() && (target->ToCreature()->GetBotAI()->IsTank() || target->ToCreature()->GetBotAI()->IsOffTank()))
+                ApplyPercentModFloatVar(target->m_threatModifier[i], float(GetAmount() * BotMgr::GetBotRatesTankThreat()), apply);
+            else
+                ApplyPercentModFloatVar(target->m_threatModifier[i], float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const

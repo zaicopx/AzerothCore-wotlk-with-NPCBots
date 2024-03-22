@@ -163,6 +163,7 @@ float _mult_dmg_cryptlord;
 float _bothk_rate_honor;
 float _botRatesClassic;
 float _botRatesTBC;
+float _botRatesThreatTank;
 std::vector<float> _mult_dmg_levels;
 LvlBrackets _max_npcbots;
 PctBrackets _botwanderer_pct_level_brackets;
@@ -405,6 +406,7 @@ void BotMgr::LoadConfig(bool reload)
     _botRaidRevive                  = sConfigMgr->GetBoolDefault("NpcBot.ReviveRaidInstant.Active", false);
     _botRatesClassic                = sConfigMgr->GetFloatDefault("NpcBot.Rate.Classic", 1.0f);
     _botRatesTBC                    = sConfigMgr->GetFloatDefault("NpcBot.Rate.TBC", 1.0f);
+    _botRatesThreatTank             = sConfigMgr->GetFloatDefault("NpcBot.Rate.ThreatTank", 1.0f);
 
     _max_npcbots = {};
     std::string max_npcbots_by_levels = sConfigMgr->GetStringDefault("NpcBot.MaxBots", "1,1,1,1,1,1,1,1,1");
@@ -545,6 +547,7 @@ void BotMgr::LoadConfig(bool reload)
     RoundToInterval(_bothk_rate_honor, 0.1f, 10.f);
     RoundToInterval(_botRatesClassic, 0.1f, 10.f);
     RoundToInterval(_botRatesTBC, 0.1f, 10.f);
+    RoundToInterval(_botRatesThreatTank, 0.1f, 10.f);
 }
 
 void BotMgr::ResolveConfigConflicts()
@@ -2918,6 +2921,7 @@ float BotMgr::GetBotManaMod()
 {
     return _mult_mana;
 }
+//Boxhead: BotRates
 float BotMgr::GetBotRatesClassic()
 {
     return _botRatesClassic;
@@ -2925,6 +2929,10 @@ float BotMgr::GetBotRatesClassic()
 float BotMgr::GetBotRatesTBC()
 {
     return _botRatesTBC;
+}
+float BotMgr::GetBotRatesTankThreat()
+{
+    return _botRatesThreatTank;
 }
 //Boxhead: Set bot roles and talents in dungeon
 void BotMgr::SetRandomBotTalentsForGroup(Creature const* bot, uint32 botrole)
