@@ -7155,16 +7155,16 @@ void bot_ai::_OnManaRegenUpdate() const
     if (BotMgr::IsManaRegenCheatActive())
     {
         if (me->GetMap()->IsRaid())
-            power_regen_mp5 *= 10;
+            power_regen_mp5 *= 15;
 
         if (me->GetMap()->IsDungeon())
-            power_regen_mp5 *= 5;
+            power_regen_mp5 *= 10;
 
         if (me->GetMap()->IsHeroic())
             power_regen_mp5 *= 2;
 
-        if ((me->GetMap()->IsRaid() || me->GetMap()->IsDungeon()) && me->GetBotClass() == BOT_CLASS_PRIEST || me->GetBotClass() == BOT_CLASS_PALADIN)
-            power_regen_mp5 *= 1.5;
+        if ((me->GetMap()->IsRaid() || me->GetMap()->IsDungeon()) && (me->GetBotClass() == BOT_CLASS_PRIEST || me->GetBotClass() == BOT_CLASS_PALADIN))
+            power_regen_mp5 *= 2;
     }
 
     me->SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(value, modManaRegenInterrupt));

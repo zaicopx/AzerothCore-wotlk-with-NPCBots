@@ -1907,9 +1907,9 @@ void Player::Regenerate(Powers power)
                     addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * 0.001f * m_regenTimer;
 
                 if (IsInCombat())
-                    addvalue += GetMaxPower(POWER_MANA) / 100 * 0.005;
+                    addvalue += GetMaxPower(POWER_MANA) / 100 * 0.02;
                 else
-                    addvalue += GetMaxPower(POWER_MANA) / 100 * 0.03;
+                    addvalue += GetMaxPower(POWER_MANA) / 100 * 0.04;
             }
             break;
         case POWER_RAGE:                                    // Regenerate rage
