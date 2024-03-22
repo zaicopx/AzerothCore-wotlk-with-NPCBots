@@ -4964,6 +4964,9 @@ Creature.NewBalance.Active = 1
 #    Enable or disable NPCBot mana regen cheat in raids/dungeons
 NpcBot.ManaRegenCheat.Active = 1
 
+#    Enable or disable NPCBot healing cheat in raids/dungeons (Heal is multiplied x2 in dungeons and raids)
+NpcBot.HealingCheat.Active = 1
+
 #    Enable or disable NPCBot revive in raids
 NpcBot.ReviveRaidInstant.Active = 0
 

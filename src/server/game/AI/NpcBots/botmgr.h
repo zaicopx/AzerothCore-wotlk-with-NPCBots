@@ -127,6 +127,7 @@ class AC_GAME_API BotMgr
         static bool IsBotHKMessageEnabled();
         static bool IsBotHKAchievementsEnabled();
         static bool IsManaRegenCheatActive();
+        static bool IsHealingCheatActive();
         static bool IsRaidReviveActive();
         static uint8 GetMaxClassBots();
         static uint8 GetHealTargetIconFlags();

@@ -7561,10 +7561,10 @@ void bot_ai::ApplyBotDamageMultiplierHeal(Unit const* victim, float& heal, Spell
             heal *= BotMgr::GetBotRatesTBC();
     }
 
-    if (!me->GetMap()->IsBattlegroundOrArena())
-        heal = (heal * (BotMgr::IsWanderingWorldBot(me) ? BotMgr::GetBotWandererHealingMod() : BotMgr::GetBotHealingMod()));
-    else
-        heal = heal;
+    heal = (heal * (BotMgr::IsWanderingWorldBot(me) ? BotMgr::GetBotWandererHealingMod() : BotMgr::GetBotHealingMod()));
+
+    if (BotMgr::IsHealingCheatActive() && (me->GetMap()->IsRaid() || me->GetMap()->IsNonRaidDungeon()))
+        heal *= 2;
 }
 void bot_ai::ApplyBotCritMultiplierAll(Unit const* victim, float& crit_chance, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {

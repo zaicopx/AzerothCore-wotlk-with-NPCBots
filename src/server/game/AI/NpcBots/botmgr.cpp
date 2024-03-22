@@ -125,6 +125,7 @@ bool _bothk_enable;
 bool _bothk_message_enable;
 bool _bothk_achievements_enable;
 bool _botManaRegenCheat;
+bool _botHealingCheat;
 bool _botRaidRevive;
 float _botStatLimits_dodge;
 float _botStatLimits_parry;
@@ -403,6 +404,7 @@ void BotMgr::LoadConfig(bool reload)
     _bothk_achievements_enable      = sConfigMgr->GetBoolDefault("NpcBot.HK.Achievements.Enable", false);
     _bothk_rate_honor               = sConfigMgr->GetFloatDefault("NpcBot.HK.Rate.Honor", 1.0);
     _botManaRegenCheat              = sConfigMgr->GetBoolDefault("NpcBot.ManaRegenCheat.Active", false);
+    _botHealingCheat                = sConfigMgr->GetBoolDefault("NpcBot.HealingCheat.Active", false);
     _botRaidRevive                  = sConfigMgr->GetBoolDefault("NpcBot.ReviveRaidInstant.Active", false);
     _botRatesClassic                = sConfigMgr->GetFloatDefault("NpcBot.Rate.Classic", 1.0f);
     _botRatesTBC                    = sConfigMgr->GetFloatDefault("NpcBot.Rate.TBC", 1.0f);
@@ -822,6 +824,10 @@ bool BotMgr::IsBotHKAchievementsEnabled()
 bool BotMgr::IsManaRegenCheatActive()
 {
     return _botManaRegenCheat;
+}
+bool BotMgr::IsHealingCheatActive()
+{
+    return _botHealingCheat;
 }
 bool BotMgr::IsRaidReviveActive()
 {
