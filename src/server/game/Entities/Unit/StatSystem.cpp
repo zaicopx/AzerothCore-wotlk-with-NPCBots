@@ -1205,8 +1205,11 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     //Classic Early Level Nerf
     if (sWorld->getBoolConfig(CONFIG_NEW_BALANCE_FOR_CREATURES) && !IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
     {
-        minDamage *= (0.2 + (0.02 * GetLevel()));
-        maxDamage *= (0.2 + (0.02 * GetLevel()));
+        if (GetTypeId() == TYPEID_UNIT && (!ToCreature()->IsPet() || !ToCreature()->IsGuardian() || !ToCreature()->IsControlledByPlayer()))
+        {
+            minDamage *= (0.2 + (0.02 * GetLevel()));
+            maxDamage *= (0.2 + (0.02 * GetLevel()));
+        }
     }
 
     // pussywizard: crashfix (casting negative to uint => min > max => assertion in urand)
