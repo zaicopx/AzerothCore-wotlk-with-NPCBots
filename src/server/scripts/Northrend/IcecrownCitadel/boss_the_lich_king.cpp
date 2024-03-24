@@ -387,7 +387,10 @@ public:
         if (!target->IsAlive())
             return false;
         if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
-            return false;
+            //npcbot: allow to target bots
+            if (!(target->IsNPCBot()))
+            //end npcbot
+                return false;
         if (_maxDist && _source->GetExactDist(target) > _maxDist)
             return false;
         if (_reqLOS && !_source->IsWithinLOSInMap(target))
@@ -413,7 +416,10 @@ public:
         if (!target->IsAlive())
             return false;
         if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
-            return false;
+            //npcbot: allow to target bots
+            if (!(target->IsNPCBot()))
+            //end npcbot
+                return false;
         if (target == _source->GetVictim())
             return false;
         if (target->HasAura(SPELL_BOSS_HITTIN_YA_AURA))

@@ -1184,10 +1184,16 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 
     float attackPower      = GetTotalAttackPowerValue(attType);
     float attackSpeedMulti = GetAPMultiplier(attType, normalized);
+    //npcbot
+    /*
+    //end npcbot
     float baseValue        = GetModifierValue(unitMod, BASE_VALUE) + (attackPower / 14.0f) * variance;
     float basePct          = GetModifierValue(unitMod, BASE_PCT) * attackSpeedMulti;
-    //float baseValue        = GetModifierValue(unitMod, BASE_VALUE) + (attackPower / 14.0f) * variance * attackSpeedMulti;
-    //float basePct          = GetModifierValue(unitMod, BASE_PCT);
+    //npcbot
+    */
+    float baseValue        = GetModifierValue(unitMod, BASE_VALUE) + (attackPower / 14.0f) * variance * attackSpeedMulti;
+    float basePct          = GetModifierValue(unitMod, BASE_PCT);
+    //end npcbot
     float totalValue       = GetModifierValue(unitMod, TOTAL_VALUE);
     float totalPct         = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
     float dmgMultiplier    = GetCreatureTemplate()->DamageModifier; // = DamageModifier * _GetDamageMod(rank);
@@ -1199,8 +1205,11 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     //Classic Early Level Nerf
     if (sWorld->getBoolConfig(CONFIG_NEW_BALANCE_FOR_CREATURES) && !IsNPCBotOrPet() && mapEntry->Expansion() == CONTENT_1_60 && GetLevel() <= 40)
     {
-        minDamage *= (0.2 + (0.02 * GetLevel()));
-        maxDamage *= (0.2 + (0.02 * GetLevel()));
+        if (GetTypeId() == TYPEID_UNIT && (!ToCreature()->IsPet() || !ToCreature()->IsGuardian() || !ToCreature()->IsControlledByPlayer()))
+        {
+            minDamage *= (0.2 + (0.02 * GetLevel()));
+            maxDamage *= (0.2 + (0.02 * GetLevel()));
+        }
     }
 
     // pussywizard: crashfix (casting negative to uint => min > max => assertion in urand)

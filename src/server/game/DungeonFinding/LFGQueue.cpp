@@ -295,8 +295,22 @@ namespace lfg
         if (numLfgGroups > 1)
             return LFG_INCOMPATIBLES_MULTIPLE_LFG_GROUPS;
 
+        // Enable to fill up dungeon group after 3 minutes of waiting
+        bool fillDungeonWithBots = false;
+        if (BotMgr::FillNpcBotsDungeons())
+        {
+            fillDungeonWithBots = true;
+
+            // TODO: Fill group after x time
+            //ObjectGuid gguid = check.front();
+            //const LfgQueueData& queue = QueueDataStore[gguid];
+            //time_t currTime = GameTime::GetGameTime().count();
+            //int32 waitTimeSeconds = int32(currTime - queue.joinTime);
+            //if (waitTimeSeconds > 3 * MINUTE)
+        }
+
         // Group with less that MAXGROUPSIZE members always compatible
-        if (!sLFGMgr->IsTesting() && !BotMgr::FillNpcBotsDungeons() && check.size() == 1 && numPlayers < MAXGROUPSIZE)
+        if (!sLFGMgr->IsTesting() && !fillDungeonWithBots && check.size() == 1 && numPlayers < MAXGROUPSIZE)
         {
             LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(check.front());
             LfgRolesMap roles = itQueue->second.roles;
@@ -393,7 +407,7 @@ namespace lfg
         }
 
         // Enough players?
-        if (!sLFGMgr->IsTesting() && !BotMgr::FillNpcBotsDungeons() && check.size() == 1 && numPlayers != MAXGROUPSIZE)
+        if (!sLFGMgr->IsTesting() && !fillDungeonWithBots && numPlayers != MAXGROUPSIZE)
         {
             strGuids.addRoles(proposalRoles);
             for (uint8 i = 0; i < 5 && check.guids[i]; ++i)

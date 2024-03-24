@@ -668,7 +668,7 @@ Appender.NpcBots=1,2,0
 #
 
 Logger.root=2,Console Server
-Logger.commands.gm=4,Console GM
+#Logger.commands.gm=4,Console GM
 Logger.diff=3,Console Server
 Logger.mmaps=4,Server
 Logger.scripts.hotswap=4,Console Server
@@ -4398,8 +4398,10 @@ NpcBot.Enable = 1
 
 #
 #    NpcBot.MaxBots
-#        Description: Maximum number of bots allowed for players.
-#        Default:     1
+#        Description: Maximum number of bots allowed for players per level bracket:
+#                     0-9, 10-19, 20,29, ... , 70-79, 80+.
+#        Default:     1,1,1,1,1,1,1,1,1 - (1 for all levels)
+#                     0,1,2,3,4,5,6,7,8 - (1 per 10 levels)
 #        Max:         39
 #        Level 1-4: 0 Bots
 #        Level 5-9: 1 Bots
@@ -4407,7 +4409,7 @@ NpcBot.Enable = 1
 #        Level 15-59: 4 Bots
 #        Level 60-80: NpcBot.MaxBots
 
-NpcBot.MaxBots = 1
+NpcBot.MaxBots = 39,39,39,39,39,39,39,39,39
 
 #
 #    NpcBot.MaxBotsPerClass
@@ -4444,6 +4446,16 @@ NpcBot.BaseFollowDistance = 30
 
 NpcBot.XpReduction.Amount         = 0
 NpcBot.XpReduction.StartingNumber = 2
+
+#
+#    NpcBot.MountLevel.60
+#    NpcBot.MountLevel.100
+#        Description: Minimum level for bots to be able to use ground mounts
+#        Default:     20 - (NpcBot.MountLevel.60)
+#                     40 - (NpcBot.MountLevel.100)
+
+NpcBot.MountLevel.60  = 20
+NpcBot.MountLevel.100 = 40
 
 #
 #    NpcBot.HealTargetIconMask
@@ -4566,6 +4578,15 @@ NpcBot.Enable.Raid          = 1
 NpcBot.Enable.BG            = 1
 NpcBot.Enable.Arena         = 1
 NpcBot.Enable.DungeonFinder = 1
+
+#
+#    NpcBot.DisableInstances
+#        Description: When NpcBot.Enable.Dungeon or/and NpcBot.Enable.Raid options are set to 1
+#                     excludes certain instance map ids, preventing bots from entering those maps
+#        Default:     "" - (None)
+#                     "509,531" - (Disable AQ20 and AQ40)
+
+NpcBot.DisableInstances = ""
 
 #
 #    NpcBot.Limit.Dungeon
@@ -4776,13 +4797,21 @@ NpcBot.InfoPacketsLimit = -1
 
 #
 #    NpcBot.OwnershipExpireTime
-#        Description: Maxmum time since last account login (in seconds) before bot ownership
-#                     is automatically cancelled (at server loading).
-#        Note:        All items will be refund and mailed back to player.
+#        Description: Time (in seconds) before bot ownership is automatically cancelled.
+#        Note:        NPCBot ownership may only expire after player goes offline.
+#        Note2:       All items will be mailed back to player as usual.
 #        Default:     0 - (Disabled)
 #                     604800 - (7 Days)
 
 NpcBot.OwnershipExpireTime = 0
+
+#
+#    NpcBot.OwnershipExpireMode
+#        Description: Ownership expiration mode. Determines when the timer starts.
+#        Default:     0 - (Player goes offline, timer resets if player logs back in)
+#                     1 - (Player hires the bot, timer never resets)
+
+NpcBot.OwnershipExpireMode = 0
 
 #
 #    NpcBot.EnrageOnDismiss
@@ -4822,6 +4851,16 @@ NpcBot.WanderingBots.Continents.Levels = 25,25,15,15,5,10,5,0,0
 NpcBot.WanderingBots.Continents.Maps = 0,1
 
 #
+#    NpcBot.WanderingBots.Continents.XPGain
+#        Description: XP gained by wandering bots mutiplier. Directly affects bot leveling rate.
+#        Default:     1.0 - (100% XP gained)
+#                     0.1 - (10% XP gained)
+#        Minimum:     0.0
+#        Maximum:   100.0
+
+NpcBot.WanderingBots.Continents.XPGain = 1.0
+
+#
 #    NpcBot.WanderingBots.BG.Enable
 #        Description: Allow wandering bots generation for Battlegrounds.
 #        Note:        Bots are temporarily borrowed from non-spawned bots pool.
@@ -4838,6 +4877,14 @@ NpcBot.WanderingBots.BG.Enable = 1
 #                     1 - (Enable)
 
 NpcBot.WanderingBots.BG.CapLevel = 0
+
+#
+#    NpcBot.WanderingBots.BG.CapLevelByFirstPlayer
+#        Description: Prevent setting BG bot level higher than player triggering its generation
+#        Default:     0 - (Disabled)
+#                     1 - (Enable)
+
+NpcBot.WanderingBots.BG.CapLevelByFirstPlayer = 0
 
 #
 #    NpcBot.WanderingBots.BG.TargetTeamPlayersCount.<BGTYPE>
@@ -4917,6 +4964,9 @@ Creature.NewBalance.Active = 1
 #    Enable or disable NPCBot mana regen cheat in raids/dungeons
 NpcBot.ManaRegenCheat.Active = 1
 
+#    Enable or disable NPCBot healing cheat in raids/dungeons (Heal is multiplied x2 in dungeons and raids)
+NpcBot.HealingCheat.Active = 1
+
 #    Enable or disable NPCBot revive in raids
 NpcBot.ReviveRaidInstant.Active = 0
 
@@ -4924,8 +4974,8 @@ NpcBot.ReviveRaidInstant.Active = 0
 NpcBot.Rate.Classic = 0.6
 NpcBot.Rate.TBC = 0.75
 
-#    If active NPCBots will reset owner at Server restart
-NpcBot.ResetOnRestart.Active = 1
+#    Set NPCBot-Tanks threat multiplier
+NpcBot.Rate.ThreatTank = 1.0
 
 ###################################################################################################
 #                                                                                                 #

@@ -60,6 +60,12 @@ enum BotRemoveType
     BOT_REMOVE_BY_DEFAULT               = BOT_REMOVE_LOGOUT
 };
 
+enum BotOwnershipExpireMode
+{
+    BOT_OWNERSHIP_EXPIRE_OFFLINE        = 0,
+    BOT_OWNERSHIP_EXPIRE_HIRE           = 1
+};
+
 enum BotAttackRange
 {
     BOT_ATTACK_RANGE_SHORT              = 1,
@@ -74,7 +80,10 @@ enum BotAttackAngle
 };
 
 typedef std::unordered_map<ObjectGuid /*guid*/, Creature* /*bot*/> BotMap;
-typedef std::array<uint32, BracketsCount> BotBrackets;
+template<typename U>
+using BotBrackets = std::array<U, BracketsCount>;
+typedef BotBrackets<uint8> LvlBrackets;
+typedef BotBrackets<uint32> PctBrackets;
 
 class AC_GAME_API BotMgr
 {
@@ -112,13 +121,14 @@ class AC_GAME_API BotMgr
         static bool FillNpcBotsDungeons();
         static bool IsBotGenerationEnabledBGs();
         static bool IsBotLevelCappedByConfigBG();
+        static bool IsBotLevelCappedByConfigBGFirstPlayer();
         static bool IsBotGenerationEnabledWorldMapId(uint32 mapId);
         static bool IsBotHKEnabled();
         static bool IsBotHKMessageEnabled();
         static bool IsBotHKAchievementsEnabled();
         static bool IsManaRegenCheatActive();
+        static bool IsHealingCheatActive();
         static bool IsRaidReviveActive();
-        static bool IsResetOnRestartActive();
         static uint8 GetMaxClassBots();
         static uint8 GetHealTargetIconFlags();
         static uint8 GetTankTargetIconFlags();
@@ -128,6 +138,7 @@ class AC_GAME_API BotMgr
         static uint8 GetNoDPSTargetIconFlags();
         static uint32 GetBaseUpdateDelay();
         static uint32 GetOwnershipExpireTime();
+        static uint8 GetOwnershipExpireMode();
         static uint32 GetDesiredWanderingBotsCount();
         static uint32 GetBGTargetTeamPlayersCount(BattlegroundTypeId bgTypeId);
         static float GetBotHKHonorRate();
@@ -143,11 +154,13 @@ class AC_GAME_API BotMgr
         static float GetBotManaMod();
         static float GetBotRatesClassic();
         static float GetBotRatesTBC();
+        static float GetBotRatesTankThreat();
         static float GetBotWandererDamageMod();
         static float GetBotWandererHealingMod();
         static float GetBotWandererHPMod();
         static float GetBotWandererSpeedMod();
-        static BotBrackets GetBotWandererLevelBrackets();
+        static float GetBotWandererXPGainMod();
+        static PctBrackets GetBotWandererLevelBrackets();
         static float GetBotDamageModByClass(uint8 botclass);
         static float GetBotDamageModByLevel(uint8 botlevel);
 
@@ -159,6 +172,7 @@ class AC_GAME_API BotMgr
         //onEvent hooks
         static void OnBotWandererKilled(Creature const* bot, Player* looter);
         static void OnBotWandererKilled(GameObject* go);
+        static void OnBotKilled(Creature const* bot, Unit* attacker = nullptr);
         static void OnBotSpellInterrupt(Unit const* caster, CurrentSpellTypes spellType);
         static void OnBotSpellGo(Unit const* caster, Spell const* spell, bool ok = true);
         static void OnBotOwnerSpellGo(Unit const* caster, Spell const* spell, bool ok = true);
@@ -194,15 +208,18 @@ class AC_GAME_API BotMgr
         uint8 GetNpcBotSlot(Creature const* bot) const;
         uint8 GetNpcBotSlotByRole(uint32 roles, Creature const* bot) const;
         uint32 GetAllNpcBotsClassMask() const;
-        static uint8 GetMaxNpcBots(uint8 playerLevel);
+        static uint8 GetMaxNpcBots(uint8 level);
         static uint8 GetNpcBotXpReduction();
         static uint8 GetNpcBotXpReductionStartingNumber();
+        static uint8 GetNpcBotMountLevel60();
+        static uint8 GetNpcBotMountLevel100();
         static int32 GetBotInfoPacketsLimit();
         static bool LimitBots(Map const* map);
         static bool CanBotParryWhileCasting(Creature const* bot);
         static bool IsWanderingWorldBot(Creature const* bot);
         static bool IsBotContestedPvP(Creature const* bot);
         static void SetBotContestedPvP(Creature const* bot);
+        bool IsMapAllowedForBots(Map const* map) const;
         bool RestrictBots(Creature const* bot, bool add) const;
         bool IsPartyInCombat() const;
         bool HasBotClass(uint8 botclass) const;

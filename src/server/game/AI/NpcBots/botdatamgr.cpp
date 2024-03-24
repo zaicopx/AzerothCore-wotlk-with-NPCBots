@@ -76,11 +76,12 @@ class BotBattlegroundEnterEvent : public BasicEvent
     const ObjectGuid _playerGUID;
     const ObjectGuid _botGUID;
     const BattlegroundQueueTypeId _bgQueueTypeId;
+    const BattlegroundTypeId _bgTypeId;
     const uint64 _removeTime;
 
 public:
-    BotBattlegroundEnterEvent(ObjectGuid playerGUID, ObjectGuid botGUID, BattlegroundQueueTypeId bgQueueTypeId, uint64 removeTime)
-        : _playerGUID(playerGUID), _botGUID(botGUID), _bgQueueTypeId(bgQueueTypeId), _removeTime(removeTime) {}
+    BotBattlegroundEnterEvent(ObjectGuid playerGUID, ObjectGuid botGUID, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, uint64 removeTime)
+        : _playerGUID(playerGUID), _botGUID(botGUID), _bgQueueTypeId(bgQueueTypeId), _bgTypeId(bgTypeId), _removeTime(removeTime) {}
 
     void AbortMe()
     {
@@ -105,24 +106,27 @@ public:
         }
         else if (Creature const* bot = BotDataMgr::FindBot(_botGUID.GetEntry()))
         {
-            Player const* bgPlayer = ObjectAccessor::FindConnectedPlayer(_playerGUID);
-            if (bgPlayer && bgPlayer->IsInWorld() && bgPlayer->InBattleground() && bgPlayer->GetMap()->IsBattlegroundOrArena())
+            // Battleground is created at this point, try to find it
+            BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(_bgQueueTypeId);
+            BattlegroundQueue::QueuedPlayersMap::const_iterator qpm_citr = queue.m_QueuedPlayers.find(_botGUID);
+            GroupQueueInfo const* my_gqi = qpm_citr != queue.m_QueuedPlayers.cend() ? qpm_citr->second : nullptr;
+            Battleground* bg = my_gqi ? sBattlegroundMgr->GetBattleground(my_gqi->IsInvitedToBGInstanceGUID, _bgTypeId) : nullptr;
+
+            if (!bg || bg->GetPlayersCountByTeam(TEAM_ALLIANCE) + bg->GetPlayersCountByTeam(TEAM_HORDE) >= bg->GetMaxPlayersPerTeam() * 2)
             {
-                Battleground* bg = ASSERT_NOTNULL(bgPlayer->GetBattleground());
+                AbortAll();
+                return true;
+            }
 
-                //full, some players connected
-                if (bg->GetPlayersCountByTeam(TEAM_ALLIANCE) + bg->GetPlayersCountByTeam(TEAM_HORDE) >= bg->GetMaxPlayersPerTeam() * 2)
-                {
-                    AbortAll();
-                    return true;
-                }
+            if (!queue.IsBotInvited(_botGUID, bg->GetInstanceID()))
+            {
+                AbortMe();
+                return true;
+            }
 
-                BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(_bgQueueTypeId);
-                if (!queue.IsBotInvited(_botGUID, bg->GetInstanceID()))
-                {
-                    AbortMe();
-                    return true;
-                }
+            if (bg->GetPlayersCountByTeam(TEAM_ALLIANCE) + bg->GetPlayersCountByTeam(TEAM_HORDE) > 0)
+            {
+                Map* bgMap = ASSERT_NOTNULL(sMapMgr->FindMap(bg->GetMapId(), bg->GetInstanceID()));
 
                 queue.RemovePlayer(bot->GetGUID(), false);
 
@@ -130,10 +134,12 @@ public:
                 bot->GetBotAI()->SetBG(bg);
 
                 TeamId teamId = BotDataMgr::GetTeamIdForFaction(bot->GetFaction());
-                BotMgr::TeleportBot(const_cast<Creature*>(bot), bgPlayer->GetMap(), bg->GetTeamStartPosition(teamId), true, false);
+                BotMgr::TeleportBot(const_cast<Creature*>(bot), bgMap, bg->GetTeamStartPosition(teamId), true, false);
             }
-            else if (bgPlayer && bgPlayer->InBattlegroundQueue() && bgPlayer->GetBattlegroundQueueIndex(_bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES)
-                botBGJoinEvents.at(_playerGUID).AddEventAtOffset(new BotBattlegroundEnterEvent(_playerGUID, _botGUID, _bgQueueTypeId, _removeTime), 2s);
+            else if (std::any_of(queue.m_QueuedPlayers.cbegin(), queue.m_QueuedPlayers.cend(), [=](BattlegroundQueue::QueuedPlayersMap::value_type const& qpm_pair) {
+                return qpm_pair.first.IsPlayer() && qpm_pair.second->IsInvitedToBGInstanceGUID == my_gqi->IsInvitedToBGInstanceGUID;
+            }))
+                botBGJoinEvents.at(_playerGUID).AddEventAtOffset(new BotBattlegroundEnterEvent(_playerGUID, _botGUID, _bgQueueTypeId, _bgTypeId, _removeTime), 2s);
             else
                 AbortAll();
         }
@@ -327,6 +333,8 @@ private:
             //force level range for bgs
             bot_template.minlevel = std::min<uint32>(bracketEntry->minLevel, max_level);
             bot_template.maxlevel = std::min<uint32>(bracketEntry->maxLevel, max_level);
+            if (sWorld->getBoolConfig(CONFIG_BG_XP_FOR_KILL))
+                bot_template.flags_extra &= ~(CREATURE_FLAG_EXTRA_NO_XP);
         }
         else
         {
@@ -477,8 +485,8 @@ public:
         }
 
         decltype (_spareBotIdsPerClassMap) teamSpareBotIdsPerClass;
-        BotBrackets bracketPcts{};
-        BotBrackets bots_per_bracket{};
+        PctBrackets bracketPcts{};
+        PctBrackets bots_per_bracket{};
 
         if (team == -1)
         {
@@ -799,9 +807,11 @@ void BotDataMgr::LoadNpcBots(bool spawn)
     else
         LOG_INFO("server.loading", ">> Bots transmog data is not loaded. Table `characters_npcbot_transmog` is empty!");
 
-    //                                       0      1      2      3     4        5          6          7          8          9               10          11          12         13
-    result = CharacterDatabase.Query("SELECT entry, owner, roles, spec, faction, equipMhEx, equipOhEx, equipRhEx, equipHead, equipShoulders, equipChest, equipWaist, equipLegs, equipFeet,"
-    //   14          15          16         17         18            19            20             21             22         23
+    //                                       0      1      2      3     4        5
+    result = CharacterDatabase.Query("SELECT entry, owner, roles, spec, faction, UNIX_TIMESTAMP(hire_time),"
+    //   6          7          8          9               10          11          12         13         14
+        "equipMhEx, equipOhEx, equipRhEx, equipHead, equipShoulders, equipChest, equipWaist, equipLegs, equipFeet,"
+    //   15          16          17         18         19            20            21             22             23         24
         "equipWrist, equipHands, equipBack, equipBody, equipFinger1, equipFinger2, equipTrinket1, equipTrinket2, equipNeck, spells_disabled FROM characters_npcbot");
 
     if (result)
@@ -832,6 +842,7 @@ void BotDataMgr::LoadNpcBots(bool spawn)
             botData->roles =        field[++index].Get<uint32>();
             botData->spec =         field[++index].Get<uint8>();
             botData->faction =      field[++index].Get<uint32>();
+            botData->hire_time =    field[++index].Get<uint64>();
 
             for (uint8 i = BOT_SLOT_MAINHAND; i != BOT_INVENTORY_SIZE; ++i)
                 botData->equips[i] = field[++index].Get<uint32>();
@@ -917,13 +928,6 @@ void BotDataMgr::LoadNpcBots(bool spawn)
     }
     else
         LOG_INFO("server.loading", ">> Loaded 0 npcbots. Table `characters_npcbot` is empty!");
-
-    if (!BotMgr::IsResetOnRestartActive())
-    {
-        CharacterDatabasePreparedStatement* bstmt;
-        bstmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NPCBOT_HIRE_TIME_INIT);
-        CharacterDatabase.Execute(bstmt);
-    }
 
     allBotsLoaded = true;
 }
@@ -1500,6 +1504,7 @@ bool BotDataMgr::GenerateBattlegroundBots(Player const* groupLeader, [[maybe_unu
         sBattlegroundMgr->ScheduleQueueUpdate(ammr, atype, bgqTypeId, bgTypeId, bracketId);
     }, Seconds(2));
 
+    uint8 maxlevel = BotMgr::IsBotLevelCappedByConfigBGFirstPlayer() ? groupLeader->GetLevel() : 0;
     for (NpcBotRegistry const* registry3 : { &spawned_bots_a, &spawned_bots_h })
     {
         uint32 seconds_delay = 5;
@@ -1509,12 +1514,14 @@ bool BotDataMgr::GenerateBattlegroundBots(Player const* groupLeader, [[maybe_unu
             bot->GetBotAI()->canUpdate = false;
 
             const_cast<Creature*>(bot)->SetPvP(true);
+            if (maxlevel && bot->GetLevel() > maxlevel)
+                const_cast<Creature*>(bot)->SetLevel(maxlevel);
             queue->AddBotAsGroup(bot->GetGUID(), GetTeamIdForFaction(bot->GetFaction()),
                 bgTypeId, bracketEntry, atype, false, gqinfo->ArenaTeamRating, ammr);
 
             seconds_delay = std::min<uint32>(uint32(MINUTE * 2), seconds_delay + std::max<uint32>(1u, uint32((MINUTE / 2) / std::max<uint32>(needed_bots_count_a, needed_bots_count_h))));
 
-            BotBattlegroundEnterEvent* bbe = new BotBattlegroundEnterEvent(groupLeader->GetGUID(), bot->GetGUID(), bgqTypeId,
+            BotBattlegroundEnterEvent* bbe = new BotBattlegroundEnterEvent(groupLeader->GetGUID(), bot->GetGUID(), bgqTypeId, bgTypeId,
                 botBGJoinEvents[groupLeader->GetGUID()].CalculateTime(Milliseconds(uint32(INVITE_ACCEPT_WAIT_TIME) + uint32(BG_START_DELAY_2M)).count()));
             botBGJoinEvents[groupLeader->GetGUID()].AddEventAtOffset(bbe, Seconds(seconds_delay));
         }
@@ -1996,7 +2003,7 @@ void BotDataMgr::CreateWanderingBotsSortedGear()
                 {
                     uint32 minlvl = std::max<uint32>(lstep * ITEM_SORTING_LEVEL_STEP, 1);
                     uint32 maxlvl = (lstep + 1) * ITEM_SORTING_LEVEL_STEP - 1;
-                    LOG_WARN("server.loading", "No items for class {} slot {} at levels {}-{}!", c, s, minlvl, maxlvl);
+                    LOG_DEBUG("npcbots", "No items for class {} slot {} at levels {}-{}!", c, s, minlvl, maxlvl);
                 }
             }
         }
@@ -2312,15 +2319,19 @@ void BotDataMgr::UpdateNpcBotData(uint32 entry, NpcBotDataUpdateType updateType,
     switch (updateType)
     {
         case NPCBOT_UPDATE_OWNER:
+        {
             if (itr->second->owner == *(uint32*)(data))
                 break;
             itr->second->owner = *(uint32*)(data);
+            itr->second->hire_time = itr->second->owner ? uint64(time(0)) : 1ULL;
             bstmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NPCBOT_OWNER);
-            //"UPDATE characters_npcbot SET owner = ? WHERE entry = ?", CONNECTION_ASYNC
+            //"UPDATE characters_npcbot SET owner = ?, hire_time = FROM_UNIXTIME(?) WHERE entry = ?", CONNECTION_ASYNC
             bstmt->SetData(0, itr->second->owner);
-            bstmt->SetData(1, entry);
+            bstmt->SetData(1, itr->second->hire_time);
+            bstmt->SetData(2, entry);
             CharacterDatabase.Execute(bstmt);
             //break; //no break: erase transmogs
+        }
         [[fallthrough]];
         case NPCBOT_UPDATE_TRANSMOG_ERASE:
             bstmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NPCBOT_TRANSMOG);
@@ -2470,9 +2481,10 @@ void BotDataMgr::UpdateNpcBotDataAll(uint32 playerGuid, NpcBotDataUpdateType upd
     {
         case NPCBOT_UPDATE_OWNER:
             bstmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NPCBOT_OWNER_ALL);
-            //"UPDATE characters_npcbot SET owner = ? WHERE owner = ?", CONNECTION_ASYNC
+            //"UPDATE characters_npcbot SET owner = ?, hire_time = FROM_UNIXTIME(?) WHERE owner = ?", CONNECTION_ASYNC
             bstmt->SetData(0, *(uint32*)(data));
-            bstmt->SetData(1, playerGuid);
+            bstmt->SetData(1, uint64(*(uint32*)(data) ? time(0) : 1ULL));
+            bstmt->SetData(2, playerGuid);
             CharacterDatabase.Execute(bstmt);
             //break; //no break: erase transmogs
         [[fallthrough]];
@@ -2488,27 +2500,6 @@ void BotDataMgr::UpdateNpcBotDataAll(uint32 playerGuid, NpcBotDataUpdateType upd
         default:
             LOG_ERROR("sql.sql", "BotDataMgr:UpdateNpcBotDataAll: unhandled updateType {}", uint32(updateType));
             break;
-    }
-}
-void BotDataMgr::UpdateNpcBotHireTimeData(uint32 entry, NpcBotHireTimeType hireTimeType)
-{
-    CharacterDatabasePreparedStatement* bstmt;
-    switch (hireTimeType)
-    {
-        case NPCBOT_HIRE_TIME_INS:
-        {
-            bstmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_NPCBOT_HIRE_TIME);
-            bstmt->SetData(0, entry);
-            CharacterDatabase.Execute(bstmt);
-            break;
-        }
-        case NPCBOT_HIRE_TIME_DEL:
-        {
-            bstmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NPCBOT_HIRE_TIME);
-            bstmt->SetData(0, entry);
-            CharacterDatabase.Execute(bstmt);
-            break;
-        }
     }
 }
 

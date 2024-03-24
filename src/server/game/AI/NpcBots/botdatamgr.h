@@ -44,13 +44,6 @@ enum NpcBotDataUpdateType
     NPCBOT_UPDATE_END
 };
 
-enum NpcBotHireTimeType
-{
-    NPCBOT_HIRE_TIME_INS                 = 1,
-    NPCBOT_HIRE_TIME_DEL,
-    NPCBOT_HIRE_TIME_END
-};
-
 struct NpcBotData
 {
     typedef std::set<uint32> DisabledSpellsContainer;
@@ -59,6 +52,7 @@ struct NpcBotData
     friend struct WanderingBotsGenerator;
 public:
     uint32 owner;
+    uint64 hire_time;
     uint32 roles;
     uint32 faction;
     uint8 spec;
@@ -66,7 +60,7 @@ public:
     DisabledSpellsContainer disabled_spells;
 
 private:
-    explicit NpcBotData(uint32 iroles, uint32 ifaction, uint8 ispec = 1) : owner(0), roles(iroles), faction(ifaction), spec(ispec)
+    explicit NpcBotData(uint32 iroles, uint32 ifaction, uint8 ispec = 1) : owner(0), hire_time(0), roles(iroles), faction(ifaction), spec(ispec)
     {
         for (uint8 i = 0; i != BOT_INVENTORY_SIZE; ++i)
             equips[i] = 0;
@@ -175,7 +169,6 @@ class BotDataMgr
         static NpcBotData const* SelectNpcBotData(uint32 entry);
         static void UpdateNpcBotData(uint32 entry, NpcBotDataUpdateType updateType, void* data = nullptr);
         static void UpdateNpcBotDataAll(uint32 playerGuid, NpcBotDataUpdateType updateType, void* data = nullptr);
-        static void UpdateNpcBotHireTimeData(uint32 entry, NpcBotHireTimeType hireTimeType);
         static void SaveNpcBotStats(NpcBotStats const* stats);
 
         static NpcBotAppearanceData const* SelectNpcBotAppearance(uint32 entry);

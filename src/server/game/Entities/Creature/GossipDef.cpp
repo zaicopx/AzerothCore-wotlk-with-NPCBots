@@ -215,11 +215,9 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
     }
 
     data << uint32(_questMenu.GetMenuItemCount());      // max count 0x20
-    uint32 count = 0;
 
     for (uint32 iI = 0; iI < _questMenu.GetMenuItemCount(); ++iI)
     {
-        ++count;
         QuestMenuItem const& item = _questMenu.GetItem(iI);
         uint32 questID = item.QuestId;
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
@@ -481,11 +479,18 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
         if (now->tm_wday == 5 || now->tm_wday == 6 || now->tm_wday == 0)
             questXp *= GetExperienceRate(player);
 
-        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
+        // Boxhead Custom | Give more xp depending on individual progression
+        // > Vanilla xp boost
+        if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
             questXp *= 1.5;
 
-        if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
-            questXp *= 2.0;
+        // > TBC xp boost
+        if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
+            questXp *= 2.25;
+
+        // > WotLK xp boost
+        if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 80)
+            questXp *= 3.0;
         */
 
         sScriptMgr->OnQuestComputeXP(player, quest, questXp);
@@ -750,11 +755,18 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     if (now->tm_wday == 5 || now->tm_wday == 6 || now->tm_wday == 0)
         questXp *= GetExperienceRate(player);
 
-    if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
+    // Boxhead Custom | Give more xp depending on individual progression
+    // > Vanilla xp boost
+    if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
         questXp *= 1.5;
 
-    if (sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
-        questXp *= 2.0;
+    // > TBC xp boost
+    if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
+        questXp *= 2.25;
+
+    // > WotLK xp boost
+    if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 80)
+        questXp *= 3.0;
 
     sScriptMgr->OnQuestComputeXP(player, quest, questXp);
     data << questXp;
