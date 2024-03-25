@@ -4950,9 +4950,6 @@ NpcBot.HK.Rate.Honor = 1.0
 
 NpcBot.Fill.Dungeon = 1
 
-#
-###################################################################################################
-
 #    Additional creature hp rates
 Rate.Creature.Elite.BOSS.HP        = 1.0
 Rate.Creature.Elite.BOSS_HEROIC.HP = 1.0
