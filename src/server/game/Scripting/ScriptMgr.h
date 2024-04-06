@@ -442,6 +442,7 @@ public: /* PlayerScript */
     bool CanJoinLfg(Player* player, uint8 roles, lfg::LfgDungeonSet& dungeons, const std::string& comment);
     bool CanEnterMap(Player* player, MapEntry const* entry, InstanceTemplate const* instance, MapDifficulty const* mapDiff, bool loginCheck);
     bool CanInitTrade(Player* player, Player* target);
+    bool CanSetTradeItem(Player* player, Item* tradedItem, uint8 tradeSlot);
     void OnSetServerSideVisibility(Player* player, ServerSideVisibilityType& type, AccountTypes& sec);
     void OnSetServerSideVisibilityDetect(Player* player, ServerSideVisibilityType& type, AccountTypes& sec);
     void OnPlayerResurrect(Player* player, float restore_percent, bool applySickness);
@@ -471,6 +472,7 @@ public: /* PlayerScript */
 
 public: /* AccountScript */
     void OnAccountLogin(uint32 accountId);
+    void OnBeforeAccountDelete(uint32 accountId);
     void OnLastIpUpdate(uint32 accountId, std::string ip);
     void OnFailedAccountLogin(uint32 accountId);
     void OnEmailChange(uint32 accountId);
@@ -548,7 +550,8 @@ public: /* UnitScript */
     bool IsNeedModHealPercent(Unit const* unit, AuraEffect* auraEff, float& doneTotalMod, SpellInfo const* spellProto);
     bool CanSetPhaseMask(Unit const* unit, uint32 newPhaseMask, bool update);
     bool IsCustomBuildValuesUpdate(Unit const* unit, uint8 updateType, ByteBuffer& fieldBuffer, Player const* target, uint16 index);
-    bool OnBuildValuesUpdate(Unit const* unit, uint8 updateType, ByteBuffer& fieldBuffer, Player* target, uint16 index);
+    bool ShouldTrackValuesUpdatePosByIndex(Unit const* unit, uint8 updateType, uint16 index);
+    void OnPatchValuesUpdate(Unit const* unit, ByteBuffer& valuesUpdateBuf, BuildValuesCachePosPointers& posPointers, Player* target);
     void OnUnitUpdate(Unit* unit, uint32 diff);
     void OnDisplayIdChange(Unit* unit, uint32 displayId);
     void OnUnitEnterEvadeMode(Unit* unit, uint8 why);
