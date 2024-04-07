@@ -516,7 +516,7 @@ void GameObject::Update(uint32 diff)
                                     UpdateData udata;
                                     WorldPacket packet;
                                     BuildValuesUpdateBlockForPlayer(&udata, caster->ToPlayer());
-                                    udata.BuildPacket(&packet);
+                                    udata.BuildPacket(packet);
                                     caster->ToPlayer()->GetSession()->SendPacket(&packet);
 
                                     SendCustomAnim(GetGoAnimProgress());
@@ -2843,7 +2843,7 @@ GameObject* GameObject::GetLinkedTrap()
     return ObjectAccessor::GetGameObject(*this, m_linkedTrap);
 }
 
-void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
+void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
 {
     if (!target)
         return;
