@@ -353,6 +353,7 @@ ElunaRegister<Unit> UnitMethods[] =
     { "SetStandState", &LuaUnit::SetStandState },
     { "SetInCombatWith", &LuaUnit::SetInCombatWith },
     { "ModifyPower", &LuaUnit::ModifyPower },
+    { "SetImmuneTo", &LuaUnit::SetImmuneTo },
 
     // Boolean
     { "IsAlive", &LuaUnit::IsAlive },
@@ -401,6 +402,7 @@ ElunaRegister<Unit> UnitMethods[] =
 #endif
 
     // Other
+    { "HandleStatModifier", &LuaUnit::HandleStatModifier },
     { "AddAura", &LuaUnit::AddAura },
     { "RemoveAura", &LuaUnit::RemoveAura },
     { "RemoveAllAuras", &LuaUnit::RemoveAllAuras },
@@ -472,6 +474,7 @@ ElunaRegister<Player> PlayerMethods[] =
     { "GetGuild", &LuaPlayer::GetGuild },
     { "GetAccountId", &LuaPlayer::GetAccountId },
     { "GetAccountName", &LuaPlayer::GetAccountName },
+    { "GetCompletedQuestsCount", &LuaPlayer::GetCompletedQuestsCount },
 #if defined (TBC) || defined (WOTLK)
     { "GetArenaPoints", &LuaPlayer::GetArenaPoints },
     { "GetHonorPoints", &LuaPlayer::GetHonorPoints },
@@ -492,6 +495,8 @@ ElunaRegister<Player> PlayerMethods[] =
     { "GetRestBonus", &LuaPlayer::GetRestBonus },
 #ifdef WOTLK
     { "GetPhaseMaskForSpawn", &LuaPlayer::GetPhaseMaskForSpawn },
+    { "GetAchievementPoints", &LuaPlayer::GetAchievementPoints },
+    { "GetCompletedAchievementsCount", &LuaPlayer::GetCompletedAchievementsCount },
 #endif
     { "GetReqKillOrCastCurrentCount", &LuaPlayer::GetReqKillOrCastCurrentCount },
     { "GetQuestStatus", &LuaPlayer::GetQuestStatus },
@@ -568,6 +573,7 @@ ElunaRegister<Player> PlayerMethods[] =
     { "SetRankPoints", &LuaPlayer::SetRankPoints },
     { "SetHonorLastWeekStandingPos", &LuaPlayer::SetHonorLastWeekStandingPos },
 #endif
+    { "SetSpellPower", &LuaPlayer::SetSpellPower },
     { "SetLifetimeKills", &LuaPlayer::SetLifetimeKills },
     { "SetGameMaster", &LuaPlayer::SetGameMaster },
     { "SetGMChat", &LuaPlayer::SetGMChat },
@@ -593,6 +599,10 @@ ElunaRegister<Player> PlayerMethods[] =
 #endif
 
     // Boolean
+    { "HasTankSpec", &LuaPlayer::HasTankSpec },
+    { "HasMeleeSpec", &LuaPlayer::HasMeleeSpec },
+    { "HasCasterSpec", &LuaPlayer::HasCasterSpec },
+    { "HasHealSpec", &LuaPlayer::HasHealSpec },
     { "IsInGroup", &LuaPlayer::IsInGroup },
     { "IsInGuild", &LuaPlayer::IsInGuild },
     { "IsGM", &LuaPlayer::IsGM },
@@ -1075,6 +1085,7 @@ ElunaRegister<Spell> SpellMethods[] =
     { "GetEntry", &LuaSpell::GetEntry },
     { "GetDuration", &LuaSpell::GetDuration },
     { "GetPowerCost", &LuaSpell::GetPowerCost },
+    { "GetReagentCost", &LuaSpell::GetReagentCost },
     { "GetTargetDest", &LuaSpell::GetTargetDest },
     { "GetTarget", &LuaSpell::GetTarget },
 

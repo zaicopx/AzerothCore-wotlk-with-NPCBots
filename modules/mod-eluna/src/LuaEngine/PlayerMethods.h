@@ -406,6 +406,50 @@ namespace LuaPlayer
 #endif
 
     /**
+     * Returns `true` if the [Player] has a Tank Specialization, `false` otherwise.
+     *
+     * @return bool HasTankSpec
+     */
+    int HasTankSpec(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->HasTankSpec());
+        return 1;
+    }
+    
+    /**
+     * Returns `true` if the [Player] has a Melee Specialization, `false` otherwise.
+     *
+     * @return bool HasMeleeSpec
+     */
+    int HasMeleeSpec(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->HasMeleeSpec());
+        return 1;
+    }
+    
+    /**
+     * Returns `true` if the [Player] has a Caster Specialization, `false` otherwise.
+     *
+     * @return bool HasCasterSpec
+     */
+    int HasCasterSpec(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->HasCasterSpec());
+        return 1;
+    }
+    
+    /**
+     * Returns `true` if the [Player] has a Heal Specialization, `false` otherwise.
+     *
+     * @return bool HasHealSpec
+     */
+    int HasHealSpec(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->HasHealSpec());
+        return 1;
+    }
+
+    /**
      * Returns `true` if the [Player] is in a [Group], `false` otherwise.
      *
      * @return bool isInGroup
@@ -857,6 +901,51 @@ namespace LuaPlayer
     int GetPhaseMaskForSpawn(lua_State* L, Player* player)
     {
         Eluna::Push(L, player->GetPhaseMaskForSpawn());
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]s current amount of Achievement Points
+     *
+     * @return uint32 achievementPoints
+     */
+    int GetAchievementPoints(lua_State* L, Player* player)
+    {
+        uint32 count = 0;
+        const CompletedAchievementMap& completedAchievements = player->GetAchievementMgr()->GetCompletedAchievements();
+        for (auto& pair : completedAchievements)
+        {
+            AchievementEntry const* achievement = sAchievementStore.LookupEntry(pair.first);
+            if (achievement)
+            {
+                count += achievement->points;
+            }
+        }
+
+        Eluna::Push(L, count);
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]s current amount of Achievements Completed
+     *
+     * @return uint32 achievementsCount
+     */
+    int GetCompletedAchievementsCount(lua_State* L, Player* player)
+    {
+        uint32 count = 0;
+        bool countFeatsOfStrength = Eluna::CHECKVAL<bool>(L, 2, false);
+        const CompletedAchievementMap& completedAchievements = player->GetAchievementMgr()->GetCompletedAchievements();
+        for (auto& pair : completedAchievements)
+        {
+            AchievementEntry const* achievement = sAchievementStore.LookupEntry(pair.first);
+            if (achievement && (achievement->categoryId != 81 || countFeatsOfStrength))
+            {               
+                    count++;             
+            }
+        }
+
+        Eluna::Push(L, count);
         return 1;
     }
 #endif
@@ -1684,6 +1773,19 @@ namespace LuaPlayer
         if (AccountMgr::GetName(player->GetSession()->GetAccountId(), accName))
 #endif
             Eluna::Push(L, accName);
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]s completed quest count
+     *
+     * @return int32 questcount
+     */
+    int GetCompletedQuestsCount(lua_State* L, Player* player)
+    {
+        uint32 count = player->GetRewardedQuestCount();
+
+        Eluna::Push(L, count);
         return 1;
     }
 
@@ -4265,6 +4367,21 @@ namespace LuaPlayer
     {
         Eluna::Push(L, player->GetTrader());
         return 1;
+    }
+
+    /**
+     * The [Player] sets the spell power
+     *
+     * @param int value : The spell power value to set
+     * @param bool apply = false : Whether the spell power should be applied or removed
+     */
+    int SetSpellPower(lua_State* L, Player* player)
+    {
+        int value  = Eluna::CHECKVAL<int>(L, 2);
+        bool apply = Eluna::CHECKVAL<bool>(L, 3, false);
+
+        player->ApplySpellPowerBonus(value, apply);
+        return 0;
     }
 
     /*int BindToInstance(lua_State* L, Player* player)

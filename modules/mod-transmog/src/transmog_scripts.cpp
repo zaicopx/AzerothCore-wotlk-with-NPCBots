@@ -416,186 +416,186 @@ public:
         }
         switch (sender)
         {
-        case EQUIPMENT_SLOT_END: // Show items you can use
-            ShowTransmogItems(player, creature, action, sender);
-            break;
-        case EQUIPMENT_SLOT_END + 1: // Main menu
-            OnGossipHello(player, creature);
-            break;
-        case EQUIPMENT_SLOT_END + 2: // Remove Transmogrifications
-        {
-            bool removed = false;
-            auto trans = CharacterDatabase.BeginTransaction();
-            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+            case EQUIPMENT_SLOT_END: // Show items you can use
+                ShowTransmogItems(player, creature, action, sender);
+                break;
+            case EQUIPMENT_SLOT_END + 1: // Main menu
+                OnGossipHello(player, creature);
+                break;
+            case EQUIPMENT_SLOT_END + 2: // Remove Transmogrifications
             {
-                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                bool removed = false;
+                auto trans = CharacterDatabase.BeginTransaction();
+                for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
                 {
-                    if (!sT->GetFakeEntry(newItem->GetGUID()))
-                        continue;
-                    sT->DeleteFakeEntry(player, slot, newItem, &trans);
-                    removed = true;
+                    if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                    {
+                        if (!sT->GetFakeEntry(newItem->GetGUID()))
+                            continue;
+                        sT->DeleteFakeEntry(player, slot, newItem, &trans);
+                        removed = true;
+                    }
                 }
-            }
-            if (removed)
-            {
-                session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
-                CharacterDatabase.CommitTransaction(trans);
-            }
-            else
-                session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
-            OnGossipHello(player, creature);
-        } break;
-        case EQUIPMENT_SLOT_END + 3: // Remove Transmogrification from single item
-        {
-            if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, action))
-            {
-                if (sT->GetFakeEntry(newItem->GetGUID()))
+                if (removed)
                 {
-                    sT->DeleteFakeEntry(player, action, newItem);
                     session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
+                    CharacterDatabase.CommitTransaction(trans);
                 }
                 else
                     session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
-            }
-            OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, action);
-        } break;
-#ifdef PRESETS
-        case EQUIPMENT_SLOT_END + 4: // Presets menu
-        {
-            if (!sT->GetEnableSets())
-            {
                 OnGossipHello(player, creature);
-                return true;
-            }
-            if (sT->GetEnableSetInfo())
-                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|t" + GetLocaleText(locale, "how_sets_work"), EQUIPMENT_SLOT_END + 10, 0);
-            for (Transmogrification::presetIdMap::const_iterator it = sT->presetByName[player->GetGUID()].begin(); it != sT->presetByName[player->GetGUID()].end(); ++it)
-                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + it->second, EQUIPMENT_SLOT_END + 6, it->first);
-
-            if (sT->presetByName[player->GetGUID()].size() < sT->GetMaxSets())
-                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|t" + GetLocaleText(locale, "save_set"), EQUIPMENT_SLOT_END + 8, 0);
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 1, 0);
-            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        } break;
-        case EQUIPMENT_SLOT_END + 5: // Use preset
-        {
-            if (!sT->GetEnableSets())
+            } break;
+            case EQUIPMENT_SLOT_END + 3: // Remove Transmogrification from single item
             {
-                OnGossipHello(player, creature);
-                return true;
-            }
-            // action = presetID
-            for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
-            {
-                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, it->first))
-                    sT->PresetTransmog(player, item, it->second, it->first);
-            }
-            OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 6, action);
-        } break;
-        case EQUIPMENT_SLOT_END + 6: // view preset
-        {
-            if (!sT->GetEnableSets())
-            {
-                OnGossipHello(player, creature);
-                return true;
-            }
-            // action = presetID
-            for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
-                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(it->second, 30, 30, -18, 0) + sT->GetItemLink(it->second, session), sender, action);
-
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + GetLocaleText(locale, "use_set"), EQUIPMENT_SLOT_END + 5, action, GetLocaleText(locale, "confirm_use_set") + sT->presetByName[player->GetGUID()][action], 0, false);
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Opaque:30:30:-18:0|t" + GetLocaleText(locale, "delete_set"), EQUIPMENT_SLOT_END + 7, action, GetLocaleText(locale, "confirm_delete_set") + sT->presetByName[player->GetGUID()][action] + "?", 0, false);
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 4, 0);
-            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        } break;
-        case EQUIPMENT_SLOT_END + 7: // Delete preset
-        {
-            if (!sT->GetEnableSets())
-            {
-                OnGossipHello(player, creature);
-                return true;
-            }
-            // action = presetID
-            CharacterDatabase.Execute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
-            sT->presetById[player->GetGUID()][action].clear();
-            sT->presetById[player->GetGUID()].erase(action);
-            sT->presetByName[player->GetGUID()].erase(action);
-
-            OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
-        } break;
-        case EQUIPMENT_SLOT_END + 8: // Save preset
-        {
-            if (!sT->GetEnableSets() || sT->presetByName[player->GetGUID()].size() >= sT->GetMaxSets())
-            {
-                OnGossipHello(player, creature);
-                return true;
-            }
-            uint32 cost = 0;
-            bool canSave = false;
-            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-            {
-                if (!sT->GetSlotName(slot, session))
-                    continue;
-                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, action))
                 {
-                    uint32 entry = sT->GetFakeEntry(newItem->GetGUID());
-                    if (!entry)
-                        continue;
-                    const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
-                    if (!temp)
-                        continue;
-                    if (!sT->SuitableForTransmogrification(player, temp)) // no need to check?
-                        continue;
-                    cost += sT->GetSpecialPrice(temp);
-                    canSave = true;
-                    AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(entry, 30, 30, -18, 0) + sT->GetItemLink(entry, session), EQUIPMENT_SLOT_END + 8, 0);
+                    if (sT->GetFakeEntry(newItem->GetGUID()))
+                    {
+                        sT->DeleteFakeEntry(player, action, newItem);
+                        session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_UNTRANSMOG_OK));
+                    }
+                    else
+                        session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
                 }
-            }
-            if (canSave)
-                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|t" + GetLocaleText(locale, "save_set"), 0, 0, GetLocaleText(locale, "insert_set_name"), cost * sT->GetSetCostModifier() + sT->GetSetCopperCost(), true);
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:30:30:-18:0|t" + GetLocaleText(locale, "update_menu"), sender, action);
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 4, 0);
-            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        } break;
-        case EQUIPMENT_SLOT_END + 10: // Set info
-        {
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 4, 0);
-            SendGossipMenuFor(player, sT->GetSetNpcText(), creature->GetGUID());
-        } break;
-#endif
-        case EQUIPMENT_SLOT_END + 9: // Transmog info
-        {
-            AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 1, 0);
-            SendGossipMenuFor(player, sT->GetTransmogNpcText(), creature->GetGUID());
-        } break;
-        default: // Transmogrify
-        {
-            if (!sender && !action)
+                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, action);
+            } break;
+    #ifdef PRESETS
+            case EQUIPMENT_SLOT_END + 4: // Presets menu
             {
-                OnGossipHello(player, creature);
-                return true;
-            }
-            // sender = slot, action = display
-            if (sT->GetUseCollectionSystem())
+                if (!sT->GetEnableSets())
+                {
+                    OnGossipHello(player, creature);
+                    return true;
+                }
+                if (sT->GetEnableSetInfo())
+                    AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Book_11:30:30:-18:0|t" + GetLocaleText(locale, "how_sets_work"), EQUIPMENT_SLOT_END + 10, 0);
+                for (Transmogrification::presetIdMap::const_iterator it = sT->presetByName[player->GetGUID()].begin(); it != sT->presetByName[player->GetGUID()].end(); ++it)
+                    AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + it->second, EQUIPMENT_SLOT_END + 6, it->first);
+
+                if (sT->presetByName[player->GetGUID()].size() < sT->GetMaxSets())
+                    AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|t" + GetLocaleText(locale, "save_set"), EQUIPMENT_SLOT_END + 8, 0);
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 1, 0);
+                SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+            } break;
+            case EQUIPMENT_SLOT_END + 5: // Use preset
             {
-                TransmogAcoreStrings res = sT->Transmogrify(player, action, sender);
-                if (res == LANG_ERR_TRANSMOG_OK)
-                    session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_TRANSMOG_OK));
+                if (!sT->GetEnableSets())
+                {
+                    OnGossipHello(player, creature);
+                    return true;
+                }
+                // action = presetID
+                for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
+                {
+                    if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, it->first))
+                        sT->PresetTransmog(player, item, it->second, it->first);
+                }
+                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 6, action);
+            } break;
+            case EQUIPMENT_SLOT_END + 6: // view preset
+            {
+                if (!sT->GetEnableSets())
+                {
+                    OnGossipHello(player, creature);
+                    return true;
+                }
+                // action = presetID
+                for (Transmogrification::slotMap::const_iterator it = sT->presetById[player->GetGUID()][action].begin(); it != sT->presetById[player->GetGUID()][action].end(); ++it)
+                    AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(it->second, 30, 30, -18, 0) + sT->GetItemLink(it->second, session), sender, action);
+
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + GetLocaleText(locale, "use_set"), EQUIPMENT_SLOT_END + 5, action, GetLocaleText(locale, "confirm_use_set") + sT->presetByName[player->GetGUID()][action], 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Opaque:30:30:-18:0|t" + GetLocaleText(locale, "delete_set"), EQUIPMENT_SLOT_END + 7, action, GetLocaleText(locale, "confirm_delete_set") + sT->presetByName[player->GetGUID()][action] + "?", 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 4, 0);
+                SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+            } break;
+            case EQUIPMENT_SLOT_END + 7: // Delete preset
+            {
+                if (!sT->GetEnableSets())
+                {
+                    OnGossipHello(player, creature);
+                    return true;
+                }
+                // action = presetID
+                CharacterDatabase.Execute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
+                sT->presetById[player->GetGUID()][action].clear();
+                sT->presetById[player->GetGUID()].erase(action);
+                sT->presetByName[player->GetGUID()].erase(action);
+
+                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
+            } break;
+            case EQUIPMENT_SLOT_END + 8: // Save preset
+            {
+                if (!sT->GetEnableSets() || sT->presetByName[player->GetGUID()].size() >= sT->GetMaxSets())
+                {
+                    OnGossipHello(player, creature);
+                    return true;
+                }
+                uint32 cost = 0;
+                bool canSave = false;
+                for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+                {
+                    if (!sT->GetSlotName(slot, session))
+                        continue;
+                    if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                    {
+                        uint32 entry = sT->GetFakeEntry(newItem->GetGUID());
+                        if (!entry)
+                            continue;
+                        const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
+                        if (!temp)
+                            continue;
+                        if (!sT->SuitableForTransmogrification(player, temp)) // no need to check?
+                            continue;
+                        cost += sT->GetSpecialPrice(temp);
+                        canSave = true;
+                        AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, sT->GetItemIcon(entry, 30, 30, -18, 0) + sT->GetItemLink(entry, session), EQUIPMENT_SLOT_END + 8, 0);
+                    }
+                }
+                if (canSave)
+                    AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/GuildBankFrame/UI-GuildBankFrame-NewTab:30:30:-18:0|t" + GetLocaleText(locale, "save_set"), 0, 0, GetLocaleText(locale, "insert_set_name"), cost*sT->GetSetCostModifier() + sT->GetSetCopperCost(), true);
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:30:30:-18:0|t" + GetLocaleText(locale, "update_menu"), sender, action);
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 4, 0);
+                SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+            } break;
+            case EQUIPMENT_SLOT_END + 10: // Set info
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 4, 0);
+                SendGossipMenuFor(player, sT->GetSetNpcText(), creature->GetGUID());
+            } break;
+    #endif
+            case EQUIPMENT_SLOT_END + 9: // Transmog info
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/Ability_Spy:30:30:-18:0|t" + GetLocaleText(locale, "back"), EQUIPMENT_SLOT_END + 1, 0);
+                SendGossipMenuFor(player, sT->GetTransmogNpcText(), creature->GetGUID());
+            } break;
+            default: // Transmogrify
+            {
+                if (!sender && !action)
+                {
+                    OnGossipHello(player, creature);
+                    return true;
+                }
+                // sender = slot, action = display
+                if (sT->GetUseCollectionSystem())
+                {
+                    TransmogAcoreStrings res = sT->Transmogrify(player, action, sender);
+                    if (res == LANG_ERR_TRANSMOG_OK)
+                        session->SendAreaTriggerMessage("%s",GTS(LANG_ERR_TRANSMOG_OK));
+                    else
+                        session->SendNotification(res);
+                }
                 else
-                    session->SendNotification(res);
-            }
-            else
-            {
-                TransmogAcoreStrings res = sT->Transmogrify(player, ObjectGuid::Create<HighGuid::Item>(action), sender);
-                if (res == LANG_ERR_TRANSMOG_OK)
-                    session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_TRANSMOG_OK));
-                else
-                    session->SendNotification(res);
-            }
-            // OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, sender);
-            // ShowTransmogItems(player, creature, sender);
-            CloseGossipMenuFor(player); // Wait for SetMoney to get fixed, issue #10053
-        } break;
+                {
+                    TransmogAcoreStrings res = sT->Transmogrify(player, ObjectGuid::Create<HighGuid::Item>(action), sender);
+                    if (res == LANG_ERR_TRANSMOG_OK)
+                        session->SendAreaTriggerMessage("%s",GTS(LANG_ERR_TRANSMOG_OK));
+                    else
+                        session->SendNotification(res);
+                }
+                // OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, sender);
+                // ShowTransmogItems(player, creature, sender);
+                CloseGossipMenuFor(player); // Wait for SetMoney to get fixed, issue #10053
+            } break;
         }
         return true;
     }
@@ -611,7 +611,7 @@ public:
             if (searchString.length() > MAX_SEARCH_STRING_LENGTH)
                 searchString = searchString.substr(0, MAX_SEARCH_STRING_LENGTH);
             sT->searchStringByPlayer.erase(player->GetGUID().GetCounter());
-            sT->searchStringByPlayer.insert({ player->GetGUID().GetCounter(), searchString });
+            sT->searchStringByPlayer.insert({player->GetGUID().GetCounter(), searchString});
             OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, sender - 1);
             return true;
         }
@@ -877,7 +877,7 @@ private:
             return;
         uint32 itemId = itemTemplate->ItemId;
         uint32 accountId = player->GetSession()->GetAccountId();
-        std::string itemName = itemTemplate->Name1;
+        std::string itemName = itemTemplate -> Name1;
 
         // get locale item name
         int loc_idex = player->GetSession()->GetSessionDbLocaleIndex();
@@ -891,9 +891,9 @@ private:
         if (sT->AddCollectedAppearance(accountId, itemId))
         {
             if (showChatMessage)
-                ChatHandler(player->GetSession()).PSendSysMessage(R"(|c%s|Hitem:%u:0:0:0:0:0:0:0:0|h[%s]|h|r %s)", itemQuality.c_str(), itemId, itemName.c_str(), GetLocaleText(locale, "added_appearance"));
+                ChatHandler(player->GetSession()).PSendSysMessage( R"(|c%s|Hitem:%u:0:0:0:0:0:0:0:0|h[%s]|h|r %s)", itemQuality.c_str(), itemId, itemName.c_str(), GetLocaleText(locale, "added_appearance"));
 
-            CharacterDatabase.Execute("INSERT INTO custom_unlocked_appearances (account_id, item_template_id) VALUES ({}, {})", accountId, itemId);
+            CharacterDatabase.Execute( "INSERT INTO custom_unlocked_appearances (account_id, item_template_id) VALUES ({}, {})", accountId, itemId);
         }
     }
 
@@ -970,7 +970,7 @@ public:
         }
     }
 
-    void OnAfterSetVisibleItemSlot(Player* player, uint8 slot, Item* item) override
+    void OnAfterSetVisibleItemSlot(Player* player, uint8 slot, Item *item) override
     {
         if (!item)
             return;
@@ -1097,7 +1097,7 @@ public:
         sT->DeleteFakeFromDB(itemGuid, &trans);
     }
 
-    void OnMirrorImageDisplayItem(const Item* item, uint32& display) override
+    void OnMirrorImageDisplayItem(const Item *item, uint32 &display) override
     {
         if (uint32 entry = sTransmogrification->GetFakeEntry(item->GetGUID()))
         {
@@ -1107,7 +1107,7 @@ public:
             }
             else
             {
-                display = uint32(sObjectMgr->GetItemTemplate(entry)->DisplayInfoID);
+                display=uint32(sObjectMgr->GetItemTemplate(entry)->DisplayInfoID);
             }
         }
     }
