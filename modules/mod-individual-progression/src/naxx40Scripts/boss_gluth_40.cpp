@@ -116,8 +116,8 @@ public:
             events.ScheduleEvent(EVENT_ENRAGE, 22000);
             events.ScheduleEvent(EVENT_DECIMATE, 105000);
             events.ScheduleEvent(EVENT_BERSERK, 360000);
-            events.ScheduleEvent(EVENT_SUMMON_ZOMBIE, 7000);
-            //events.ScheduleEvent(EVENT_CAN_EAT_ZOMBIE, 1000);
+            events.ScheduleEvent(EVENT_SUMMON_ZOMBIE, 10000);
+            events.ScheduleEvent(EVENT_CAN_EAT_ZOMBIE, 1000);
         }
 
         void JustSummoned(Creature* summon) override
