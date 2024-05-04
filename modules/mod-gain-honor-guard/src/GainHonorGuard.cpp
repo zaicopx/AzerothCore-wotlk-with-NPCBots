@@ -170,7 +170,7 @@ public:
 
             ChatHandler(player->GetSession()).PSendSysMessage(ss.str().c_str(), honor);
         }
-        else if (GainHonorGuardOnEliteKill && killed->ToCreature()->isElite() && GainHonorGuardOnEliteKillAnnounce)
+        else if (GainHonorGuardOnEliteKill && GainHonorGuardOnEliteKillAnnounce && (killed->ToCreature()->IsDungeonBoss() || killed->ToCreature()->isWorldBoss()))
         {
             std::ostringstream ss;
             uint32 loc = player->GetSession()->GetSessionDbLocaleIndex();
@@ -191,7 +191,7 @@ public:
             return;
         if (!killed && killed->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return;
-        if ((!GainHonorGuardOnGuardKill || !killed->ToCreature()->IsGuard()) && (!GainHonorGuardOnEliteKill || !killed->ToCreature()->isElite()))
+        if ((!GainHonorGuardOnGuardKill || !killed->ToCreature()->IsGuard()) && (!GainHonorGuardOnEliteKill || !killed->ToCreature()->IsDungeonBoss() || !killed->ToCreature()->isWorldBoss()))
             return;
 
         const int groupsize = GetNumInGroup(player); //Determine if it was a gang beatdown
