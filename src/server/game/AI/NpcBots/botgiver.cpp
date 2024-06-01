@@ -249,8 +249,8 @@ public:
                         break;
                     }
 
-                    bot_ai* ai = bot->GetBotAI();
-                    if (bot->IsInCombat() || !bot->IsAlive() || bot_ai::CCed(bot) || ai->IsDuringTeleport() ||
+                    bot_ai const* ai = bot->GetBotAI();
+                    if (bot->IsInCombat() || !bot->IsAlive() || bot_ai::CCed(bot) ||
                         bot->HasUnitState(UNIT_STATE_CASTING) || ai->GetBotOwnerGuid() || bot->HasAura(BERSERK))
                     {
                         //TC_LOG_ERROR("entities.unit", "HIRE_NBOT_ENTRY: bot %u (%s) is unavailable all of the sudden!", entry);
