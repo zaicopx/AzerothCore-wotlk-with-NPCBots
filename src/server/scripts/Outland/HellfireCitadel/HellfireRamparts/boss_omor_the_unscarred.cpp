@@ -69,12 +69,22 @@ struct boss_omor_the_unscarred : public BossAI
         _JustEngagedWith();
         scheduler.Schedule(6s, [this](TaskContext context)
         {
-            if (roll_chance_i(33))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
             {
-                Talk(SAY_CURSE);
+                if (!target->IsNPCBotOrPet())
+                {
+                    if (roll_chance_i(33))
+                    {
+                        Talk(SAY_CURSE);
+                    }
+                    DoCast(target, SPELL_TREACHEROUS_AURA);
+                    context.Repeat(12s, 18s);
+                }
+                else
+                {
+                    context.Repeat(1s, 2s);
+                }
             }
-            DoCastRandomTarget(SPELL_TREACHEROUS_AURA);
-            context.Repeat(12s, 18s);
         }).Schedule(10s, [this](TaskContext /*context*/)
         {
             DoCastSelf(SPELL_SUMMON_FIENDISH_HOUND);
