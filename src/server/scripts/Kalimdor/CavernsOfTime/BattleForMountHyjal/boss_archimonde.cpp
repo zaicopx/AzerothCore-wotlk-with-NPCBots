@@ -97,8 +97,9 @@ uint32 const availableChargeAurasAndSpells[3][2] = {
 
 Position const nordrassilPosition = { 5503.713f, -3523.436f, 1608.781f, 0.0f };
 
-float const DOOMFIRE_OFFSET = 15.0f;
+float const DOOMFIRE_OFFSET = 25.0f;
 uint8 const WISP_OFFSET = 40;
+uint8 NEAR_POINT = 0;
 
 struct npc_ancient_wisp : public ScriptedAI
 {
@@ -143,6 +144,39 @@ struct npc_ancient_wisp : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
+    }
+private:
+    InstanceScript* _instance;
+};
+
+struct npc_doomfire_spirit : public ScriptedAI
+{
+    npc_doomfire_spirit(Creature* creature) : ScriptedAI(creature)
+    {
+        _instance = creature->GetInstanceScript();
+    }
+
+    void Reset() override
+    {
+        scheduler.CancelAll();
+        ScheduleTimedEvent(0s, [&]{
+            if (Creature* archimonde = _instance->GetCreature(DATA_ARCHIMONDE))
+            {
+                Position randomNearPosition = archimonde->GetRandomNearPosition(200.0f);
+                me->GetMotionMaster()->MovePoint(NEAR_POINT, randomNearPosition);
+            }
+        }, 6s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
     }
 private:
     InstanceScript* _instance;
@@ -262,10 +296,7 @@ struct boss_archimonde : public BossAI
         }, 25s, 40s);
         ScheduleTimedEvent(25s, 35s, [&]
         {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false))
-            {
-                DoCastDoomFire(target);
-            }
+            DoCastDoomFire();
         }, 20s);
         ScheduleTimedEvent(25s, 35s, [&]
         {
@@ -311,6 +342,10 @@ struct boss_archimonde : public BossAI
                 DoCastRandomTarget(SPELL_FINGER_OF_DEATH);
             }
         }, 3500ms);
+        ScheduleTimedEvent(10min, [&]
+        {
+            DoCastRandomTarget(SPELL_FINGER_OF_DEATH);
+        }, 3500ms);
 
         instance->SetData(DATA_SPAWN_WAVES, 1);
     }
@@ -329,22 +364,22 @@ struct boss_archimonde : public BossAI
     {
         switch (player->getClass())
         {
-            case CLASS_PRIEST:
             case CLASS_PALADIN:
+            case CLASS_PRIEST:
             case CLASS_WARLOCK:
                 player->CastSpell(me, SPELL_SOUL_CHARGE_RED, true);
                 break;
+            case CLASS_DEATH_KNIGHT:
             case CLASS_MAGE:
             case CLASS_ROGUE:
             case CLASS_WARRIOR:
                 player->CastSpell(me, SPELL_SOUL_CHARGE_YELLOW, true);
                 break;
             case CLASS_DRUID:
-            case CLASS_SHAMAN:
             case CLASS_HUNTER:
+            case CLASS_SHAMAN:
                 player->CastSpell(me, SPELL_SOUL_CHARGE_GREEN, true);
                 break;
-            case CLASS_DEATH_KNIGHT:
             case CLASS_NONE:
             default:
                 break;
@@ -391,12 +426,12 @@ struct boss_archimonde : public BossAI
         }
     }
 
-    void DoCastDoomFire(Unit* target)
+    void DoCastDoomFire()
     {
         // hack because spell doesn't work?
         Talk(SAY_DOOMFIRE);
-        Position spiritPosition = { target->GetPositionX() + DOOMFIRE_OFFSET,  target->GetPositionY() + DOOMFIRE_OFFSET, target->GetPositionZ(), 0.0f };
-        Position doomfirePosition = { target->GetPositionX() - DOOMFIRE_OFFSET,  target->GetPositionY() - DOOMFIRE_OFFSET, target->GetPositionZ(), 0.0f };
+        Position spiritPosition = me->GetRandomNearPosition(DOOMFIRE_OFFSET);
+        Position doomfirePosition = me->GetRandomNearPosition(DOOMFIRE_OFFSET);
         if (Creature* doomfireSpirit = me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT, spiritPosition, TEMPSUMMON_TIMED_DESPAWN, 27000))
         {
             if (Creature* doomfire = me->SummonCreature(CREATURE_DOOMFIRE, doomfirePosition, TEMPSUMMON_TIMED_DESPAWN, 27000))
@@ -508,5 +543,6 @@ void AddSC_boss_archimonde()
     RegisterSpellScript(spell_finger_of_death);
     RegisterHyjalAI(boss_archimonde);
     RegisterHyjalAI(npc_ancient_wisp);
+    RegisterHyjalAI(npc_doomfire_spirit);
 }
 
