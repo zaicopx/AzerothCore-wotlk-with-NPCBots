@@ -2769,14 +2769,6 @@ class spell_yogg_saron_sanity_reduce : public SpellScript
         if (Aura* aur = target->GetAura(SPELL_SANITY))
         {
             if ((aur->GetStackAmount() - _reduceAmount) <= 20)
-                target->CastSpell(target, 63752 /*SANITY_SCREEN_EFFECT*/, true);
-            //aur->ModStackAmount(-_reduceAmount);
-            aur->ModStackAmount(100);
-        }
-
-        if (Aura* aur = target->GetAura(SPELL_SANITY))
-        {
-            if ((aur->GetStackAmount() - _reduceAmount) <= 20)
                 target->CastSpell(target, SPELL_SANITY_SCREEN_EFFECT, true);
             aur->ModStackAmount(-_reduceAmount);
         }
