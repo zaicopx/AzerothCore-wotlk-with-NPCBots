@@ -1,10 +1,13 @@
 [worldserver]                                        
 ###################################################################################################
-#  SOLOCRAFT RAID
+#  RaidAdjustment
 ###################################################################################################
 
 # Enable the module? (1: true | 0: false)
-SolocraftRaid.Enable = 1
+RaidAdjustment.Enable = 1
 
-# Health Mult
-SoloCraftRaid.Health.Mult = 2.5
+# Percent of melee damage taken
+RaidAdjustment.DamageTaken.Melee = 0.75
+
+# Percent of spell damage taken
+RaidAdjustment.DamageTaken.Spell = 0.75
