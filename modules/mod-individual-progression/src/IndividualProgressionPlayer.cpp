@@ -147,6 +147,23 @@ public:
         {
             return;
         }
+
+        // Boxhead Custom | Give more xp depending on individual progression
+        // > Vanilla xp boost
+        if (xpSource == XPSOURCE_QUEST || xpSource == XPSOURCE_QUEST_DF)
+        {
+            if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && player->GetLevel() < 60)
+                amount *= 1.5;
+
+            // > TBC xp boost
+            if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_TBC_TIER_5) && !sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 70)
+                amount *= 2.25;
+
+            // > WotLK xp boost
+            if (sIndividualProgression->enabled && sIndividualProgression->hasPassedProgression(player, PROGRESSION_WOTLK_TIER_5) && player->GetLevel() < 80)
+                amount *= 3.0;
+        }
+
         // Player is still in Vanilla content - do not give XP past level 60
         if (!sIndividualProgression->hasPassedProgression(player, PROGRESSION_NAXX40) && player->GetLevel() >= 60)
         {
