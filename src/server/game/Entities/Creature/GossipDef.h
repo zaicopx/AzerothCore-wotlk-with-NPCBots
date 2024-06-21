@@ -287,11 +287,13 @@ public:
     void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const;
     void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const;
 
+    uint32 CalculateCustomQuestXpExtras(Player* player, uint32 questXp) const;
 private:
     GossipMenu _gossipMenu;
     QuestMenu  _questMenu;
     WorldSession* _session;
 
-    float GetExperienceRate(Player* player) const;
+    float GetXpWeekendExperienceRate(Player* player) const;
+    bool IsXpWeekendEventActive() const;
 };
 #endif

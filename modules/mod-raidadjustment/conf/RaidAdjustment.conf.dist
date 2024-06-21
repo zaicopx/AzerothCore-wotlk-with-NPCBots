@@ -1,0 +1,13 @@
+[worldserver]                                        
+###################################################################################################
+#  RaidAdjustment
+###################################################################################################
+
+# Enable the module? (1: true | 0: false)
+RaidAdjustment.Enable = 1
+
+# Percent of melee damage taken
+RaidAdjustment.DamageTaken.Melee = 0.75
+
+# Percent of spell damage taken
+RaidAdjustment.DamageTaken.Spell = 0.75
